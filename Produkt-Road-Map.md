@@ -5,16 +5,20 @@ Blutdruck App zum Blutdruckwerte tracken. Patienten, die gerne ihren Blutdruck t
 Version 1.0 – Blutdruckwerte eintragen (MVP, Abgabe 5.5)
 1.	Nutzerprofil erstellen
 2.	Blutdruckwerte eingeben können und abspeichern können
+
 Version 2.0 – Zusatzfeatures Blutdruck
 1.	Gespeicherte Werte nachschauen können
 2.	Werte in einem Diagramm darstellen
 3.	Warnhinweise
+
 Version 3.0 – Mediplan, Daten als pdf herunterladen
 1.	Mediplan erstellen
 2.	Werte vom Blutdruck als pdf herunterladen können
+
 Version 4.0 – Notfallnummern, Informationstexte
 1.	Notfallnummern nachschauen können
 2.	Eigene Notfallnummer/kontakt hinterlegen
 3.	Informationstexte
+
 Version 5.0 – Bewegung tracken
 1.	Bewegung tracken (wahrscheinlich eher weglassen)
