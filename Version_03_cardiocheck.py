@@ -51,17 +51,45 @@ def initialize_session_state():
 initialize_session_state()
 
 def save_user_profiles_and_upload(user_profiles):
-    user_profiles.to_csv(USER_DATA_FILE)
-    repo = init_github()
-    upload_csv_to_github(USER_DATA_FILE, repo)
+    try:
+        # Versuche, die CSV lokal zu speichern
+        user_profiles.to_csv(USER_DATA_FILE)
+        st.success('Lokales Speichern der Benutzerdaten erfolgreich!')
+    except Exception as e:
+        st.error(f'Fehler beim lokalen Speichern der Benutzerdaten: {e}')
+        return False  # Beendet die Funktion frühzeitig, wenn das lokale Speichern fehlschlägt
 
-def register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+    try:
+        # Initialisiere GitHub-Repository
+        repo = init_github()
+        upload_csv_to_github(USER_DATA_FILE, repo)
+        return True
+    except Exception as e:
+        st.error(f'Fehler beim Hochladen der Daten auf GitHub: {e}')
+        return False
+
+def register_user(username, password, name=None, vorname=None, geschlecht=None, geburtstag=None, gewicht=None, groesse=None):
     user_profiles = load_user_profiles()
     if username in user_profiles.index:
         st.error("Username already taken. Please choose another.")
         return False
+
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    user_profiles.loc[username] = [hashed_pw, name, vorname, geschlecht, geburtstag, gewicht, groesse]
+
+    user_details = {
+        'password_hash': hashed_pw,
+        'name': name,
+        'vorname': vorname,
+        'geschlecht': geschlecht,
+        'geburtstag': geburtstag.strftime('%Y-%m-%d') if geburtstag else None,
+        'gewicht': gewicht,
+        'groesse': groesse,
+        'measurements': [],
+        'medication_plan': [],
+        'fitness_activities': []
+    }
+
+    user_profiles.loc[username] = user_details
     save_user_profiles_and_upload(user_profiles)
     st.success("User registered successfully!")
     return True
@@ -126,21 +154,6 @@ def store_additional_info(username, vorerkrankungen, medikamente, medication_tim
     user_details['medikamente'] = medikamente
     user_details['medication_times'] = medication_times
     store_detailed_user_profile(username, user_details)
-
-def register_user(username, password):
-    if username not in st.session_state['users']:
-        st.session_state['users'][username] = {
-            'password': password,
-            'details': {
-                'measurements': [],
-                'medication_plan': [],
-                'fitness_activities': []
-            }
-        }
-        save_user_profiles_and_upload()
-        return True
-    st.error("Benutzername bereits vergeben. Bitte wählen Sie einen anderen.")
-    return False
 
 def verify_login(username, password):
     user = st.session_state['users'].get(username)
@@ -369,21 +382,23 @@ def show_info_page():
         st.success(f"Informationen zu {info_options} gespeichert!")
 
 def show_registration_form():
-    st.write("Registrieren")
-    username = st.text_input("Benutzername")
-    password = st.text_input("Passwort", type="password")
-    name = st.text_input("Name")
-    vorname = st.text_input("Vorname")
-    geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-    geburtstag = st.date_input("Geburtstag")
-    gewicht = st.number_input("Gewicht (kg)", format='%f')
-    groesse = st.number_input("Größe (cm)", format='%f')
+    with st.form("registration_form"):
+        st.write("Registrieren")
+        username = st.text_input("Benutzername")
+        password = st.text_input("Passwort", type="password")
+        name = st.text_input("Name")
+        vorname = st.text_input("Vorname")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+        geburtstag = st.date_input("Geburtstag")
+        gewicht = st.number_input("Gewicht (kg)", format='%f')
+        groesse = st.number_input("Größe (cm)", format='%f')
+        submit_button = st.form_submit_button("Registrieren")
 
-    if st.button("Register"):
-        if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-            st.success("Registrierung erfolgreich!")
-        else:
-            st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
+        if submit_button:
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+                st.success("Registrierung erfolgreich!")
+            else:
+                st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
 def show_login_form():
     with st.form("login_form"):
         st.write("Einloggen")
