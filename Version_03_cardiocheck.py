@@ -647,7 +647,7 @@ elif st.session_state['page'] == 'home_screen':
 elif st.session_state['page'] == 'profile':
     show_profile()
 elif st.session_state['page'] == 'measurements':
-    show_measurements()
+    show_measurements_form()
 elif st.session_state['page'] == 'medication-plan':
     show_medication_plan()
 elif st.session_state['page'] == 'Fitness':
