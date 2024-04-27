@@ -122,18 +122,18 @@ def user_interface():
             st.session_state['page'] = 'home_screen'
 
     if st.button("Register"):
-        name = st.text_input("Name")
-        vorname = st.text_input("Vorname")
-        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        # Set the minimum allowable date to January 1, 1930
-        geburtstag = st.date_input("Geburtstag", min_value=datetime.date(1930, 1, 1), max_value=datetime.date.today())
-        gewicht = st.number_input("Gewicht (kg)", format='%f')
-        groesse = st.number_input("Größe (cm)", format='%f')
+        name = st.text_input("Name", key="name")
+        vorname = st.text_input("Vorname", key="vorname")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'], key="geschlecht")
+        # Das Mindestdatum auf den 1. Januar 1930 setzen
+        geburtstag = st.date_input("Geburtstag", min_value=datetime.date(1930, 1, 1), max_value=datetime.date.today(), key="geburtstag")
+        gewicht = st.number_input("Gewicht (kg)", format='%f', key="gewicht")
+        groesse = st.number_input("Größe (cm)", format='%f', key="groesse")
         if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
             st.session_state['current_user'] = username
             st.session_state['page'] = 'home_screen'
 
-if __name__ == "_main_":
+if __name__== "_main_":
     user_interface()
 
 #hier Registrierung beendet
