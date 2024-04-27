@@ -178,9 +178,11 @@ def show_measurements():
 
                 if submit_button:
                     current_user = st.session_state.get('current_user')
-                    save_measurements_to_github(username, datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
-                    st.success("Messungen erfolgreich gespeichert!")
-        
+                    if current_user is not None:
+                        save_measurements_to_github(current_user, datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
+                        st.success("Messungen erfolgreich gespeichert!")
+                    else:
+                        st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
             
         elif option == "Messhistorie anzeigen":
             if st.button('Zurück zum Home-Bildschirm'):
