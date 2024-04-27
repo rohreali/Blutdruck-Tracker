@@ -19,6 +19,20 @@ def init_github():
             st.secrets["github"]["repo"],
             st.secrets["github"]["token"])
 
+# Funktion zur Initialisierung der Session-Variablen
+def initialize_session_state():
+    if 'page' not in st.session_state:
+        st.session_state['page'] = 'home'
+    if 'users' not in st.session_state:
+        st.session_state['users'] = load_user_profiles()  # Diese Funktion muss definiert sein
+    if 'measurements' not in st.session_state:
+        st.session_state['measurements'] = []
+    if 'current_user' not in st.session_state:
+        st.session_state['current_user'] = None
+
+# Initialisiere die Session-Variablen
+initialize_session_state()
+
 # Konstanten
 USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
@@ -92,6 +106,13 @@ def user_interface():
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse)
+def main():
+    # Logik zur Seitenanzeige basierend auf dem Zustand 'page'
+    if st.session_state['page'] == 'home':
+        show_home()
+    elif st.session_state['page'] == 'profile':
+        show_profile()
+    # Füge weitere Bedingungen hinzu für andere Seiten
 
 if __name__== "_main_":
     user_interface()
