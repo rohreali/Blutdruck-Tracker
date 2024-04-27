@@ -156,6 +156,17 @@ if __name__== "_main_":
 
 #Hier Alles zu Messungen
 
+def main():
+    # Sidebar für die Navigation
+    st.sidebar.title("Navigation")
+    page = st.sidebar.radio("Seiten:", ["Home", "Messungen", "History"])
+
+    if page == "Home":
+        go_to_home_screen()
+    elif page == "Messungen":
+        show_measurements()
+    elif page == "History":
+        show_history()
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  # Gehe davon aus, dass 'home_screen' der Zustand für den Home Bildschirm ist
 
@@ -212,6 +223,18 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
     except Exception as e:
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
         st.success('Measurement CSV created on GitHub successfully!')
+
+def show_history():
+    st.title("History")
+    repo = init_github()
+    try:
+        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
+        st.text(contents.decoded_content.decode("utf-8"))
+    except Exception as e:
+        st.error("Fehler beim Laden der Historie: " + str(e))
+
+if __name__ == "_main_":
+    main()
 
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
