@@ -192,14 +192,6 @@ def show_measurement_form():
             save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
             st.success("Messungen erfolgreich gespeichert!")
 
-def show_measurement_history():
-    # Button zum Home Bildschirm hinzugefügt
-    if st.button('Zurück zum Home-Bildschirm'):
-        go_to_home_screen()
-    st.header("Historie der Messungen")
-
-    # Hier könnten Sie eine Tabelle oder eine Liste mit historischen Messdaten anzeigen
-
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
     # Convert the data to a dictionary to store it in a CSV format
     measurement_data = {
@@ -233,6 +225,12 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
     except Exception as e:
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
         st.success('Measurement CSV created on GitHub successfully!')
+
+def show_measurement_history():
+    # Button zum Home Bildschirm hinzugefügt
+    if st.button('Zurück zum Home-Bildschirm'):
+        go_to_home_screen()
+    st.header("Historie der Messungen")
 
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
