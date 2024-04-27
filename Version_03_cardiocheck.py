@@ -85,8 +85,11 @@ def user_interface():
         groesse = st.text_input("Größe")
         register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse)
 
-if _name_ == "_main_":
-    user_interface()
+# Funktion zum Laden von Benutzerprofilen
+def load_user_profiles():
+    # Hier sollten die Details zur Implementierung stehen, wie z.B. das Laden von Daten aus einer Datei
+    return {}
+
 # Initialize the session state with defaults if they don't exist
 if 'users' not in st.session_state:
     st.session_state['users'] = load_user_profiles()
@@ -96,6 +99,21 @@ if 'measurements' not in st.session_state:
     st.session_state['measurements'] = []
 if 'current_user' not in st.session_state:
     st.session_state['current_user'] = None
+
+def main():
+    print("Das Skript wird direkt ausgeführt.")
+
+# Check if the script is run directly (not imported)
+if __name__ == "_main_":
+    main()
+
+# Dieser Teil scheint für die Benutzeroberfläche gedacht zu sein
+def user_interface():
+    print("Benutzeroberfläche wird geladen...")  # Beispiel für einen Platzhalter
+
+# Check if the script is run directly and call the user interface function
+if __name__ == "_main_":
+    user_interface()
     
 def add_measurement(username, new_measurement):
     user_data = st.session_state['users'].get(username)
