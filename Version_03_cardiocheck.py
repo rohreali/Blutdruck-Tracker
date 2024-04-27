@@ -162,6 +162,16 @@ def show_measurements():
     if st.button('Zurück zum Home-Bildschirm'):
         go_to_home_screen()
     st.title('Messungen')
+    datum = st.date_input("Datum")
+        uhrzeit = st.time_input("Uhrzeit")
+        wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
+        wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
+        puls = st.number_input("Puls (bpm)", min_value=0)
+        kommentare = st.text_area("Kommentare")
+        submit_button = st.form_submit_button("Messungen speichern")
+        if submit_button:
+            save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
+            st.success("Messungen erfolgreich gespeichert!")
     
 def show_measurement_form():
     with st.form("measurement_form"):
@@ -647,7 +657,7 @@ elif st.session_state['page'] == 'home_screen':
 elif st.session_state['page'] == 'profile':
     show_profile()
 elif st.session_state['page'] == 'measurements':
-    show_measurements_form()
+    show_measurements()
 elif st.session_state['page'] == 'medication-plan':
     show_medication_plan()
 elif st.session_state['page'] == 'Fitness':
