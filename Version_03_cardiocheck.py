@@ -74,7 +74,14 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
     if username in user_profiles.index:
         st.error("Username already taken. Please choose another.")
         return False
-
+    if geburtstag:
+        try:
+            # Validiere das eingegebene Geburtsdatum und formatiere es
+            datetime.strptime(geburtstag, '%d-%m-%Y')
+            user_details['geburtstag'] = geburtstag
+        except ValueError:
+            st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
+            return False
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     user_details = {
@@ -126,15 +133,18 @@ def user_interface():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        tag = st.number_input("Tag", format= '%f')
-        monat = st.number_input("Monat", format= '%f')
-        jahr = st.number_input("Jahr", format= '%f')
-        geburtstag = f"{jahr}-{monat}-{tag}"
+        tag = st.text_input("Tag", max_chars=2)
+        monat = st.text_input("Monat", max_chars=2)
+        jahr = st.text_input("Jahr", max_chars=4)
+        # Stelle sicher, dass das Format TT-MM-JJJJ eingehalten wird
+        geburtstag = f"{tag.zfill(2)}-{monat.zfill(2)}-{jahr}"
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
-        if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-            st.session_state['current_user'] = username
-            st.session_state['page'] = 'home_screen'
+        if tag and monat and jahr:
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+                st.session_state['current_user'] = username
+                st.session_state['page'] = 'home_screen'
+    
 if __name__== "_main_":
     user_interface()
 
