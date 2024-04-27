@@ -11,39 +11,16 @@ import requests
 import bcrypt
 from github import Github 
 
-def init_github():
-    """Initialize the GithubContents object."""
-    if 'github' not in st.session_state:
-        st.session_state.github = GithubContents(
-            st.secrets["github"]["owner"],
-            st.secrets["github"]["repo"],
-            st.secrets["github"]["token"])
-
-# Funktion zur Initialisierung der Session-Variablen
-def initialize_session_state():
-    if 'page' not in st.session_state:
-        st.session_state['page'] = 'home'
-    if 'users' not in st.session_state:
-        st.session_state['users'] = load_user_profiles()  # Diese Funktion muss definiert sein
-    if 'measurements' not in st.session_state:
-        st.session_state['measurements'] = []
-    if 'current_user' not in st.session_state:
-        st.session_state['current_user'] = None
-
-# Initialisiere die Session-Variablen
-initialize_session_state()
 
 # Konstanten
 USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
 
-# GitHub-Initialisierung
 def init_github():
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
     return repo
 
-# CSV-Upload zu GitHub
 def upload_csv_to_github(file_path, repo):
     file_name = os.path.basename(file_path)
     with open(file_path, "rb") as file:
@@ -56,7 +33,6 @@ def upload_csv_to_github(file_path, repo):
         repo.create_file(file_name, "Create user data file", content)
         st.success('CSV created on GitHub successfully!')
 
-# Benutzerprofile aus CSV laden
 def load_user_profiles():
     if os.path.exists(USER_DATA_FILE):
         return pd.read_csv(USER_DATA_FILE, index_col="username")
@@ -72,13 +48,13 @@ def initialize_session_state():
     if 'current_user' not in st.session_state:
         st.session_state['current_user'] = None
 
-# Benutzerprofile speichern und hochladen
+initialize_session_state()
+
 def save_user_profiles_and_upload(user_profiles):
     user_profiles.to_csv(USER_DATA_FILE)
     repo = init_github()
     upload_csv_to_github(USER_DATA_FILE, repo)
 
-# Registrierung eines neuen Benutzers
 def register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
     user_profiles = load_user_profiles()
     if username in user_profiles.index:
@@ -90,7 +66,6 @@ def register_user(username, password, name, vorname, geschlecht, geburtstag, gew
     st.success("User registered successfully!")
     return True
 
-# Login-Überprüfung
 def verify_login(username, password):
     user_profiles = load_user_profiles()
     if username in user_profiles.index and bcrypt.checkpw(password.encode('utf-8'), user_profiles.loc[username, 'password_hash'].encode('utf-8')):
@@ -99,14 +74,14 @@ def verify_login(username, password):
     st.error("Incorrect username or password.")
     return False
 
-# Benutzeroberfläche für Login und Registrierung
 def user_interface():
     st.title('User Registration and Login')
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        verify_login(username, password)
+        if verify_login(username, password):
+            st.session_state['page'] = 'home_screen'
 
     if st.button("Register"):
         name = st.text_input("Name")
@@ -115,18 +90,12 @@ def user_interface():
         geburtstag = st.date_input("Geburtstag")
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
-        register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse)
-def main():
-    # Logik zur Seitenanzeige basierend auf dem Zustand 'page'
-    if st.session_state['page'] == 'home':
-        show_home()
-    elif st.session_state['page'] == 'profile':
-        show_profile()
-    # Füge weitere Bedingungen hinzu für andere Seiten
+        if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+            st.session_state['current_user'] = username
+            st.session_state['page'] = 'home_screen'
 
 if __name__== "_main_":
     user_interface()
-    
 def add_measurement(username, new_measurement):
     user_data = st.session_state['users'].get(username)
     if user_data:
@@ -653,4 +622,3 @@ elif st.session_state['page'] == 'emergency_numbers':
     show_emergency_numbers()
 elif st.session_state['page'] == 'infos':
     show_info_page()            
-
