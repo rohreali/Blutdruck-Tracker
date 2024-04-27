@@ -160,8 +160,8 @@ def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  
 def show_measurements():
     option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
-        if option == "Neue Messung hinzufügen":
-            if st.button('Zurück zum Home-Bildschirm'):
+    if option == "Neue Messung hinzufügen":
+        if st.button('Zurück zum Home-Bildschirm'):
                 go_to_home_screen()
             st.title('Messungen')
             with st.form("measurement_form"):
