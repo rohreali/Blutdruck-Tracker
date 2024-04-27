@@ -160,11 +160,10 @@ def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  # Gehe davon aus, dass 'home_screen' der Zustand für den Home Bildschirm ist
 
 def show_measurements():
-    st.title('Messungen')
-
-# Button zum Home Bildschirm hinzugefügt
     if st.button('Zurück zum Home-Bildschirm'):
         go_to_home_screen()
+    st.title('Messungen')
+
     # Sidebar Optionen
     with st.sidebar:
         st.title("Optionen")
