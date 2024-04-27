@@ -154,6 +154,9 @@ if __name__== "_main_":
 
 #hier Registrierung beendet
 
+#Hier Alles zu Messungen
+
+
 def load_measurements():
     repo = init_github()
     try:
@@ -162,9 +165,12 @@ def load_measurements():
         measurements_df = pd.read_csv(StringIO(data))
         return measurements_df
     except Exception as e:
-        st.error(f'Fehler beim Laden der Messdaten von GitHub: {e}')
-        return pd.DataFrame(columns=MEASUREMENTS_DATA_COLUMNS)
-
+        if '404' in str(e):
+            st.warning('Messdaten-Datei nicht gefunden, erstelle eine neue Datei.')
+            return pd.DataFrame(columns=MEASUREMENTS_DATA_COLUMNS)  # Rückgabe einer leeren DataFrame, wenn die Datei nicht existiert
+        else:
+            st.error(f'Fehler beim Laden der Messdaten von GitHub: {e}')
+            return None
 def upload_csv_to_github(measurements_df, repo):
     csv_buffer = StringIO()
     measurements_df.to_csv(csv_buffer, index=False)
@@ -172,18 +178,23 @@ def upload_csv_to_github(measurements_df, repo):
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
         repo.update_file(contents.path, "Update CSV file", csv_str, contents.sha)
-        st.success('CSV updated on GitHub successfully!')
+        st.success('CSV on GitHub successfully updated!')
     except Exception as e:
-        repo.create_file(MEASUREMENTS_DATA_FILE, "Create CSV file", csv_str)
-        st.success('CSV created on GitHub successfully!')
+        if '404' in str(e):
+            repo.create_file(MEASUREMENTS_DATA_FILE, "Create CSV file", csv_str)
+            st.success('CSV file created on GitHub successfully!')
+        else:
+            st.error(f'Error updating GitHub CSV: {e}')
 
 def add_measurement(username, new_measurement):
     measurements_df = load_measurements()
-    new_measurement_data = {**new_measurement, 'username': username}
-    measurements_df = measurements_df.append(new_measurement_data, ignore_index=True)
-    repo = init_github()
-    upload_csv_to_github(measurements_df, repo)
-
+    if measurements_df is not None:  # Nur fortsetzen, wenn keine kritischen Fehler aufgetreten sind
+        new_measurement_data = {**new_measurement, 'username': username}
+        measurements_df = measurements_df.append(new_measurement_data, ignore_index=True)
+        repo = init_github()
+        upload_csv_to_github(measurements_df, repo)
+    else:
+        st.error("Kritischer Fehler: Messdaten können nicht bearbeitet werden.")
 def show_measurements():
     st.title('Messungen')
     menu_options = ["Neue Messung hinzufügen", "History", "Trendanalyse"]
