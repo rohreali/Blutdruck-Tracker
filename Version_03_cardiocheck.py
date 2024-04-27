@@ -178,8 +178,7 @@ def show_measurements():
                 if submit_button:
                     save_measurements_to_github(username, datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
                     st.success("Messungen erfolgreich gespeichert!")
-        else:
-            st.error("Bitte melden Sie sich an, um Messungen durchzuführen.")
+        
             
         elif option == "Messhistorie anzeigen":
             if st.button('Zurück zum Home-Bildschirm'):
