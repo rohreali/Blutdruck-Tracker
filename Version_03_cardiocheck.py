@@ -160,6 +160,7 @@ def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  # Gehe davon aus, dass 'home_screen' der Zustand für den Home Bildschirm ist
 
 def show_measurements():
+    st.title('Messungen')
     # Sidebar Optionen
     with st.sidebar:
         st.title("Optionen")
@@ -173,8 +174,6 @@ def show_measurements():
     elif view_history:
         # Logik zur Anzeige der Historie, z.B. zeigt eine Liste der früheren Messungen
         show_measurement_history()
-
-    st.title('Messungen')
 
 def show_measurement_form():
     with st.form("measurement_form"):
