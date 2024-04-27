@@ -11,6 +11,14 @@ import requests
 import bcrypt
 from github import Github 
 
+def init_github():
+    """Initialize the GithubContents object."""
+    if 'github' not in st.session_state:
+        st.session_state.github = GithubContents(
+            st.secrets["github"]["owner"],
+            st.secrets["github"]["repo"],
+            st.secrets["github"]["token"])
+
 # Konstanten
 USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
