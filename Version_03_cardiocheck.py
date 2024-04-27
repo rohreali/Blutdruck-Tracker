@@ -62,6 +62,16 @@ def load_user_profiles():
         return pd.read_csv(USER_DATA_FILE, index_col="username")
     return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index("username")
 
+def initialize_session_state():
+    if 'page' not in st.session_state:
+        st.session_state['page'] = 'home'
+    if 'users' not in st.session_state:
+        st.session_state['users'] = load_user_profiles()
+    if 'measurements' not in st.session_state:
+        st.session_state['measurements'] = []
+    if 'current_user' not in st.session_state:
+        st.session_state['current_user'] = None
+
 # Benutzerprofile speichern und hochladen
 def save_user_profiles_and_upload(user_profiles):
     user_profiles.to_csv(USER_DATA_FILE)
@@ -643,3 +653,4 @@ elif st.session_state['page'] == 'emergency_numbers':
     show_emergency_numbers()
 elif st.session_state['page'] == 'infos':
     show_info_page()            
+
