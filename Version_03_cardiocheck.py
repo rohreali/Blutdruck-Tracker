@@ -181,7 +181,7 @@ def show_measurements():
     elif option == "Messhistorie anzeigen":
         st.title('Messhistorie')
         show_measurement_history()
-        def load_measurement_data():
+def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
