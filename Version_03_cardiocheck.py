@@ -170,14 +170,6 @@ def show_measurements():
         add_measurement = st.button("Neue Messung hinzufügen")
         view_history = st.button("History")
 
-    # Navigationslogik in der Sidebar
-    if add_measurement:
-        # Logik zum Hinzufügen einer neuen Messung, z.B. zeigt das Messformular an
-        show_measurement_form()
-    elif view_history:
-        # Logik zur Anzeige der Historie, z.B. zeigt eine Liste der früheren Messungen
-        show_measurement_history()
-
 def show_measurement_form():
     with st.form("measurement_form"):
         datum = st.date_input("Datum")
