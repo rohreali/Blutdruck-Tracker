@@ -89,7 +89,6 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     user_details = {
-        'usersame': username,
         'password_hash': hashed_pw,
         'name': name,
         'vorname': vorname,
@@ -122,7 +121,6 @@ def verify_login(username, password):
         # Verwenden Sie bcrypt, um das eingegebene Passwort zu überprüfen
         if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
             st.session_state['current_user'] = username
-            print(f"Benutzer {username} ist jetzt angemeldet.")
             return True
     st.error("Incorrect username or password.")
     return False
@@ -161,9 +159,7 @@ if __name__== "_main_":
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  
 def show_measurements():
-    username = st.session_state.get('current_user')  # Nehmen wir an, dass der Benutzername im Session State gespeichert ist
-    if username:  # Überprüfen Sie, ob der Benutzer angemeldet ist
-        option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
+    option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
         if option == "Neue Messung hinzufügen":
             if st.button('Zurück zum Home-Bildschirm'):
                 go_to_home_screen()
@@ -218,7 +214,6 @@ def show_measurement_history():
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
     # Convert the data to a dictionary to store it in a CSV format
     measurement_data = {
-        "username": username,
         "datum": datum.strftime('%Y-%m-%d'),
         "uhrzeit": uhrzeit.strftime('%H:%M'),
         "systolic": systolic,
