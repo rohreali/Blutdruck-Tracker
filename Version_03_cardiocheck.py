@@ -125,14 +125,15 @@ def user_interface():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag")
+        # Set the minimum allowable date to January 1, 1930
+        geburtstag = st.date_input("Geburtstag", min_value=datetime.date(1930, 1, 1))
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
             st.session_state['current_user'] = username
             st.session_state['page'] = 'home_screen'
 
-if __name__== "_main_":
+if __name__ == "_main_":
     user_interface()
 
 #hier Registrierung beendet
