@@ -157,23 +157,12 @@ if __name__== "_main_":
 #Hier Alles zu Messungen
 
 def go_to_home_screen():
-    st.session_state['page'] = 'home_screen'  # Gehe davon aus, dass 'home_screen' der Zustand für den Home Bildschirm ist
-
+    st.session_state['page'] = 'home_screen'  
 def show_measurements():
     if st.button('Zurück zum Home-Bildschirm'):
         go_to_home_screen()
     st.title('Messungen')
-    with st.sidebar:
-        st.title("Optionen")
-        add_measurement = st.button("Neue Messung hinzufügen")
-        view_history = st.button("History")
-    if add_measurement:
-        # Logik zum Hinzufügen einer neuen Messung, z.B. zeigt das Messformular an
-        show_measurement_form()
-    elif view_history:
-        # Logik zur Anzeige der Historie, z.B. zeigt eine Liste der früheren Messungen
-        show_measurement_history()
-
+    
 def show_measurement_form():
     with st.form("measurement_form"):
         datum = st.date_input("Datum")
@@ -217,11 +206,6 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
         st.success('Measurement CSV created on GitHub successfully!')
 
-def show_measurement_history():
-    # Button zum Home Bildschirm hinzugefügt
-    if st.button('Zurück zum Home-Bildschirm'):
-        go_to_home_screen()
-    st.header("Historie der Messungen")
 
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
