@@ -172,7 +172,7 @@ def show_measurements():
     if submit_button:
         save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
         st.success("Messungen erfolgreich gespeichert!")
-    
+"""    
 def show_measurement_form():
     with st.form("measurement_form"):
     datum = st.date_input("Datum")
@@ -185,7 +185,7 @@ def show_measurement_form():
     if submit_button:
         save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
         st.success("Messungen erfolgreich gespeichert!")
-
+"""
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
     # Convert the data to a dictionary to store it in a CSV format
     measurement_data = {
