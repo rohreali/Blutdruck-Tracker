@@ -11,11 +11,15 @@ import base64
 import requests
 import bcrypt
 from github import Github 
+import csv
+from io import StringIO
 
 
 # Konstanten
 USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
+MEASUREMENTS_DATA_FILE = "measurements_data.csv"
+MEASUREMENTS_DATA_COLUMNS = ["username", "datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"]
 
 def init_github():
     g = Github(st.secrets["github"]["token"])
@@ -152,13 +156,31 @@ if __name__== "_main_":
 def add_measurement(username, new_measurement):
     user_data = st.session_state['users'].get(username)
     if user_data:
-        # Check if the objects are instances of date and time before conversion
         if isinstance(new_measurement['datum'], date):
             new_measurement['datum'] = new_measurement['datum'].isoformat()
         if isinstance(new_measurement['uhrzeit'], time):
             new_measurement['uhrzeit'] = new_measurement['uhrzeit'].strftime('%H:%M:%S')
         
-        user_data['details']['measurements'].append(new_measurement)
+        # Load existing measurements or create a new one
+        if os.path.exists(MEASUREMENTS_DATA_FILE):
+            measurements_df = pd.read_csv(MEASUREMENTS_DATA_FILE)
+        else:
+            measurements_df = pd.DataFrame(columns=MEASUREMENTS_DATA_COLUMNS)
+        
+        # Append new measurement
+        new_measurement_data = {**new_measurement, 'username': username}
+        measurements_df = measurements_df.append(new_measurement_data, ignore_index=True)
+
+        # Save to CSV
+        measurements_df.to_csv(MEASUREMENTS_DATA_FILE, index=False)
+        st.success('Measurement data saved locally.')
+
+        # Upload to GitHub
+        try:
+            repo = init_github()
+            upload_csv_to_github(MEASUREMENTS_DATA_FILE, repo)
+        except Exception as e:
+            st.error(f'Error uploading measurement data to GitHub: {e}')
         save_user_profiles_and_upload()
 
 st.session_state['users'] = load_user_profiles()
