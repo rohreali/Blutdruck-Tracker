@@ -135,41 +135,6 @@ def user_interface():
 if __name__== "_main_":
     user_interface()
 
-def show_login():
-    with st.form("login_form"):
-        username = st.text_input("Benutzername")
-        password = st.text_input("Passwort", type="password")
-        submit_button = st.form_submit_button("Einloggen")
-        if submit_button:
-            if verify_login(username, password):
-                st.session_state['current_user'] = username
-                st.success("Erfolgreich eingeloggt!")
-                st.experimental_rerun()
-            else:
-                st.error("Benutzername oder Passwort ist falsch.")
-
-def main():
-    st.sidebar.title('Navigation')
-    choices = {
-        "Home": show_home_screen,
-        "Profil": show_profile,
-        "Messungen": show_measurements,
-        "Medi-Plan": show_medication_plan,
-        "Fitness": show_fitness,
-        "Notfall Nr.": show_emergency_numbers,
-        "Infos": show_info_page
-    }
-    user_choice = st.sidebar.radio("Seiten", list(choices.keys()))
-
-    if st.session_state.get('current_user') or user_choice == "Home":
-        choices[user_choice]()
-    else:
-        st.error("Bitte melden Sie sich an, um Zugriff auf die Seiten zu erhalten.")
-        show_login()
-
-if __name__ == "_main_":
-    main()
-
 #hier Registrierung beendet
 def add_measurement(username, new_measurement):
     user_data = st.session_state['users'].get(username)
