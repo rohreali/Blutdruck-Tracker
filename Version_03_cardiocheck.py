@@ -481,7 +481,14 @@ def show_home_screen():
         show_emergency_numbers()
     elif st.session_state['page'] == 'infos':
         show_info_page()
-        
+
+
+def back_to_home(key="default"):
+    if st.button("Zum Home Bildschirm", key=f"back_home_button_{key}"):
+        st.session_state['page'] = 'home_screen'
+def show_profile():
+    back_to_home(key="profile")
+
 def show_detailed_registration():
     username = st.session_state.get('current_user', None)
     if not username:
