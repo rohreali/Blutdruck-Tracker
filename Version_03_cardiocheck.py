@@ -159,6 +159,7 @@ if __name__== "_main_":
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  
 def show_measurements():
+    username = st.session_state.get('current_user')
     # Sidebar für Auswahl hinzufügen
     option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
     if option == "Neue Messung hinzufügen":
