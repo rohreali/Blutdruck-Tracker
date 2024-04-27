@@ -54,8 +54,7 @@ def register_user(username, password, name, vorname, geschlecht, geburtstag, gew
         st.error("Benutzername bereits vergeben. Bitte wählen Sie einen anderen.")
         return False
     else:
-        # Erstellen eines neuen Datenrahmens für den neuen Benutzer
-        new_user = pd.DataFrame([[password, name, vorname, geschlecht, geburtstag, gewicht, groesse]],
+        new_user = pd.DataFrame([[password, name, vorname, geschlecht, geburtstag.strftime('%Y-%m-%d'), gewicht, groesse]],
                                 index=[username], columns=USER_DATA_COLUMNS[1:])
         user_profiles = pd.concat([user_profiles, new_user])
         save_user_profiles_and_upload(user_profiles)
@@ -355,8 +354,16 @@ def show_registration_form():
         st.write("Registrieren")
         username = st.text_input("Benutzername")
         password = st.text_input("Passwort", type="password")
+        name = st.text_input("Name")
+        vorname = st.text_input("Vorname")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+        geburtstag = st.date_input("Geburtstag")
+        gewicht = st.number_input("Gewicht (kg)")
+        groesse = st.number_input("Größe (cm)")
+        
         if st.form_submit_button("Register"):
-            if register_user(username, password):
+            # Jetzt werden alle benötigten Parameter übergeben
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
                 st.session_state['current_user'] = username
                 st.session_state['page'] = 'detailed_registration'
 
