@@ -497,6 +497,7 @@ def show_additional_info():
             store_additional_info(username, vorerkrankungen, medikamente, medication_times)
             st.success("Weitere Angaben gespeichert! Registrierung abgeschlossen.")
 
+#hier kommt der Code für Profil (fertig)
 def show_profile():
     back_to_home()
     st.title('Profil')
@@ -537,6 +538,7 @@ def show_profile():
     st.markdown("Diastolisch: 80 mmHg")
     st.markdown("Puls: 60 - 80")
     
+#Ende vom Code Profil
 def show_trend_analysis(measurements):
     # Prepare data for plotting
     dates_times = [f"{m['datum']} {m['uhrzeit']}" for m in measurements]  # Use f-string for safe concatenation
