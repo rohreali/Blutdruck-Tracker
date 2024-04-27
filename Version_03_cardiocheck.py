@@ -179,7 +179,8 @@ def show_measurements():
             st.success("Messungen erfolgreich gespeichert!")
             
     elif option == "Messhistorie anzeigen":
-        st.title('Messhistorie')
+        if st.button('Zurück zum Home-Bildschirm'):
+            go_to_home_screen()
         show_measurement_history()
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
