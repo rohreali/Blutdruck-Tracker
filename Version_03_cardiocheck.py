@@ -156,7 +156,12 @@ if __name__== "_main_":
 
 #Hier Alles zu Messungen
 
+def go_to_home():
+    st.session_state['page'] = 'home'
+
 def show_measurements():
+    if st.button('Zum Home Bildschirm', key='home'):
+        go_to_home()
     st.title('Messungen')
 
     with st.form("measurement_form"):
