@@ -502,19 +502,32 @@ def show_profile():
     st.title('Profil')
     current_user = st.session_state.get('current_user', None)
     if current_user:
-        user_details = st.session_state['users'].get(current_user, {}).get('details', {})
-        gewicht = user_details.get('gewicht', 'Nicht angegeben')
-        groesse = user_details.get('groesse', 'Nicht angegeben')
-        st.markdown(f"**Gewicht:** {gewicht} kg")
-        st.markdown(f"**Größe:** {groesse} cm")
-    with st.form("zielwerte_form"):
-        st.subheader('Zielwerte')
-        st.text_input("Systolisch")
-        st.text_input("Diastolisch")
-        st.text_input("Puls")
-        st.selectbox("Auswahl", ['Option 1', 'Option 2'])
-        if st.form_submit_button("Ändern"):
-            st.success("Zielwerte aktualisiert!")
+        user_profiles = st.session_state['users']
+        if current_user in user_profiles.index:
+            user_details = user_profiles.loc[current_user]
+
+            # Display user details except for the password
+            st.markdown("### Benutzerdetails")
+            for detail, value in user_details.items():
+                if detail != 'password_hash':  # Exclude password from display
+                    st.markdown(f"*{detail.title()}:* {value}")
+
+            # Allow user to update weight and height
+            st.markdown("### Aktualisieren Sie Ihr Gewicht und Größe")
+            gewicht = st.number_input("Gewicht (kg)", value=float(user_details['gewicht']) if user_details['gewicht'] else 0, format='%f')
+            groesse = st.number_input("Größe (cm)", value=float(user_details['groesse']) if user_details['groesse'] else 0, format='%f')
+            if st.button("Update"):
+                user_profiles.at[current_user, 'gewicht'] = gewicht
+                user_profiles.at[current_user, 'groesse'] = groesse
+                save_user_profiles_and_upload(user_profiles)
+                st.success("Profil erfolgreich aktualisiert!")
+        else:
+            st.error("Benutzer nicht gefunden.")
+    else:
+        st.error("Bitte melden Sie sich an, um Ihr Profil zu sehen.")
+
+    # Display norm values
+    st.subheader('Normwerte')
     st.markdown("Systolisch: 120 mmHg")
     st.markdown("Diastolisch: 80 mmHg")
     st.markdown("Puls: 60 - 90")
