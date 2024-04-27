@@ -126,10 +126,15 @@ def user_interface():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag_str = st.text_input("Geburtstag (TT/MM/JJJJ)")
+        tag = st.number_input("Tag", format= '%f')
+        monat = st.number_input("Monat", format= '%f')
+        jahr = st.number_input("Jahr", format= '%f')
+        geburtstag = f"{jahr}-{monat}-{tag}"
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
-
+        if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+            st.session_state['current_user'] = username
+            st.session_state['page'] = 'home_screen'
 if __name__== "_main_":
     user_interface()
 
@@ -653,5 +658,4 @@ elif st.session_state['page'] == 'emergency_numbers':
     show_emergency_numbers()
 elif st.session_state['page'] == 'infos':
     show_info_page()   
-
 
