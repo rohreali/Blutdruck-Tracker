@@ -161,6 +161,10 @@ def go_to_home_screen():
 
 def show_measurements():
     st.title('Messungen')
+
+# Button zum Home Bildschirm hinzugefügt
+    if st.button('Zurück zum Home-Bildschirm'):
+        go_to_home_screen()
     # Sidebar Optionen
     with st.sidebar:
         st.title("Optionen")
@@ -190,7 +194,11 @@ def show_measurement_form():
             st.success("Messungen erfolgreich gespeichert!")
 
 def show_measurement_history():
+    # Button zum Home Bildschirm hinzugefügt
+    if st.button('Zurück zum Home-Bildschirm'):
+        go_to_home_screen()
     st.header("Historie der Messungen")
+
     # Hier könnten Sie eine Tabelle oder eine Liste mit historischen Messdaten anzeigen
 
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
