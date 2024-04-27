@@ -163,12 +163,16 @@ def show_measurements():
     if st.button('Zurück zum Home-Bildschirm'):
         go_to_home_screen()
     st.title('Messungen')
-
-    # Sidebar Optionen
     with st.sidebar:
         st.title("Optionen")
         add_measurement = st.button("Neue Messung hinzufügen")
         view_history = st.button("History")
+    if add_measurement:
+        # Logik zum Hinzufügen einer neuen Messung, z.B. zeigt das Messformular an
+        show_measurement_form()
+    elif view_history:
+        # Logik zur Anzeige der Historie, z.B. zeigt eine Liste der früheren Messungen
+        show_measurement_history()
 
 def show_measurement_form():
     with st.form("measurement_form"):
@@ -179,7 +183,6 @@ def show_measurement_form():
         puls = st.number_input("Puls (bpm)", min_value=0)
         kommentare = st.text_area("Kommentare")
         submit_button = st.form_submit_button("Messungen speichern")
-
         if submit_button:
             save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
             st.success("Messungen erfolgreich gespeichert!")
@@ -200,15 +203,11 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
     writer = csv.DictWriter(csv_file, fieldnames=MEASUREMENTS_DATA_COLUMNS)
     writer.writeheader()
     writer.writerow(measurement_data)
-
-    # Get CSV content as a string
     csv_content = csv_file.getvalue()
     csv_file.close()
 
     # Initialize GitHub connection
     repo = init_github()
-    
-    # Get the current CSV from GitHub and append the new data
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
         updated_csv = contents.decoded_content.decode("utf-8") + "\n" + csv_content.split('\n', 1)[1]  # Skip the header
