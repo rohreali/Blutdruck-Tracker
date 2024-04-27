@@ -367,7 +367,7 @@ def show_info_page():
     if st.button('Speichern'):
         save_info_text(username, f'{info_options.lower()}_info', text_input)
         st.success(f"Informationen zu {info_options} gespeichert!")
-        
+
 def show_registration_form():
     with st.form("register_form"):
         st.write("Registrieren")
@@ -380,21 +380,13 @@ def show_registration_form():
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         
-        # Überprüfen der Eingaben vor dem Senden
         if st.form_submit_button("Register"):
-            st.write("Eingabeüberprüfung:")
-            st.write("Username:", username, type(username))
-            st.write("Password:", password, type(password))
-            st.write("Name:", name, type(name))
-            st.write("Vorname:", vorname, type(vorname))
-            st.write("Geschlecht:", geschlecht, type(geschlecht))
-            st.write("Geburtstag:", geburtstag, type(geburtstag))
-            st.write("Gewicht:", gewicht, type(gewicht))
-            st.write("Größe:", groesse, type(groesse))
-
             if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
                 st.session_state['current_user'] = username
                 st.session_state['page'] = 'detailed_registration'
+                st.success("Registrierung erfolgreich!")
+            else:
+                st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
 def show_login_form():
     with st.form("login_form"):
         st.write("Einloggen")
