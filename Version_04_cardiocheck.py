@@ -38,25 +38,76 @@ def load_user_profiles():
         return pd.read_csv(USER_DATA_FILE, index_col="username")
     return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index("username")
 
+# Initial setup
 def initialize_session_state():
     if 'page' not in st.session_state:
-        st.session_state['page'] = 'home'
+        st.session_state['page'] = 'login'
     if 'users' not in st.session_state:
         st.session_state['users'] = load_user_profiles()
-    if 'measurements' not in st.session_state:
-        st.session_state['measurements'] = []
     if 'current_user' not in st.session_state:
         st.session_state['current_user'] = None
-    # Hier fügen Sie die neuen initialen Zustände hinzu
+    # Initialize conditions and medications
     if 'conditions' not in st.session_state:
-        st.session_state.conditions = []
+        st.session_state['conditions'] = []
     if 'medications' not in st.session_state:
-        st.session_state.medications = []
-    if 'dosages' not in st.session_state:
-        st.session_state.dosages = []
+        st.session_state['medications'] = [{'name': '', 'dosage': {'morning': 0, 'noon': 0, 'evening': 0, 'night': 0}}]
 
+# Call this first to set everything up
 initialize_session_state()
 
+# Registration form
+def show_registration_form():
+    st.title('Herzlich Willkommen bei CardioCheck')
+    st.subheader('Bitte füllen Sie die Felder aus')
+    with st.form("registration_form"):
+        username = st.text_input("Benutzername")
+        password = st.text_input("Passwort", type="password")
+        name = st.text_input("Name")
+        vorname = st.text_input("Vorname")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+        geburtstag = st.date_input("Geburtstag")
+        gewicht = st.number_input("Gewicht (kg)")
+        groesse = st.number_input("Größe (cm)")
+        submit_button = st.form_submit_button("Weiter")
+        
+        if submit_button:
+            # Assume register_user returns True if registration is successful
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+                # On successful registration, go to the additional info page
+                st.session_state['page'] = 'additional_info'
+
+# Additional information page
+def show_additional_info():
+    st.title('Weitere Angaben')
+    st.subheader('Vorerkrankungen und Medikamente')
+    
+    with st.form("additional_info"):
+        # Vorerkrankungen
+        conditions = st.text_area("Vorerkrankungen", value=", ".join(st.session_state.conditions))
+        
+        # Medikamente
+        for medication in st.session_state.medications:
+            med_name = st.text_input("Medikament", value=medication['name'])
+            medication['name'] = med_name
+            for time_of_day in ['morgens', 'mittags', 'abends', 'nachts']:
+                medication['dosage'][time_of_day] = st.number_input(f"{time_of_day.capitalize()}", value=medication['dosage'][time_of_day])
+        
+        submit_button = st.form_submit_button("Fertig")
+        
+        if submit_button:
+            # Save the conditions
+            st.session_state.conditions = conditions.split(", ")
+            # Go to profile or home page
+            st.session_state['page'] = 'home_screen'
+
+# Call the relevant function based on the current page
+if st.session_state['page'] == 'login':
+    show_registration_form()
+elif st.session_state['page'] == 'additional_info':
+    show_additional_info()
+elif st.session_state['page'] == 'home_screen':
+    # Show home screen
+    pass
 
 def save_user_profiles_and_upload(user_profiles):
     try:
@@ -142,6 +193,8 @@ def user_interface():
 
 if __name__== "_main_":
     user_interface()
+
+#Beginn Code für Messungen
 def add_measurement(username, new_measurement):
     user_data = st.session_state['users'].get(username)
     if user_data:
