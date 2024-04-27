@@ -122,6 +122,7 @@ def verify_login(username, password):
         # Verwenden Sie bcrypt, um das eingegebene Passwort zu überprüfen
         if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
             st.session_state['current_user'] = username
+            print(f"Benutzer {username} ist jetzt angemeldet.")
             return True
     st.error("Incorrect username or password.")
     return False
