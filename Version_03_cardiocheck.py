@@ -11,17 +11,17 @@ import requests
 import bcrypt
 from github import Github 
 
-# Constants
+# Konstanten
 USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
 
-# Initialize GitHub
+# GitHub-Initialisierung
 def init_github():
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
     return repo
 
-# Upload CSV to GitHub
+# CSV-Upload zu GitHub
 def upload_csv_to_github(file_path, repo):
     file_name = os.path.basename(file_path)
     with open(file_path, "rb") as file:
@@ -34,19 +34,19 @@ def upload_csv_to_github(file_path, repo):
         repo.create_file(file_name, "Create user data file", content)
         st.success('CSV created on GitHub successfully!')
 
-# Load user profiles from CSV
+# Benutzerprofile aus CSV laden
 def load_user_profiles():
     if os.path.exists(USER_DATA_FILE):
         return pd.read_csv(USER_DATA_FILE, index_col="username")
     return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index("username")
 
-# Save user profiles to CSV and upload
+# Benutzerprofile speichern und hochladen
 def save_user_profiles_and_upload(user_profiles):
     user_profiles.to_csv(USER_DATA_FILE)
     repo = init_github()
     upload_csv_to_github(USER_DATA_FILE, repo)
 
-# Register a new user
+# Registrierung eines neuen Benutzers
 def register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
     user_profiles = load_user_profiles()
     if username in user_profiles.index:
@@ -58,7 +58,7 @@ def register_user(username, password, name, vorname, geschlecht, geburtstag, gew
     st.success("User registered successfully!")
     return True
 
-# Verify user login
+# Login-Überprüfung
 def verify_login(username, password):
     user_profiles = load_user_profiles()
     if username in user_profiles.index and bcrypt.checkpw(password.encode('utf-8'), user_profiles.loc[username, 'password_hash'].encode('utf-8')):
@@ -67,7 +67,7 @@ def verify_login(username, password):
     st.error("Incorrect username or password.")
     return False
 
-# User Interface for Login and Registration
+# Benutzeroberfläche für Login und Registrierung
 def user_interface():
     st.title('User Registration and Login')
     username = st.text_input("Username")
@@ -79,40 +79,13 @@ def user_interface():
     if st.button("Register"):
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
-        geschlecht = st.text_input("Geschlecht")
-        geburtstag = st.text_input("Geburtstag")
-        gewicht = st.text_input("Gewicht")
-        groesse = st.text_input("Größe")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+        geburtstag = st.date_input("Geburtstag")
+        gewicht = st.number_input("Gewicht (kg)", format='%f')
+        groesse = st.number_input("Größe (cm)", format='%f')
         register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse)
 
-# Funktion zum Laden von Benutzerprofilen
-def load_user_profiles():
-    # Hier sollten die Details zur Implementierung stehen, wie z.B. das Laden von Daten aus einer Datei
-    return {}
-
-# Initialize the session state with defaults if they don't exist
-if 'users' not in st.session_state:
-    st.session_state['users'] = load_user_profiles()
-if 'page' not in st.session_state:
-    st.session_state['page'] = 'home'
-if 'measurements' not in st.session_state:
-    st.session_state['measurements'] = []
-if 'current_user' not in st.session_state:
-    st.session_state['current_user'] = None
-
-def main():
-    print("Das Skript wird direkt ausgeführt.")
-
-# Check if the script is run directly (not imported)
-if __name__ == "_main_":
-    main()
-
-# Dieser Teil scheint für die Benutzeroberfläche gedacht zu sein
-def user_interface():
-    print("Benutzeroberfläche wird geladen...")  # Beispiel für einen Platzhalter
-
-# Check if the script is run directly and call the user interface function
-if __name__ == "_main_":
+if _name_ == "_main_":
     user_interface()
     
 def add_measurement(username, new_measurement):
