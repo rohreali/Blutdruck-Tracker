@@ -597,15 +597,14 @@ def show_measurements():
     username = st.session_state['current_user']
 
     if choice == "Neue Messung hinzufügen":
-
         if not username:
             st.error('Bitte melden Sie sich an, um Messungen hinzuzufügen.')
             return
         
         with st.form("new_measurement"):
             # Correct use of date and time
-            datum = st.date_input("Datum", date.today())
-            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
+            datum = st.date_input("Datum", datetime.today().date())  # Changed date.today() to datetime.today().date()
+            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())  # Corrected
             systolic_value = st.number_input("Wert Systolisch (mmHg)", min_value=0, max_value=300, step=1)
             diastolic_value = st.number_input("Wert Diastolisch (mmHg)", min_value=0, max_value=300, step=1)
             pulse = st.number_input("Puls (bpm)", min_value=0, max_value=200, step=1)
