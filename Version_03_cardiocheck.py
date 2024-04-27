@@ -647,6 +647,7 @@ def show_login():
                 st.experimental_rerun()
             else:
                 st.error("Benutzername oder Passwort ist falsch.")
+
 def main():
     st.sidebar.title('Navigation')
     choices = {
@@ -660,11 +661,11 @@ def main():
     }
     user_choice = st.sidebar.radio("Seiten", list(choices.keys()))
 
-    if st.session_state['current_user'] is not None or user_choice == "Home":
+    if st.session_state.get('current_user') or user_choice == "Home":
         choices[user_choice]()
     else:
         st.error("Bitte melden Sie sich an, um Zugriff auf die Seiten zu erhalten.")
         show_login()
 
-if __name__== "main_":
+if __name__ == "_main_":
     main()
