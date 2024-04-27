@@ -181,10 +181,10 @@ def show_measurements():
                 else:
                     st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
             
-        elif option == "Messhistorie anzeigen":
-            if st.button('Zurück zum Home-Bildschirm'):
-               go_to_home_screen()
-            show_measurement_history()
+    elif option == "Messhistorie anzeigen":
+         if st.button('Zurück zum Home-Bildschirm'):
+             go_to_home_screen()
+         show_measurement_history()
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
     try:
