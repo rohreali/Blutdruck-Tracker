@@ -178,7 +178,28 @@ def show_measurements():
             save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
             st.success("Messungen erfolgreich gespeichert!")
             
-    elif option == "Messhistorie
+    elif option == "Messhistorie anzeigen":
+        st.title('Messhistorie')
+        show_measurement_history()
+        def load_measurement_data():
+    repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    try:
+        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
+        return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
+
+def show_measurement_history():
+    st.title('Messhistorie')
+    data = load_measurement_data()
+    if not data.empty:
+        st.write("Hier wird die Historie der Messungen angezeigt:")
+        st.dataframe(data)
+    else:
+        st.write("Es sind keine Messdaten vorhanden.")
             
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
     # Convert the data to a dictionary to store it in a CSV format
