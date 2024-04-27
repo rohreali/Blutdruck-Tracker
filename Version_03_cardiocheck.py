@@ -449,45 +449,6 @@ def show_home_screen():
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
 
-# Sidebar für die Navigation
-    st.sidebar.title("Navigation")
-    page_options = ["Profil", "Messungen", "Mediplan", "Fitness", "Notfallnummer", "Infos"]
-    navigation = st.sidebar.radio("Gehe zu:", page_options)
-    
-    # Aktionen basierend auf der Sidebar-Auswahl
-    if navigation == "Profil":
-        st.session_state['page'] = 'profile'
-    elif navigation == "Messungen":
-        st.session_state['page'] = 'measurements'
-    elif navigation == "Mediplan":
-        st.session_state['page'] = 'medication-plan'
-    elif navigation == "Fitness":
-        st.session_state['page'] = 'Fitness'
-    elif navigation == "Notfallnummer":
-        st.session_state['page'] = 'emergency_numbers'
-    elif navigation == "Infos":
-        st.session_state['page'] = 'infos'
-    
-    # Die aktuelle Seite basierend auf der Auswahl anzeigen
-    if st.session_state['page'] == 'profile':
-        show_profile()
-    elif st.session_state['page'] == 'measurements':
-        show_measurements()
-    elif st.session_state['page'] == 'medication-plan':
-        show_medication_plan()
-    elif st.session_state['page'] == 'Fitness':
-        show_fitness()
-    elif st.session_state['page'] == 'emergency_numbers':
-        show_emergency_numbers()
-    elif st.session_state['page'] == 'infos':
-        show_info_page()
-
-
-def back_to_home(key="default"):
-    if st.button("Zum Home Bildschirm", key=f"back_home_button_{key}"):
-        st.session_state['page'] = 'home_screen'
-def show_profile():
-    back_to_home(key="profile")
 
 def show_detailed_registration():
     username = st.session_state.get('current_user', None)
