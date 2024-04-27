@@ -134,6 +134,8 @@ def user_interface():
 
 if __name__== "_main_":
     user_interface()
+
+#hier Registrierung beendet
 def add_measurement(username, new_measurement):
     user_data = st.session_state['users'].get(username)
     if user_data:
