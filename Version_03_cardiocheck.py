@@ -198,18 +198,12 @@ def load_measurement_data():
 
 def show_measurement_history():
     st.title('Messhistorie')
-    current_user = st.session_state.get('current_user')
-    if current_user is not None:
-        data = load_measurement_data()
-        # Filtern Sie die Daten, um nur die Einträge des aktuellen Benutzers zu zeigen
-        user_data = data[data['username'] == current_user]
-        if not user_data.empty:
-            st.write("Hier wird die Historie Ihrer Messungen angezeigt:")
-            st.dataframe(user_data)
-        else:
-            st.write("Es sind keine Messdaten für Ihren Benutzernamen vorhanden.")
+    data = load_measurement_data()
+    if not data.empty:
+        st.write("Hier wird die Historie der Messungen angezeigt:")
+        st.dataframe(data)
     else:
-        st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um die Messhistorie zu sehen.")
+        st.write("Es sind keine Messdaten vorhanden.")
             
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
     # Convert the data to a dictionary to store it in a CSV format
