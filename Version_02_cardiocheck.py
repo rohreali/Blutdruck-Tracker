@@ -6,7 +6,6 @@ import json
 import pandas as pd
 from github_contents import GithubContents
 import streamlit_authenticator as stauth
-import api_calls
 import os
 
 def init_github():
