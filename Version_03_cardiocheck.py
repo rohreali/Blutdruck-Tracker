@@ -85,7 +85,7 @@ def user_interface():
         groesse = st.number_input("Größe (cm)", format='%f')
         register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse)
 
-if _name_ == "_main_":
+if __name__== "_main_":
     user_interface()
     
 def add_measurement(username, new_measurement):
