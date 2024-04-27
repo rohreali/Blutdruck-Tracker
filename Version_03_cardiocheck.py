@@ -97,17 +97,15 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
 def verify_login(username, password):
     user_profiles = load_user_profiles()
     if username in user_profiles.index:
-        # Der gespeicherte Hash ist ein String, repräsentiert aber Bytes
-        # Entfernen der b''-Klammern und Dekodieren des Hex-Strings in Bytes
         stored_hash_str = user_profiles.loc[username, 'password_hash']
+        # Entferne die b''-Klammern und konvertiere den String in Bytes
         if stored_hash_str.startswith("b'") and stored_hash_str.endswith("'"):
-            # Extrahiere den Inhalt des Byte-Strings
             stored_hash_str = stored_hash_str[2:-1]
-            # Konvertiere den String zurück in Bytes
-            stored_hash = bytes(stored_hash_str, 'utf-8').decode('unicode_escape').encode('raw_unicode_escape')
-            if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
-                st.session_state['current_user'] = username
-                return True
+        # Dekodiere den String in Bytes
+        stored_hash = stored_hash_str.encode('latin1').decode('unicode_escape').encode('latin1')
+        if bcrypt.checkpw(password.encode('utf-8'), stored_hash):
+            st.session_state['current_user'] = username
+            return True
     st.error("Incorrect username or password.")
     return False
 
