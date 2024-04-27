@@ -156,12 +156,6 @@ if __name__== "_main_":
 
 #Hier Alles zu Messungen
 
-def init_github():
-    token = st.secrets["GITHUB_TOKEN"]
-    repo_name = st.secrets["REPOSITORY"]
-    g = Github(token)
-    repo = g.get_repo(repo_name)
-    return repo
 def load_measurements():
     repo = init_github()
     try:
