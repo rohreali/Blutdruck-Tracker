@@ -156,86 +156,57 @@ if __name__== "_main_":
 
 #Hier Alles zu Messungen
 
-def load_measurements():
-    repo = init_github()
-    try:
-        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
-        data = contents.decoded_content.decode('utf-8')
-        measurements_df = pd.read_csv(StringIO(data))
-        return measurements_df
-    except Exception as e:
-        if '404' in str(e):
-            st.warning('Messdaten-Datei nicht gefunden, erstelle eine neue Datei.')
-            return pd.DataFrame(columns=MEASUREMENTS_DATA_COLUMNS)  # Rückgabe einer leeren DataFrame, wenn die Datei nicht existiert
-        else:
-            st.error(f'Fehler beim Laden der Messdaten von GitHub: {e}')
-            return None
-def upload_csv_to_github(measurements_df, repo):
-    csv_buffer = StringIO()
-    measurements_df.to_csv(csv_buffer, index=False)
-    csv_str = csv_buffer.getvalue()
-    try:
-        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
-        repo.update_file(contents.path, "Update CSV file", csv_str, contents.sha)
-        st.success('CSV on GitHub successfully updated!')
-    except Exception as e:
-        if '404' in str(e):
-            repo.create_file(MEASUREMENTS_DATA_FILE, "Create CSV file", csv_str)
-            st.success('CSV file created on GitHub successfully!')
-        else:
-            st.error(f'Error updating GitHub CSV: {e}')
-
-def add_measurement(username, new_measurement):
-    measurements_df = load_measurements()
-    if measurements_df is not None:  # Nur fortsetzen, wenn keine kritischen Fehler aufgetreten sind
-        new_measurement_data = {**new_measurement, 'username': username}
-        measurements_df = measurements_df.append(new_measurement_data, ignore_index=True)
-        repo = init_github()
-        upload_csv_to_github(measurements_df, repo)
-    else:
-        st.error("Kritischer Fehler: Messdaten können nicht bearbeitet werden.")
 def show_measurements():
     st.title('Messungen')
-    menu_options = ["Neue Messung hinzufügen", "History", "Trendanalyse"]
-    choice = st.sidebar.selectbox("Optionen", menu_options)
-    username = st.session_state['current_user']
 
-    if choice == "Neue Messung hinzufügen":
-        with st.form("new_measurement"):
-            datum = st.date_input("Datum", datetime.today())
-            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
-            systolic = st.number_input("Wert Systolisch (mmHg)", min_value=0, max_value=300)
-            diastolic = st.number_input("Wert Diastolisch (mmHg)", min_value=0, max_value=300)
-            pulse = st.number_input("Puls (bpm)", min_value=0, max_value=200)
-            comments = st.text_area("Kommentare")
-            submit_button = st.form_submit_button("Messung speichern")
+    with st.form("measurement_form"):
+        datum = st.date_input("Datum")
+        uhrzeit = st.time_input("Uhrzeit")
+        wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
+        wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
+        puls = st.number_input("Puls (bpm)", min_value=0)
+        kommentare = st.text_area("Kommentare")
 
-            if submit_button:
-                new_measurement = {
-                    'datum': datum.strftime('%Y-%m-%d'),
-                    'uhrzeit': uhrzeit.strftime('%H:%M:%S'),
-                    'systolic': systolic,
-                    'diastolic': diastolic,
-                    'pulse': pulse,
-                    'comments': comments
-                }
-                add_measurement(username, new_measurement)
+        submit_button = st.form_submit_button("Messungen speichern")
 
-    elif choice == "History":
-        st.subheader("History")
-        measurements_df = load_measurements()
-        if not measurements_df.empty:
-            user_measurements = measurements_df[measurements_df['username'] == username]
-            if not user_measurements.empty:
-                st.dataframe(user_measurements)
-            else:
-                st.info("Keine Messungen für diesen Benutzer gefunden.")
-        else:
-            st.info("Keine Messdaten aufgezeichnet.")
+        if submit_button:
+            save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
+            st.success("Messungen erfolgreich gespeichert!")
 
-    elif choice == "Trendanalyse":
-        st.subheader("Trendanalyse")
-        measurements_df = load_measurements
+def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
+    # Convert the data to a dictionary to store it in a CSV format
+    measurement_data = {
+        "datum": datum.strftime('%Y-%m-%d'),
+        "uhrzeit": uhrzeit.strftime('%H:%M'),
+        "systolic": systolic,
+        "diastolic": diastolic,
+        "pulse": pulse,
+        "comments": comments
+    }
+
+    # Use StringIO to simulate a file object
+    csv_file = StringIO()
+    writer = csv.DictWriter(csv_file, fieldnames=MEASUREMENTS_DATA_COLUMNS)
+    writer.writeheader()
+    writer.writerow(measurement_data)
+
+    # Get CSV content as a string
+    csv_content = csv_file.getvalue()
+    csv_file.close()
+
+    # Initialize GitHub connection
+    repo = init_github()
+    
+    # Get the current CSV from GitHub and append the new data
+    try:
+        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + csv_content.split('\n', 1)[1]  # Skip the header
+        repo.update_file(contents.path, "Update measurement data", updated_csv, contents.sha)
+        st.success('Measurement data updated on GitHub successfully!')
+    except Exception as e:
+        repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
+        st.success('Measurement CSV created on GitHub successfully!')
+
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
         st.session_state['page'] = 'home_screen'
