@@ -649,17 +649,18 @@ def show_measurements():
                 st.session_state['measurements'] = st.session_state['users'][username]['details']['measurements']
 
     elif choice == "History":
-        st.subheader("History")
-        # Ensure we're displaying the measurements from the user's profile
-        user_measurements = st.session_state['users'][username]['details']['measurements']
-        for measurement in user_measurements:
-            date_str = measurement['datum']
-            time_str = measurement['uhrzeit']
+    st.subheader("History")
+    try:
+        measurements_df = pd.read_csv(MEASUREMENTS_DATA_FILE)
+        user_measurements = measurements_df[measurements_df['username'] == username]
+        for idx, measurement in user_measurements.iterrows():
             st.markdown(f"""
-                `{date_str} {time_str}` **Systolisch:** `{measurement['systolic']} mmHg` \
-                **Diastolisch:** `{measurement['diastolic']} mmHg` **Puls:** `{measurement['pulse']} bpm` \
-                **Bemerkungen:** `{measurement['comments']}`
+                {measurement['datum']} {measurement['uhrzeit']} *Systolisch:* {measurement['systolic']} mmHg \
+                *Diastolisch:* {measurement['diastolic']} mmHg *Puls:* {measurement['pulse']} bpm \
+                *Bemerkungen:* {measurement['comments']}
             """)
+    except Exception as e:
+        st.error(f'Error loading measurement history: {e}')
 
     elif choice == "Trendanalyse":
         st.subheader("Trendanalyse")
