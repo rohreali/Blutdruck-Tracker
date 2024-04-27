@@ -164,11 +164,6 @@ def store_additional_info(username, vorerkrankungen, medikamente, medication_tim
     user_details['medikamente'] = medikamente
     user_details['medication_times'] = medication_times
     store_detailed_user_profile(username, user_details)
-
-def verify_login(username, password):
-    user = st.session_state['users'].get(username)
-    return user and user['password'] == password
-
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     user_data = st.session_state['users'].get(username)
     if user_data:
