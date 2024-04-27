@@ -649,25 +649,27 @@ def show_measurements():
                 st.session_state['measurements'] = st.session_state['users'][username]['details']['measurements']
 
     elif choice == "History":
-    st.subheader("History")
-    try:
+        st.subheader("History")
+    # Ensure the measurements CSV file exists before trying to read it
+    if os.path.exists(MEASUREMENTS_DATA_FILE):
         measurements_df = pd.read_csv(MEASUREMENTS_DATA_FILE)
-        user_measurements = measurements_df[measurements_df['username'] == username]
-        for idx, measurement in user_measurements.iterrows():
-            st.markdown(f"""
-                {measurement['datum']} {measurement['uhrzeit']} *Systolisch:* {measurement['systolic']} mmHg \
-                *Diastolisch:* {measurement['diastolic']} mmHg *Puls:* {measurement['pulse']} bpm \
-                *Bemerkungen:* {measurement['comments']}
-            """)
-    except Exception as e:
-        st.error(f'Error loading measurement history: {e}')
+        if not measurements_df.empty:
+            # Filter the measurements for the current user
+            user_measurements = measurements_df[measurements_df['username'] == username]
+            if not user_measurements.empty:
+                for idx, measurement in user_measurements.iterrows():
+                    # Display each measurement in a formatted way
+                    st.text(f"Date: {measurement['datum']}, Time: {measurement['uhrzeit']}, "
+                            f"Systolic: {measurement['systolic']} mmHg, Diastolic: {measurement['diastolic']} mmHg, "
+                            f"Pulse: {measurement['pulse']} bpm, Comments: {measurement['comments']}")
+            else:
+                st.info("No measurements found for this user.")
+        else:
+            st.info("No measurements recorded yet.")
+    else:
+        st.error("Measurement history file not found.")
 
-    elif choice == "Trendanalyse":
-        st.subheader("Trendanalyse")
-        # Display the trend analysis using measurements from the user's profile
-        user_measurements = st.session_state['users'][username]['details']['measurements']
-        show_trend_analysis(user_measurements)
-        
+       
 
 # Display pages based on session state
 if st.session_state['page'] == 'home':
