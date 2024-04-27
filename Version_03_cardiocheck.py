@@ -369,24 +369,21 @@ def show_info_page():
         st.success(f"Informationen zu {info_options} gespeichert!")
 
 def show_registration_form():
-    with st.form("register_form"):
-        st.write("Registrieren")
-        username = st.text_input("Benutzername")
-        password = st.text_input("Passwort", type="password")
-        name = st.text_input("Name")
-        vorname = st.text_input("Vorname")
-        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag")
-        gewicht = st.number_input("Gewicht (kg)", format='%f')
-        groesse = st.number_input("Größe (cm)", format='%f')
-        
-        if st.form_submit_button("Register"):
-            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-                st.session_state['current_user'] = username
-                st.session_state['page'] = 'detailed_registration'
-                st.success("Registrierung erfolgreich!")
-            else:
-                st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
+    st.write("Registrieren")
+    username = st.text_input("Benutzername")
+    password = st.text_input("Passwort", type="password")
+    name = st.text_input("Name")
+    vorname = st.text_input("Vorname")
+    geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+    geburtstag = st.date_input("Geburtstag")
+    gewicht = st.number_input("Gewicht (kg)", format='%f')
+    groesse = st.number_input("Größe (cm)", format='%f')
+
+    if st.button("Register"):
+        if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+            st.success("Registrierung erfolgreich!")
+        else:
+            st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
 def show_login_form():
     with st.form("login_form"):
         st.write("Einloggen")
