@@ -126,7 +126,7 @@ def user_interface():
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
         # Set the minimum allowable date to January 1, 1930
-        geburtstag = st.date_input("Geburtstag", min_value=datetime.date(1930, 1, 1))
+        geburtstag = st.date_input("Geburtstag", min_value=datetime.date(1930, 1, 1), max_value=datetime.date.today())
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
