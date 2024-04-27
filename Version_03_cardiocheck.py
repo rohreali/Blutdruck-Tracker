@@ -156,26 +156,27 @@ if __name__== "_main_":
 
 #Hier Alles zu Messungen
 
-def main():
-    # Sidebar für die Navigation
-    st.sidebar.title("Navigation")
-    page = st.sidebar.radio("Seiten:", ["Home", "Messungen", "History"])
-
-    if page == "Home":
-        go_to_home_screen()
-    elif page == "Messungen":
-        show_measurements()
-    elif page == "History":
-        show_history()
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  # Gehe davon aus, dass 'home_screen' der Zustand für den Home Bildschirm ist
 
 def show_measurements():
-    # Button zum Home Bildschirm hinzugefügt
-    if st.button('Zum Home Bildschirm'):
-        go_to_home_screen()
+    # Sidebar Optionen
+    with st.sidebar:
+        st.title("Optionen")
+        add_measurement = st.button("Neue Messung hinzufügen")
+        view_history = st.button("History")
+
+    # Navigationslogik in der Sidebar
+    if add_measurement:
+        # Logik zum Hinzufügen einer neuen Messung, z.B. zeigt das Messformular an
+        show_measurement_form()
+    elif view_history:
+        # Logik zur Anzeige der Historie, z.B. zeigt eine Liste der früheren Messungen
+        show_measurement_history()
+
     st.title('Messungen')
 
+def show_measurement_form():
     with st.form("measurement_form"):
         datum = st.date_input("Datum")
         uhrzeit = st.time_input("Uhrzeit")
@@ -183,12 +184,15 @@ def show_measurements():
         wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
         puls = st.number_input("Puls (bpm)", min_value=0)
         kommentare = st.text_area("Kommentare")
-
         submit_button = st.form_submit_button("Messungen speichern")
 
         if submit_button:
             save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
             st.success("Messungen erfolgreich gespeichert!")
+
+def show_measurement_history():
+    st.header("Historie der Messungen")
+    # Hier könnten Sie eine Tabelle oder eine Liste mit historischen Messdaten anzeigen
 
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
     # Convert the data to a dictionary to store it in a CSV format
@@ -223,18 +227,6 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
     except Exception as e:
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
         st.success('Measurement CSV created on GitHub successfully!')
-
-def show_history():
-    st.title("History")
-    repo = init_github()
-    try:
-        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
-        st.text(contents.decoded_content.decode("utf-8"))
-    except Exception as e:
-        st.error("Fehler beim Laden der Historie: " + str(e))
-
-if __name__ == "_main_":
-    main()
 
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
