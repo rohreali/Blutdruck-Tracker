@@ -7,6 +7,8 @@ import pandas as pd
 from github_contents import GithubContents
 import streamlit_authenticator as stauth
 import os
+import base64
+import requests
 
 def init_github():
     """Initialize the GithubContents object."""
@@ -15,6 +17,19 @@ def init_github():
             st.secrets["github"]["owner"],
             st.secrets["github"]["repo"],
             st.secrets["github"]["token"])
+        
+def upload_file_to_github(file_path, commit_message):
+    """Uploads a file to GitHub repository."""
+    init_github()
+    with open(file_path, 'rb') as file:
+        content = base64.b64encode(file.read()).decode('utf-8')
+
+    path_in_repo = f"data/{os.path.basename(file_path)}"
+    response = st.session_state['github'].put(path_in_repo, content, commit_message)
+    if response.status_code == 201:
+        st.success('File uploaded to GitHub successfully!')
+    else:
+        st.error('Failed to upload file to GitHub.')
 
 # Festlegen von Konstanten für die CSV-Speicherung
 USER_DATA_FILE = "user_data.csv"
@@ -28,8 +43,9 @@ def load_user_profiles():
         return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index('username')
 
 # Funktion zum Speichern von Benutzerprofilen in eine CSV-Datei
-def save_user_profiles(user_profiles):
+def save_user_profiles_and_upload(user_profiles):
     user_profiles.to_csv(USER_DATA_FILE)
+    upload_file_to_github(USER_DATA_FILE, "Update user profiles")
 
 # Funktion zur Registrierung eines neuen Benutzers
 def register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
@@ -42,7 +58,7 @@ def register_user(username, password, name, vorname, geschlecht, geburtstag, gew
         new_user = pd.DataFrame([[password, name, vorname, geschlecht, geburtstag, gewicht, groesse]],
                                 index=[username], columns=USER_DATA_COLUMNS[1:])
         user_profiles = pd.concat([user_profiles, new_user])
-        save_user_profiles(user_profiles)
+        save_user_profiles_and_upload(user_profiles)
         return True
 
 # Funktion zur Überprüfung der Login-Daten
@@ -72,7 +88,7 @@ def add_measurement(username, new_measurement):
             new_measurement['uhrzeit'] = new_measurement['uhrzeit'].strftime('%H:%M:%S')
         
         user_data['details']['measurements'].append(new_measurement)
-        save_user_profiles()
+        save_user_profiles_and_upload()
 
 st.session_state['users'] = load_user_profiles()
 def back_to_home():
@@ -82,7 +98,7 @@ def back_to_home():
 def store_detailed_user_profile(username, details):
     if username in st.session_state['users']:
         st.session_state['users'][username]['details'] = details
-        save_user_profiles()
+        save_user_profiles_and_upload()
     else:
         st.error("User not found. Please register.")
 
@@ -103,7 +119,7 @@ def register_user(username, password):
                 'fitness_activities': []
             }
         }
-        save_user_profiles()
+        save_user_profiles_and_upload()
         return True
     st.error("Benutzername bereits vergeben. Bitte wählen Sie einen anderen.")
     return False
@@ -126,7 +142,7 @@ def add_medication(username, med_name, morgens, mittags, abends, nachts):
             'Nachts': nachts,
         }
         user_data['details']['medication_plan'].append(new_medication)
-        save_user_profiles()
+        save_user_profiles_and_upload()
         
 
 
@@ -176,7 +192,7 @@ def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, komm
             'Kommentare': kommentare
         }
         user_data['details']['fitness_activities'].append(new_activity)
-        save_user_profiles()
+        save_user_profiles_and_upload()
         
 def get_start_end_dates_from_week_number(year, week_number):
     """Returns the start and end dates of the given week number for the given year."""
@@ -296,7 +312,7 @@ def show_emergency_numbers():
         
         if submit_button:
             user_data['emergency_numbers'] = emergency_numbers
-            save_user_profiles()
+            save_user_profiles_and_upload()
             st.success("Persönliche Notfallnummern gespeichert!")
 
     # Display only the saved personal emergency numbers
@@ -310,7 +326,7 @@ def save_info_text(username, info_type, text):
     user_data = st.session_state['users'].get(username)
     if user_data:
         user_data['details'][info_type] = text
-        save_user_profiles()
+        save_user_profiles_and_upload()
 
 def show_info_page():
     back_to_home()
