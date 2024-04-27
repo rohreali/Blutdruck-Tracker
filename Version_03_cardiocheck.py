@@ -159,30 +159,32 @@ if __name__== "_main_":
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  
 def show_measurements():
-    username = st.session_state.get('current_user')
-    # Sidebar für Auswahl hinzufügen
-    option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
-    if option == "Neue Messung hinzufügen":
-        if st.button('Zurück zum Home-Bildschirm'):
-            go_to_home_screen()
-        st.title('Messungen')
-        with st.form("measurement_form"):
-            datum = st.date_input("Datum")
-            uhrzeit = st.time_input("Uhrzeit")
-            wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
-            wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
-            puls = st.number_input("Puls (bpm)", min_value=0)
-            kommentare = st.text_area("Kommentare")
-            submit_button = st.form_submit_button("Messungen speichern")
+    username = st.session_state.get('current_user')  # Nehmen wir an, dass der Benutzername im Session State gespeichert ist
+    if username:  # Überprüfen Sie, ob der Benutzer angemeldet ist
+        option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
+        if option == "Neue Messung hinzufügen":
+            if st.button('Zurück zum Home-Bildschirm'):
+                go_to_home_screen()
+            st.title('Messungen')
+            with st.form("measurement_form"):
+                datum = st.date_input("Datum")
+                uhrzeit = st.time_input("Uhrzeit")
+                wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
+                wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
+                puls = st.number_input("Puls (bpm)", min_value=0)
+                kommentare = st.text_area("Kommentare")
+                submit_button = st.form_submit_button("Messungen speichern")
 
-        if submit_button:
-            save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
-            st.success("Messungen erfolgreich gespeichert!")
+                if submit_button:
+                    save_measurements_to_github(username, datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
+                    st.success("Messungen erfolgreich gespeichert!")
+        else:
+            st.error("Bitte melden Sie sich an, um Messungen durchzuführen.")
             
-    elif option == "Messhistorie anzeigen":
-        if st.button('Zurück zum Home-Bildschirm'):
-            go_to_home_screen()
-        show_measurement_history()
+        elif option == "Messhistorie anzeigen":
+            if st.button('Zurück zum Home-Bildschirm'):
+               go_to_home_screen()
+            show_measurement_history()
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
     try:
@@ -206,6 +208,7 @@ def show_measurement_history():
 def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
     # Convert the data to a dictionary to store it in a CSV format
     measurement_data = {
+        "username": username,
         "datum": datum.strftime('%Y-%m-%d'),
         "uhrzeit": uhrzeit.strftime('%H:%M'),
         "systolic": systolic,
