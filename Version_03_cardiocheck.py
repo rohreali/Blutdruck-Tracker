@@ -18,6 +18,8 @@ from io import StringIO
 # Konstanten
 USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
+MEASUREMENTS_DATA_FILE = "measurements_data.csv"
+MEASUREMENTS_DATA_COLUMNS = ["username", "datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"]
 
 def init_github():
     g = Github(st.secrets["github"]["token"])
@@ -154,8 +156,12 @@ if __name__== "_main_":
 
 #Hier Alles zu Messungen
 
-MEASUREMENTS_DATA_FILE = "measurements_data.csv"
-MEASUREMENTS_DATA_COLUMNS = ["username", "datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"]
+def init_github():
+    token = st.secrets["GITHUB_TOKEN"]
+    repo_name = st.secrets["REPOSITORY"]
+    g = Github(token)
+    repo = g.get_repo(repo_name)
+    return repo
 def load_measurements():
     repo = init_github()
     try:
