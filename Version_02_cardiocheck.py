@@ -54,10 +54,9 @@ def register_user(username, password, name, vorname, geschlecht, geburtstag, gew
         st.error("Benutzername bereits vergeben. Bitte wählen Sie einen anderen.")
         return False
     else:
-        # Formatierung des Datums, um sicherzustellen, dass es als String gespeichert wird
-        geburtstag_formatted = geburtstag.strftime('%Y-%m-%d') if isinstance(geburtstag, date) else geburtstag
-
-        new_user = pd.DataFrame([[password, name, vorname, geschlecht, geburtstag_formatted, gewicht, groesse]],
+        # Umwandlung des Datums in einen String
+        geburtstag_str = geburtstag.strftime('%Y-%m-%d') if isinstance(geburtstag, date) else geburtstag
+        new_user = pd.DataFrame([[password, name, vorname, geschlecht, geburtstag_str, gewicht, groesse]],
                                 index=[username], columns=USER_DATA_COLUMNS[1:])
         user_profiles = pd.concat([user_profiles, new_user])
         save_user_profiles_and_upload(user_profiles)
@@ -364,7 +363,18 @@ def show_registration_form():
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         
+        # Überprüfen der Eingaben vor dem Senden
         if st.form_submit_button("Register"):
+            st.write("Eingabeüberprüfung:")
+            st.write("Username:", username, type(username))
+            st.write("Password:", password, type(password))
+            st.write("Name:", name, type(name))
+            st.write("Vorname:", vorname, type(vorname))
+            st.write("Geschlecht:", geschlecht, type(geschlecht))
+            st.write("Geburtstag:", geburtstag, type(geburtstag))
+            st.write("Gewicht:", gewicht, type(gewicht))
+            st.write("Größe:", groesse, type(groesse))
+
             if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
                 st.session_state['current_user'] = username
                 st.session_state['page'] = 'detailed_registration'
