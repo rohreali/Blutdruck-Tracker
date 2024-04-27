@@ -130,15 +130,6 @@ def user_interface():
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
 
-        try:
-            geburtstag = datetime.strptime(geburtstag_str, '%d/%m/%Y').date()
-            # Hier könnte eine zusätzliche Validierung für das Datum hinzugefügt werden
-            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-                st.session_state['current_user'] = username
-                st.session_state['page'] = 'home_screen'
-        except ValueError:
-            st.error('Das Geburtsdatum muss im Format TT/MM/JJJJ eingegeben werden.')
-
 if __name__== "_main_":
     user_interface()
 
@@ -662,4 +653,5 @@ elif st.session_state['page'] == 'emergency_numbers':
     show_emergency_numbers()
 elif st.session_state['page'] == 'infos':
     show_info_page()   
+
 
