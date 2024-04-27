@@ -125,7 +125,7 @@ def user_interface():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag_str = st.text_input("Geburtstag (JJJJ-MM-TT)")
+        geburtstag= st.number_input("Datum  (Tag/Monat/Jahr)", format= '%f')
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
