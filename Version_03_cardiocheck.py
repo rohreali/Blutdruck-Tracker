@@ -157,10 +157,11 @@ if __name__== "_main_":
 #Hier Alles zu Messungen
 
 def back_to_home():
-    if st.button("Zum Home Bildschirm"):
-        st.session_state['page'] = 'home_screen'
+    st.session_state['page'] = 'home_screen'
 
 def show_measurements():
+    if st.button('Zum Home Bildschirm', key='home_screen'):
+        back_to_home
     st.title('Messungen')
 
     with st.form("measurement_form"):
