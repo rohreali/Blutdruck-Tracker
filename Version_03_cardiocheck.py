@@ -1,6 +1,7 @@
 # Import necessary libraries
 import streamlit as st
 import datetime
+from datetime import datetime
 import plotly.graph_objs as go
 import pandas as pd
 from github_contents import GithubContents
@@ -125,12 +126,18 @@ def user_interface():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag= st.number_input("Datum  (Tag/Monat/Jahr)", format= '%f')
+        geburtstag_str = st.text_input("Geburtstag (TT/MM/JJJJ)")
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
-        if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-            st.session_state['current_user'] = username
-            st.session_state['page'] = 'home_screen'
+
+        try:
+            geburtstag = datetime.strptime(geburtstag_str, '%d/%m/%Y').date()
+            # Hier könnte eine zusätzliche Validierung für das Datum hinzugefügt werden
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+                st.session_state['current_user'] = username
+                st.session_state['page'] = 'home_screen'
+        except ValueError:
+            st.error('Das Geburtsdatum muss im Format TT/MM/JJJJ eingegeben werden.')
 
 if __name__== "_main_":
     user_interface()
