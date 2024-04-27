@@ -510,7 +510,12 @@ def show_profile():
             st.markdown("### Benutzerdetails")
             for detail, value in user_details.items():
                 if detail != 'password_hash':  # Exclude password from display
-                    st.markdown(f"*{detail.title()}:* {value}")
+                    if detail == 'gewicht':
+                        st.markdown(f"*Gewicht:* {value} kg")  # Add unit kg
+                    elif detail == 'groesse':
+                        st.markdown(f"*Größe:* {value} cm")  # Add unit cm
+                    else:
+                        st.markdown(f"*{detail.title()}:* {value}")
 
             # Allow user to update weight and height
             st.markdown("### Aktualisieren Sie Ihr Gewicht und Größe")
@@ -530,7 +535,7 @@ def show_profile():
     st.subheader('Normwerte')
     st.markdown("Systolisch: 120 mmHg")
     st.markdown("Diastolisch: 80 mmHg")
-    st.markdown("Puls: 60 - 90")
+    st.markdown("Puls: 60 - 80")
     
 def show_trend_analysis(measurements):
     # Prepare data for plotting
