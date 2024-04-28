@@ -46,71 +46,59 @@ def upload_csv_to_github(file_path, repo):
         st.success('CSV created on GitHub successfully!')
 
 def load_user_profiles():
-    if os.path.exists(USER_DATA_FILE):
+    try:
         return pd.read_csv(USER_DATA_FILE, index_col="username")
-    return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index("username")
-
-def initialize_session_state():
-    if 'page' not in st.session_state:
-        st.session_state['page'] = 'home'
-    if 'users' not in st.session_state:
-        st.session_state['users'] = load_user_profiles()
-    if 'measurements' not in st.session_state:
-        st.session_state['measurements'] = []
-    if 'current_user' not in st.session_state:
-        st.session_state['current_user'] = None
-    if 'medications' not in st.session_state:
-        st.session_state['medications'] = []
-    if 'fitness_activities' not in st.session_state:
-        st.session_state['fitness_activities'] = []
-
-initialize_session_state()
+    except FileNotFoundError:
+        return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index("username")
 
 def save_user_profiles_and_upload(user_profiles):
     try:
-        # Versuche, die CSV lokal zu speichern
         user_profiles.to_csv(USER_DATA_FILE)
         st.success('Lokales Speichern der Benutzerdaten erfolgreich!')
+        # Hier sollten Sie die Funktion zum Hochladen auf GitHub aufrufen
     except Exception as e:
         st.error(f'Fehler beim lokalen Speichern der Benutzerdaten: {e}')
-        return False  # Beendet die Funktion frühzeitig, wenn das lokale Speichern fehlschlägt
 
-    try:
-        # Initialisiere GitHub-Repository
-        repo = init_github()
-        upload_csv_to_github(USER_DATA_FILE, repo)
-        return True
-    except Exception as e:
-        st.error(f'Fehler beim Hochladen der Daten auf GitHub: {e}')
-        return False
-
-def register_user(username, password, name=None, vorname=None, geschlecht=None, geburtstag=None, gewicht=None, groesse=None):
+def register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
     user_profiles = load_user_profiles()
     if username in user_profiles.index:
         st.error("Username already taken. Please choose another.")
-        return False
-    if geburtstag:
-        try:
-            # Validiere das eingegebene Geburtsdatum und formatiere es
-            datetime.strptime(geburtstag, '%d-%m-%Y')
-            user_details['geburtstag'] = geburtstag
-        except ValueError:
-            st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
-            return False
-    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        return
 
-    user_details = {
-        'password_hash': hashed_pw,
-        'name': name,
-        'vorname': vorname,
-        'geschlecht': geschlecht,
-        'geburtstag': geburtstag.strftime('%Y-%m-%d') if geburtstag else None,
-        'gewicht': gewicht,
-        'groesse': groesse,
-        'measurements': [],
-        'medication_plan': [],
-        'fitness_activities': []
-    }
+    # Versuche, das eingegebene Geburtsdatum zu validieren und zu formatieren
+    try:
+        geburtstag = datetime.strptime(geburtstag, '%d-%m-%Y').strftime('%Y-%m-%d')
+    except ValueError:
+        st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
+        return
+
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    # Füge den neuen Benutzer hinzu
+    user_profiles.loc[username] = [hashed_pw, name, vorname, geschlecht, geburtstag, gewicht, groesse]
+    save_user_profiles_and_upload(user_profiles)
+    st.success("User registered successfully!")
+    return True
+
+def show_registration_form():
+    with st.form("registration_form"):
+        st.write("Registrieren")
+        username = st.text_input("Benutzername")
+        password = st.text_input("Passwort", type="password")
+        name = st.text_input("Name")
+        vorname = st.text_input("Vorname")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+        geburtstag = st.date_input("Geburtstag", min_value=datetime(1920, 1, 1)).strftime('%d-%m-%Y')
+        gewicht = st.number_input("Gewicht (kg)", format='%f')
+        groesse = st.number_input("Größe (cm)", format='%f')
+        submit_button = st.form_submit_button("Registrieren")
+
+        if submit_button:
+            register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse)
+
+# Der Aufruf dieser Funktion sollte irgendwo in Ihrem Streamlit-Code sein
+show_registration_form()
+
 
     user_profiles.loc[username] = user_details
     save_user_profiles_and_upload(user_profiles)
