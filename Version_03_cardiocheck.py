@@ -481,6 +481,8 @@ def show_fitness():
         return
 
     st.title('Fitness')
+    if st.button("Zurück zum Home-Bildschirm"):
+        back_to_home()
 
     fitness_options = ["Aktivität hinzufügen", "History"]
     choice = st.sidebar.selectbox("Fitness Optionen", fitness_options)
