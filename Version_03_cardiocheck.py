@@ -388,7 +388,7 @@ def save_medications_to_github():
 def show_medication_plan():
     option = st.sidebar.selectbox("Optionen", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
     if option == "Neues Medikament hinzufügen":
-        if st.button('Zurück zum Homebildschirm'):
+        if st.button('Zum Home Bildschirm'):
             back_to_home()
         st.title ('Medikamentenplan')
         with st.form("medication_form"):
@@ -408,7 +408,7 @@ def show_medication_plan():
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
         
     elif option == "Medikamentenplan anzeigen":
-        if st.button('zurück zum Homebildschirm'):
+        if st.button('Zum Home Bildschirm'):
             back_to_home()
         show_medication_list()
 def load_medication_data():
