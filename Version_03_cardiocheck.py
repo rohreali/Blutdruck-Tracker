@@ -388,7 +388,6 @@ def load_medication_data():
 
 # Funktion zum Anzeigen des Medikamentenplans
 def show_medication_plan():
-    back_to_home()
     st.title('Medikamentenplan')
     with st.form("medication_form"):
         med_name = st.text_input("Medikament")
