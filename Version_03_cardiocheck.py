@@ -22,6 +22,8 @@ MEASUREMENTS_DATA_FILE = "measurements_data.csv"
 MEASUREMENTS_DATA_COLUMNS = ["username", "datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"]
 MEDICATION_DATA_FILE = "medication_data.csv"
 MEDICATION_DATA_COLUMNS = ["username", "med_name", "morgens", "mittags", "abends", "nachts"]
+FITNESS_DATA_FILE = "fitness_data.csv"
+FITNESS_DATA_COLUMNS= [ "username", "datum", "uhrzeit", "dauer", "intensitaet", "Art", "Kommentare"]
 
 #alles zu Login, Registrierung und Home Bildschirm
 def init_github():
@@ -57,6 +59,8 @@ def initialize_session_state():
         st.session_state['current_user'] = None
     if 'medications' not in st.session_state:
         st.session_state['medications'] = []
+    if 'fitness_activities' not in st.session_state:
+        st.session_state['fitness_activities'] = []
 
 initialize_session_state()
 
@@ -434,14 +438,15 @@ def show_medication_list():
     else:
         st.write("Es sind keine Medikamentenpläne vorhanden.")
 
-
 #hier kommt Fitness        
+def back_to_home():
+    st.session_state['page'] = 'home_screen'
+    
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
-    user_data = st.session_state['users'].get(username)
-    if user_data:
-        # Ensure the 'fitness_activities' key exists
-        if 'fitness_activities' not in user_data['details']:
-            user_data['details']['fitness_activities'] = []
+    fitness_data = st.session_state['users'].get(username)
+    if fitness_data:
+        if 'fitness_activities' not in fitness_data['details']:
+            fitness_data['details']['fitness_activities'] = []
         new_activity = {
             'Datum': datum.strftime('%Y-%m-%d'),
             'Uhrzeit': uhrzeit.strftime('%H:%M:%S'),
@@ -450,9 +455,66 @@ def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, komm
             'Art': art,
             'Kommentare': kommentare
         }
-        user_data['details']['fitness_activities'].append(new_activity)
-        save_user_profiles_and_upload()
-        
+        fitness_data['details']['fitness_activities'].append(new_activity)
+        save_fitness_data_to_github()
+
+def save_fitness_data_to_github():
+    fitness_list = st.session_state['fitness_activities']
+    fitness_df = pd.DataFrame(fitness_list)
+    fitness_df.to_csv(FITNESS_DATA_FILE, index=False)
+
+    repo = init_github()
+
+    try:
+        contents = repo.get_contents(FITNESS_DATA_FILE)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + fitness_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update fitness data", updated_csv, contents.sha)
+        st.success('Fitness data updated on GitHub successfully!')
+    except Exception as e:
+        repo.create_file(FITNESS_DATA_FILE, "Create fitness data file", fitness_df.to_csv(index=False))
+        st.success('Fitness CSV created on GitHub successfully!')
+
+def show_fitness():
+    back_to_home()
+    username = st.session_state.get('current_user')
+
+    if not username:
+        st.error("Bitte melden Sie sich an, um Fitnessdaten zu bearbeiten.")
+        return
+
+    st.title('Fitness')
+
+    fitness_options = ["Aktivität hinzufügen", "History"]
+    choice = st.sidebar.selectbox("Fitness Optionen", fitness_options)
+
+    if choice == "Aktivität hinzufügen":
+        with st.form("fitness_form"):
+            datum = st.date_input("Datum", datetime.now().date())  # Hier wird date.today() verwendet
+            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
+            dauer = st.text_input("Dauer")
+            intensitaet = st.text_input("Intensitaet")
+            art = st.text_input("Art")
+            kommentare = st.text_area("Kommentare")
+            submit_button = st.form_submit_button("Speichern")
+
+            if submit_button:
+                add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare)
+                st.success("Fitnessaktivität gespeichert!")
+
+    elif choice == "History":
+        show_fitness_history()
+
+def load_fitness_data():
+    repo = init_github()
+    try:
+        contents = repo.get_contents(FITNESS_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Fitnessdaten: {str(e)}")
+        return pd.DataFrame()
+
 def get_start_end_dates_from_week_number(year, week_number):
     """Returns the start and end dates of the given week number for the given year."""
     first_day_of_year = datetime(year, 1, 1)
@@ -460,62 +522,26 @@ def get_start_end_dates_from_week_number(year, week_number):
     start_of_week -= pd.Timedelta(days=start_of_week.weekday())
     end_of_week = start_of_week + pd.Timedelta(days=6)
     return start_of_week.date(), end_of_week.date()
-        
-def show_fitness():
-    back_to_home()
-    username = st.session_state.get('current_user')
-    
-    if not username:
-        st.error("Bitte melden Sie sich an, um Fitnessdaten zu bearbeiten.")
-        return
-    
-    st.title('Fitness')
-    
-    # Menu options on the side, allowing the user to select what to do
-    fitness_options = ["Aktivität hinzufügen", "History"]
-    choice = st.sidebar.selectbox("Fitness Optionen", fitness_options)
-    
-    if choice == "Aktivität hinzufügen":
-        # Form for new fitness activity entry
-        with st.form("fitness_form"):
-            datum = st.date_input("Datum", date.today())
-            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
-            dauer = st.text_input("Dauer")
-            intensitaet = st.text_input("Intensitaet")
-            art = st.text_input("Art")
-            kommentare = st.text_area("Kommentare")
-            submit_button = st.form_submit_button("Speichern")
-            
-            if submit_button:
-                add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare)
-                st.success("Fitnessaktivität gespeichert!")
-    
-    elif choice == "History":
-        show_fitness_history()
-            
+
 def show_fitness_history():
     username = st.session_state.get('current_user')
     st.title('Fitness History - Diese Woche')
 
-    # Allow the user to navigate through weeks
     week_number = st.number_input('Wochennummer (1-52)', min_value=1, max_value=52, value=datetime.now().isocalendar()[1], format='%d')
     year_to_view = st.number_input('Jahr', min_value=2020, max_value=2100, value=datetime.now().year, format='%d')
 
-    # Get the start and end dates of the specified week
     start_date, end_date = get_start_end_dates_from_week_number(year_to_view, week_number)
     st.write(f"Anzeigen der Fitnessaktivitäten für die Woche vom {start_date} bis {end_date}")
 
-    user_data = st.session_state['users'][username]['details']
-    fitness_activities = user_data.get('fitness_activities', [])
+    fitness_data = st.session_state['users'][username]['details']
+    fitness_activities = fitness_data.get('fitness_activities', [])
 
-    # Create a DataFrame for all days of the week
     week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     df_week = pd.DataFrame(week_days, columns=['Datum'])
     df_week['Art'] = ""
     df_week['Dauer'] = ""
     df_week['Intensitaet'] = ""
 
-    # Fill the DataFrame with fitness activities for the selected week
     for activity in fitness_activities:
         activity_date = datetime.strptime(activity['Datum'], '%Y-%m-%d').date()
         if start_date <= activity_date <= end_date:
@@ -525,15 +551,12 @@ def show_fitness_history():
             df_week.at[idx, 'Intensitaet'] = activity['Intensitaet']
             df_week.at[idx, 'Art'] = activity['Art']
 
-    # Set 'Datum' as index
     df_week.set_index('Datum', inplace=True)
 
-    # Display the DataFrame
     if not df_week.empty:
         st.table(df_week)
     else:
         st.write(f"Keine Fitnessaktivitäten für die Woche {week_number} im Jahr {year_to_view} vorhanden.")
-
 #Fitness fertig
 
 # Notfallnummern
