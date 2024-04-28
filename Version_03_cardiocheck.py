@@ -347,8 +347,6 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 #hier kommt Medi-Plan
 
 def back_to_home():
-    if st.button("Zum Home Bildschirm"):
-        st.session_state['page'] = 'home_screen'
     if st.button("Zum Home Bildschirm", key="home_button"):
         st.session_state['page'] = 'home_screen'
 
