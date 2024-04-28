@@ -588,9 +588,14 @@ def store_emergency_numbers(username, emergency_numbers):
 # Function to display the emergency numbers page
 def save_emergency_numbers_to_github():
     emergency_numbers_list = st.session_state.get('emergency_numbers', [])
+    if not emergency_numbers_list:
+        st.warning("Keine Notfallnummern zum Speichern vorhanden.")
+        return
+
     emergency_numbers_df = pd.DataFrame(emergency_numbers_list)
     emergency_numbers_df.to_csv(EMERGENCY_NUMBERS_FILE, index=False)
     repo = init_github()
+
     try:
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
         updated_csv = contents.decoded_content.decode("utf-8") + "\n" + emergency_numbers_df.to_csv(index=False)
@@ -627,15 +632,9 @@ def show_emergency_numbers():
     st.write("Rega: 1414")
     
     # Form for user's personal emergency numbers
-    user_data = st.session_state['users'].loc[username]['details']
-    if 'emergency_numbers' not in user_data:
-        user_data['emergency_numbers'] = {}
-
-    emergency_numbers = user_data['emergency_numbers']
-
     with st.form("emergency_numbers_form"):
-        hausarzt_number = st.text_input('Hausarzt', emergency_numbers.get('Hausarzt', ''))
-        eigene_number = st.text_input('Eigene', emergency_numbers.get('Eigene', ''))
+        hausarzt_number = st.text_input('Hausarzt')
+        eigene_number = st.text_input('Eigene')
         submit_button = st.form_submit_button("Speichern")
         
         if submit_button:
@@ -643,12 +642,12 @@ def show_emergency_numbers():
             store_emergency_numbers(username, 'Eigene', eigene_number)
             st.success("Persönliche Notfallnummern gespeichert!")
 
-    # Display only the saved personal emergency numbers
-    if emergency_numbers:
-        st.subheader("Gespeicherte Notfallnummern:")
-        for number_type, number in emergency_numbers.items():
-            if number:  # Only display if number is not empty
-                st.write(f"{number_type}: {number}")
+    # Display the saved personal emergency numbers
+    st.subheader("Gespeicherte Notfallnummern:")
+    emergency_numbers_list = st.session_state.get('emergency_numbers', [])
+    for entry in emergency_numbers_list:
+        if entry['username'] == username:
+            st.write(f"{entry['type']}: {entry['number']}")
 
 #Notfall Nummer fertig
 def save_info_text(username, info_type, text):
