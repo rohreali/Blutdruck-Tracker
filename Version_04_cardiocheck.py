@@ -1,6 +1,7 @@
 # Import necessary libraries
 import streamlit as st
-from datetime import datetime, date, time
+import datetime
+from datetime import datetime
 import plotly.graph_objs as go
 import pandas as pd
 from github_contents import GithubContents
@@ -10,12 +11,21 @@ import base64
 import requests
 import bcrypt
 from github import Github 
+import csv
+from io import StringIO
 
 
 # Konstanten
 USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
+MEASUREMENTS_DATA_FILE = "measurements_data.csv"
+MEASUREMENTS_DATA_COLUMNS = ["username", "datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"]
+MEDICATION_DATA_FILE = "medication_data.csv"
+MEDICATION_DATA_COLUMNS = ["username", "med_name", "morgens", "mittags", "abends", "nachts"]
+FITNESS_DATA_FILE = "fitness_data.csv"
+FITNESS_DATA_COLUMNS= [ "username", "datum", "uhrzeit", "dauer", "intensitaet", "Art", "Kommentare"]
 
+#alles zu Login, Registrierung und Home Bildschirm
 def init_github():
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
@@ -38,76 +48,21 @@ def load_user_profiles():
         return pd.read_csv(USER_DATA_FILE, index_col="username")
     return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index("username")
 
-# Initial setup
 def initialize_session_state():
     if 'page' not in st.session_state:
-        st.session_state['page'] = 'login'
+        st.session_state['page'] = 'home'
     if 'users' not in st.session_state:
         st.session_state['users'] = load_user_profiles()
+    if 'measurements' not in st.session_state:
+        st.session_state['measurements'] = []
     if 'current_user' not in st.session_state:
         st.session_state['current_user'] = None
-    # Initialize conditions and medications
-    if 'conditions' not in st.session_state:
-        st.session_state['conditions'] = []
     if 'medications' not in st.session_state:
-        st.session_state['medications'] = [{'name': '', 'dosage': {'morning': 0, 'noon': 0, 'evening': 0, 'night': 0}}]
+        st.session_state['medications'] = []
+    if 'fitness_activities' not in st.session_state:
+        st.session_state['fitness_activities'] = []
 
-# Call this first to set everything up
 initialize_session_state()
-
-# Registration form
-def show_registration_form():
-    st.title('Herzlich Willkommen bei CardioCheck')
-    st.subheader('Bitte füllen Sie die Felder aus')
-    with st.form("registration_form"):
-        username = st.text_input("Benutzername")
-        password = st.text_input("Passwort", type="password")
-        name = st.text_input("Name")
-        vorname = st.text_input("Vorname")
-        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag")
-        gewicht = st.number_input("Gewicht (kg)")
-        groesse = st.number_input("Größe (cm)")
-        submit_button = st.form_submit_button("Weiter")
-        
-        if submit_button:
-            # Assume register_user returns True if registration is successful
-            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-                # On successful registration, go to the additional info page
-                st.session_state['page'] = 'additional_info'
-
-# Additional information page
-def show_additional_info():
-    st.title('Weitere Angaben')
-    st.subheader('Vorerkrankungen und Medikamente')
-    
-    with st.form("additional_info"):
-        # Vorerkrankungen
-        conditions = st.text_area("Vorerkrankungen", value=", ".join(st.session_state.conditions))
-        
-        # Medikamente
-        for medication in st.session_state.medications:
-            med_name = st.text_input("Medikament", value=medication['name'])
-            medication['name'] = med_name
-            for time_of_day in ['morgens', 'mittags', 'abends', 'nachts']:
-                medication['dosage'][time_of_day] = st.number_input(f"{time_of_day.capitalize()}", value=medication['dosage'][time_of_day])
-        
-        submit_button = st.form_submit_button("Fertig")
-        
-        if submit_button:
-            # Save the conditions
-            st.session_state.conditions = conditions.split(", ")
-            # Go to profile or home page
-            st.session_state['page'] = 'home_screen'
-
-# Call the relevant function based on the current page
-if st.session_state['page'] == 'login':
-    show_registration_form()
-elif st.session_state['page'] == 'additional_info':
-    show_additional_info()
-elif st.session_state['page'] == 'home_screen':
-    # Show home screen
-    pass
 
 def save_user_profiles_and_upload(user_profiles):
     try:
@@ -132,7 +87,14 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
     if username in user_profiles.index:
         st.error("Username already taken. Please choose another.")
         return False
-
+    if geburtstag:
+        try:
+            # Validiere das eingegebene Geburtsdatum und formatiere es
+            datetime.strptime(geburtstag, '%d-%m-%Y')
+            user_details['geburtstag'] = geburtstag
+        except ValueError:
+            st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
+            return False
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
     user_details = {
@@ -184,113 +146,383 @@ def user_interface():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+        tag = st.text_input("Tag", max_chars=2)
+        monat = st.text_input("Monat", max_chars=2)
+        jahr = st.text_input("Jahr", max_chars=4)
+        # Stelle sicher, dass das Format TT-MM-JJJJ eingehalten wird
+        geburtstag = f"{tag.zfill(2)}-{monat.zfill(2)}-{jahr}"
+        gewicht = st.number_input("Gewicht (kg)", format='%f')
+        groesse = st.number_input("Größe (cm)", format='%f')
+        if tag and monat and jahr:
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+                st.session_state['current_user'] = username
+                st.session_state['page'] = 'home_screen'
+    
+if __name__== "_main_":
+    user_interface()
+def show_registration_form():
+    with st.form("registration_form"):
+        st.write("Registrieren")
+        username = st.text_input("Benutzername")
+        password = st.text_input("Passwort", type="password")
+        name = st.text_input("Name")
+        vorname = st.text_input("Vorname")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
         geburtstag = st.date_input("Geburtstag")
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
-        if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-            st.session_state['current_user'] = username
-            st.session_state['page'] = 'home_screen'
+        submit_button = st.form_submit_button("Registrieren")
 
-if __name__== "_main_":
-    user_interface()
+        if submit_button:
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+                st.success("Registrierung erfolgreich!")
+            else:
+                st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
+def show_login_form():
+    with st.form("login_form"):
+        st.write("Einloggen")
+        username = st.text_input("Benutzername")
+        password = st.text_input("Passwort", type="password")
+        if st.form_submit_button("Login"):
+            if verify_login(username, password):
+                st.session_state['current_user'] = username
+                st.session_state['page'] = 'home_screen'
+            else:
+                st.error("Benutzername oder Passwort ist falsch.")
 
-#Beginn Code für Messungen
-def add_measurement(username, new_measurement):
-    user_data = st.session_state['users'].get(username)
-    if user_data:
-        # Check if the objects are instances of date and time before conversion
-        if isinstance(new_measurement['datum'], date):
-            new_measurement['datum'] = new_measurement['datum'].isoformat()
-        if isinstance(new_measurement['uhrzeit'], time):
-            new_measurement['uhrzeit'] = new_measurement['uhrzeit'].strftime('%H:%M:%S')
-        
-        user_data['details']['measurements'].append(new_measurement)
-        save_user_profiles_and_upload()
+#Home Bildschirm
+def show_home():
+    st.title('Herzlich Willkommen bei CardioCheck')
+    st.subheader('Ihr Blutdruck Tagebuch')
+    action = st.selectbox("Aktion wählen", ["Einloggen", "Registrieren"])
+    if action == "Registrieren":
+        show_registration_form()
+    elif action == "Einloggen":
+        show_login_form()
 
-st.session_state['users'] = load_user_profiles()
-def back_to_home():
-    if st.button("Zum Home Bildschirm"):
-        st.session_state['page'] = 'home_screen'
+def show_home_screen():
+    back_to_home()
+    st.title('CardioCheck')
+    st.markdown("## Home Bildschirm")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("Profil"):
+            st.session_state['page'] = 'profile'
+        if st.button("Fitness"):
+            st.session_state['page'] = 'Fitness'
+    with col2:
+        if st.button("Messungen"):
+            st.session_state['page'] = 'measurements'
+        if st.button("Notfall Nr."):
+            st.session_state['page'] = 'emergency_numbers'
+    with col3:
+        if st.button("Medi-Plan"):
+            st.session_state['page'] = 'medication-plan'
+        if st.button("Infos"):
+            st.session_state['page'] = 'infos'
 
-def store_detailed_user_profile(username, details):
-    if username in st.session_state['users']:
-        st.session_state['users'][username]['details'] = details
-        save_user_profiles_and_upload()
+#hier Registrierung beendet
+
+#hier kommt der Code für Profil (fertig)
+def show_profile():
+    back_to_home()
+    st.title('Profil')
+    current_user = st.session_state.get('current_user', None)
+    if current_user:
+        user_profiles = st.session_state['users']
+        if current_user in user_profiles.index:
+            user_details = user_profiles.loc[current_user]
+
+            # Display user details except for the password
+            st.markdown("### Benutzerdetails")
+            for detail, value in user_details.items():
+                if detail != 'password_hash':  # Exclude password from display
+                    if detail == 'gewicht':
+                        st.markdown(f"*Gewicht:* {value} kg")  # Add unit kg
+                    elif detail == 'groesse':
+                        st.markdown(f"*Größe:* {value} cm")  # Add unit cm
+                    else:
+                        st.markdown(f"*{detail.title()}:* {value}")
+
+            # Allow user to update weight and height
+            st.markdown("### Aktualisieren Sie Ihr Gewicht und Größe")
+            gewicht = st.number_input("Gewicht (kg)", value=float(user_details['gewicht']) if user_details['gewicht'] else 0, format='%f')
+            groesse = st.number_input("Größe (cm)", value=float(user_details['groesse']) if user_details['groesse'] else 0, format='%f')
+            if st.button("Update"):
+                user_profiles.at[current_user, 'gewicht'] = gewicht
+                user_profiles.at[current_user, 'groesse'] = groesse
+                save_user_profiles_and_upload(user_profiles)
+                st.success("Profil erfolgreich aktualisiert!")
+        else:
+            st.error("Benutzer nicht gefunden.")
     else:
-        st.error("User not found. Please register.")
+        st.error("Bitte melden Sie sich an, um Ihr Profil zu sehen.")
 
-def store_additional_info(username, vorerkrankungen, medikamente, medication_times):
-    user_details = st.session_state['users'][username]['details']
-    user_details['vorerkrankungen'] = vorerkrankungen
-    user_details['medikamente'] = medikamente
-    user_details['medication_times'] = medication_times
-    store_detailed_user_profile(username, user_details)
+    # Display norm values
+    st.subheader('Normwerte')
+    st.markdown("Systolisch: 120 mmHg")
+    st.markdown("Diastolisch: 80 mmHg")
+    st.markdown("Puls: 60 - 80")
+    
+#Ende vom Code Profil
+
+#Hier Alles zu Messungen
+def back_to_home():
+    st.session_state['page'] = 'home_screen'
+
+def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
+    if 'measurements' not in st.session_state:
+        st.session_state['measurements'] = []
+    measurement_data = {
+        "datum": datum.strftime('%Y-%m-%d'),
+        "uhrzeit": uhrzeit.strftime('%H:%M'),
+        "systolic": systolic,
+        "diastolic": diastolic,
+        "pulse": pulse,
+        "comments": comments
+    }
+    st.session_state['measurements'].append(measurement_data)
+    save_measurements_to_github()
+
+def save_measurements_to_github():
+    measurement_list = st.session_state.get('measurements', [])
+    measurement_df = pd.DataFrame(measurement_list)
+    measurement_df.to_csv(MEASUREMENTS_DATA_FILE, index=False)
+
+    g = Github(st.secrets["github"]["token"])
+    repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
+
+    try:
+        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + measurement_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update measurement data", updated_csv, contents.sha)
+        st.success('Measurement data updated on GitHub successfully!')
+    except Exception as e:
+        repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", measurement_df.to_csv(index=False))
+        st.success('Measurement CSV created on GitHub successfully!')
+
+def show_measurement_options():
+    st.sidebar.title("Messungen Optionen")
+    option = st.sidebar.radio("", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
+    if option == "Neue Messung hinzufügen":
+        show_add_measurement_form()
+    elif option == "Messhistorie anzeigen":
+        show_measurement_history()
+
+def show_add_measurement_form():
+    if st.button('Zurück zum Homebildschirm'):
+        back_to_home()
+    st.title('Messungen')
+    with st.form("measurement_form"):
+        datum = st.date_input("Datum")
+        uhrzeit = st.time_input("Uhrzeit")
+        wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
+        wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
+        puls = st.number_input("Puls (bpm)", min_value=0)
+        kommentare = st.text_area("Kommentare")
+        submit_button = st.form_submit_button("Messungen speichern")
+
+        if submit_button:
+            current_user = st.session_state.get('current_user')
+            if current_user is not None:
+                add_measurement(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
+                st.success("Messungen erfolgreich gespeichert!")
+            else:
+                st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
+
+def load_measurement_data():
+    repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    try:
+        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
+        return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
+
+def show_measurement_history():
+    st.title('Messhistorie')
+    data = load_measurement_data()
+    if not data.empty:
+        st.write("Hier wird die Historie der Messungen angezeigt:")
+        st.dataframe(data)
+    else:
+        st.write("Es sind keine Messdaten vorhanden.")
+
+show_measurement_options()
+
+#hier alles zu Messungen fertig
+
+#hier kommt Medi-Plan
+
+def back_to_home():
+    st.session_state['page'] = 'home_screen'
+    
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
-    user_data = st.session_state['users'].get(username)
-    if user_data:
-        # Ensure the 'medication_plan' key exists
-        if 'medication_plan' not in user_data['details']:
-            user_data['details']['medication_plan'] = []
-        new_medication = {
-            'Medikament': med_name,
-            'Morgens': morgens,
-            'Mittags': mittags,
-            'Abends': abends,
-            'Nachts': nachts,
-        }
-        user_data['details']['medication_plan'].append(new_medication)
-        save_user_profiles_and_upload()
-        
+    if 'medications' not in st.session_state:
+        st.session_state['medications'] = []
+    medication_data = {
+        "username": username,
+        "med_name": med_name,
+        "morgens": morgens,
+        "mittags": mittags,
+        "abends": abends,
+        "nachts": nachts
+    }
+    st.session_state['medications'].append(medication_data)
+    save_medications_to_github()
 
+def save_medications_to_github():
+    medication_list = st.session_state['medications']
+    medication_df = pd.DataFrame(medication_list)
+    medication_df.to_csv(MEDICATION_DATA_FILE, index=False)
+    
+    g = Github(st.secrets["github"]["token"])
+    repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
+
+    try:
+        contents = repo.get_contents(MEDICATION_DATA_FILE)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + medication_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update medication data", updated_csv, contents.sha)
+        st.success('Medication data updated on GitHub successfully!')
+    except Exception as e:
+        repo.create_file(MEDICATION_DATA_FILE, "Create medication data file", medication_df.to_csv(index=False))
+        st.success('Medication CSV created on GitHub successfully!')
 
 def show_medication_plan():
-    back_to_home()
-    username = st.session_state.get('current_user')
-    
-    if not username:
-        st.error("Bitte melden Sie sich an, um den Medikamentenplan zu bearbeiten.")
-        return
-    
-    st.title('Medikamentenplan')
-    user_data = st.session_state['users'][username]['details']
-    medication_plan = user_data.get('medication_plan', [])
-    
-    # Form for new medication entry
-    with st.form("medication_form"):
-        med_name = st.text_input("Medikament")
-        morgens = st.text_input("Morgens")
-        mittags = st.text_input("Mittags")
-        abends = st.text_input("Abends")
-        nachts = st.text_input("Nachts")
-        submit_button = st.form_submit_button("Medikament hinzufügen")
+    st.sidebar.title("Optionen")
+    option = st.sidebar.radio("", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
+    if option == "Neues Medikament hinzufügen":
+        if st.button('Zurück zum Homebildschirm'):
+            back_to_home()
+        st.title('Medikamentenplan')
+        with st.form("medication_form"):
+            med_name = st.text_input("Medikament")
+            morgens = st.text_input("Morgens")
+            mittags = st.text_input("Mittags")
+            abends = st.text_input("Abends")
+            nachts = st.text_input("Nachts")
+            submit_button = st.form_submit_button("Medikament hinzufügen")
         
         if submit_button:
-            add_medication(username, med_name, morgens, mittags, abends, nachts)
+            current_user = st.session_state.get('current_user')
+            if current_user is not None:
+                add_medication(current_user, med_name, morgens, mittags, abends, nachts)
+                st.success("Medikament erfolgreich hinzugefügt!")
+            else:
+                st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
+        
+    elif option == "Medikamentenplan anzeigen":
+        if st.button('Zurück zum Homebildschirm'):
+            back_to_home()
+        show_medication_list()
+
+def load_medication_data():
+    repo = init_github()
+    try:
+        contents = repo.get_contents(MEDICATION_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
+        return pd.DataFrame()
+
+def show_medication_list():
+    st.title('Medikamentenplan')
     
-    # Display the current medication plan
-    if medication_plan:
-        for med in medication_plan:
-            st.text(f"Medikament: {med['Medikament']}, Morgens: {med['Morgens']}, Mittags: {med['Mittags']}, Abends: {med['Abends']}, Nachts: {med['Nachts']}")
+    medication_data = load_medication_data()
+    
+    if not medication_data.empty:
+        st.write("Hier ist Ihr Medikamentenplan:")
+        st.dataframe(medication_data)
     else:
-        st.write("Keine Medikamente hinzugefügt.")
-        
+        st.write("Es sind keine Medikamentenpläne vorhanden.")
+
+
+
+#hier kommt Fitness        
+def back_to_home():
+    st.session_state['page'] = 'home_screen'
+    
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
-    user_data = st.session_state['users'].get(username)
-    if user_data:
-        # Ensure the 'fitness_activities' key exists
-        if 'fitness_activities' not in user_data['details']:
-            user_data['details']['fitness_activities'] = []
-        new_activity = {
-            'Datum': datum.strftime('%Y-%m-%d'),
-            'Uhrzeit': uhrzeit.strftime('%H:%M:%S'),
-            'Dauer': dauer,
-            'Intensitaet': intensitaet,
-            'Art': art,
-            'Kommentare': kommentare
-        }
-        user_data['details']['fitness_activities'].append(new_activity)
-        save_user_profiles_and_upload()
-        
+    if 'fitness_activities' not in st.session_state:
+        st.session_state['fitness_activities'] = []
+    new_activity = {
+        'username': username,
+        'Datum': datum.strftime('%Y-%m-%d'),
+        'Uhrzeit': uhrzeit.strftime('%H:%M:%S'),
+        'Dauer': dauer,
+        'Intensitaet': intensitaet,
+        'Art': art,
+        'Kommentare': kommentare
+    }
+    st.session_state['fitness_activities'].append(new_activity)
+    save_fitness_data_to_github()
+
+def save_fitness_data_to_github():
+    fitness_list = st.session_state['fitness_activities']
+    fitness_df = pd.DataFrame(fitness_list)
+    fitness_df.to_csv(FITNESS_DATA_FILE, index=False)
+
+    repo = init_github()
+
+    try:
+        contents = repo.get_contents(FITNESS_DATA_FILE)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + fitness_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update fitness data", updated_csv, contents.sha)
+        st.success('Fitness data updated on GitHub successfully!')
+    except Exception as e:
+        repo.create_file(FITNESS_DATA_FILE, "Create fitness data file", fitness_df.to_csv(index=False))
+        st.success('Fitness CSV created on GitHub successfully!')
+
+def show_fitness():
+    username = st.session_state.get('current_user')
+
+    if not username:
+        st.error("Bitte melden Sie sich an, um Fitnessdaten zu bearbeiten.")
+        return
+
+    if st.button("Zurück zum Home-Bildschirm"):
+        back_to_home()
+
+    st.title('Fitness')
+
+    st.sidebar.title("Optionen")
+    fitness_options = ["Aktivität hinzufügen", "History"]
+    choice = st.sidebar.radio("", fitness_options)
+
+    if choice == "Aktivität hinzufügen": 
+        with st.form("fitness_form"):
+            datum = st.date_input("Datum", datetime.now().date())  # Hier wird date.today() verwendet
+            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
+            dauer = st.text_input("Dauer")
+            intensitaet_options = ["Niedrig", "Moderat", "Hoch", "Sehr hoch"]
+            intensitaet = st.selectbox("Intensität", intensitaet_options)
+            art = st.text_input("Art")
+            kommentare = st.text_area("Kommentare")
+            submit_button = st.form_submit_button("Speichern")
+
+            if submit_button:
+                add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare)
+                st.success("Fitnessaktivität gespeichert!")
+
+    elif choice == "History":
+        show_fitness_history()
+
+
+def load_fitness_data():
+    repo = init_github()
+    try:
+        contents = repo.get_contents(FITNESS_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Fitnessdaten: {str(e)}")
+        return pd.DataFrame()
+
 def get_start_end_dates_from_week_number(year, week_number):
     """Returns the start and end dates of the given week number for the given year."""
     first_day_of_year = datetime(year, 1, 1)
@@ -298,81 +530,43 @@ def get_start_end_dates_from_week_number(year, week_number):
     start_of_week -= pd.Timedelta(days=start_of_week.weekday())
     end_of_week = start_of_week + pd.Timedelta(days=6)
     return start_of_week.date(), end_of_week.date()
-        
-def show_fitness():
-    back_to_home()
-    username = st.session_state.get('current_user')
-    
-    if not username:
-        st.error("Bitte melden Sie sich an, um Fitnessdaten zu bearbeiten.")
-        return
-    
-    st.title('Fitness')
-    
-    # Menu options on the side, allowing the user to select what to do
-    fitness_options = ["Aktivität hinzufügen", "History"]
-    choice = st.sidebar.selectbox("Fitness Optionen", fitness_options)
-    
-    if choice == "Aktivität hinzufügen":
-        # Form for new fitness activity entry
-        with st.form("fitness_form"):
-            datum = st.date_input("Datum", date.today())
-            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
-            dauer = st.text_input("Dauer")
-            intensitaet = st.text_input("Intensitaet")
-            art = st.text_input("Art")
-            kommentare = st.text_area("Kommentare")
-            submit_button = st.form_submit_button("Speichern")
-            
-            if submit_button:
-                add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare)
-                st.success("Fitnessaktivität gespeichert!")
-    
-    elif choice == "History":
-        show_fitness_history()
-            
+
 def show_fitness_history():
     username = st.session_state.get('current_user')
     st.title('Fitness History - Diese Woche')
 
-    # Allow the user to navigate through weeks
     week_number = st.number_input('Wochennummer (1-52)', min_value=1, max_value=52, value=datetime.now().isocalendar()[1], format='%d')
     year_to_view = st.number_input('Jahr', min_value=2020, max_value=2100, value=datetime.now().year, format='%d')
 
-    # Get the start and end dates of the specified week
     start_date, end_date = get_start_end_dates_from_week_number(year_to_view, week_number)
     st.write(f"Anzeigen der Fitnessaktivitäten für die Woche vom {start_date} bis {end_date}")
 
-    user_data = st.session_state['users'][username]['details']
-    fitness_activities = user_data.get('fitness_activities', [])
+    fitness_activities = st.session_state.get('fitness_activities', [])
 
-    # Create a DataFrame for all days of the week
     week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     df_week = pd.DataFrame(week_days, columns=['Datum'])
     df_week['Art'] = ""
     df_week['Dauer'] = ""
     df_week['Intensitaet'] = ""
 
-    # Fill the DataFrame with fitness activities for the selected week
     for activity in fitness_activities:
         activity_date = datetime.strptime(activity['Datum'], '%Y-%m-%d').date()
         if start_date <= activity_date <= end_date:
             day_name = activity_date.strftime("%a")
-            idx = week_days.index(day_name)
+            idx =week_days.index(day_name)
             df_week.at[idx, 'Dauer'] = activity['Dauer']
             df_week.at[idx, 'Intensitaet'] = activity['Intensitaet']
             df_week.at[idx, 'Art'] = activity['Art']
 
-    # Set 'Datum' as index
     df_week.set_index('Datum', inplace=True)
 
-    # Display the DataFrame
     if not df_week.empty:
         st.table(df_week)
     else:
         st.write(f"Keine Fitnessaktivitäten für die Woche {week_number} im Jahr {year_to_view} vorhanden.")
 
-# Function to store emergency numbers
+
+# Notfallnummern
 def store_emergency_numbers(username, emergency_numbers):
     user_details = st.session_state['users'][username]['details']
     user_details['emergency_numbers'] = emergency_numbers
@@ -418,7 +612,8 @@ def show_emergency_numbers():
         for number_type, number in emergency_numbers.items():
             if number:  # Only display if number is not empty
                 st.write(f"{number_type}: {number}")
-                
+
+#Notfall Nummer fertig
 def save_info_text(username, info_type, text):
     user_data = st.session_state['users'].get(username)
     if user_data:
@@ -447,291 +642,11 @@ def show_info_page():
         save_info_text(username, f'{info_options.lower()}_info', text_input)
         st.success(f"Informationen zu {info_options} gespeichert!")
 
-def show_registration_form():
-    with st.form("registration_form"):
-        st.write("Registrieren")
-        username = st.text_input("Benutzername")
-        password = st.text_input("Passwort", type="password")
-        name = st.text_input("Name")
-        vorname = st.text_input("Vorname")
-        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag")
-        gewicht = st.number_input("Gewicht (kg)", format='%f')
-        groesse = st.number_input("Größe (cm)", format='%f')
-        submit_button = st.form_submit_button("Registrieren")
-
-        if submit_button:
-            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-                st.success("Registrierung erfolgreich!")
-            else:
-                st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
-def show_login_form():
-    with st.form("login_form"):
-        st.write("Einloggen")
-        username = st.text_input("Benutzername")
-        password = st.text_input("Passwort", type="password")
-        if st.form_submit_button("Login"):
-            if verify_login(username, password):
-                st.session_state['current_user'] = username
-                st.session_state['page'] = 'home_screen'
-            else:
-                st.error("Benutzername oder Passwort ist falsch.")
-
-def show_home():
-    st.title('Herzlich Willkommen bei CardioCheck')
-    st.subheader('Ihr Blutdruck Tagebuch')
-    action = st.selectbox("Aktion wählen", ["Einloggen", "Registrieren"])
-    if action == "Registrieren":
-        show_registration_form()
-    elif action == "Einloggen":
-        show_login_form()
-
-def show_home_screen():
-    back_to_home()
-    st.title('CardioCheck')
-    st.markdown("## Home Bildschirm")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("Profil"):
-            st.session_state['page'] = 'profile'
-        if st.button("Fitness"):
-            st.session_state['page'] = 'Fitness'
-    with col2:
-        if st.button("Messungen"):
-            st.session_state['page'] = 'measurements'
-        if st.button("Notfall Nr."):
-            st.session_state['page'] = 'emergency_numbers'
-    with col3:
-        if st.button("Medi-Plan"):
-            st.session_state['page'] = 'medication-plan'
-        if st.button("Infos"):
-            st.session_state['page'] = 'infos'
-
-def show_detailed_registration():
-    username = st.session_state.get('current_user', None)
-    if not username:
-        st.error("User not found. Please register.")
-        st.session_state['page'] = 'home'
-        return
-
-    with st.form("user_detailed_registration"):
-        st.title('CardioCheck - Detaillierte Registrierung')
-        st.subheader('Bitte füllen Sie die weiteren Felder aus')
-        name = st.text_input("Name")
-        vorname = st.text_input("Vorname")
-        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag", datetime.today())  # Corrected line here
-        gewicht = st.number_input("Gewicht (kg)", min_value=1.0)
-        groesse = st.number_input("Größe (cm)", min_value=1.0)
-        
-        if st.form_submit_button("Weiter"):  # Added submit button
-            user_details = {
-                'name': name,
-                'vorname': vorname,
-                'geschlecht': geschlecht,
-                'geburtstag': geburtstag.strftime('%Y-%m-%d'),
-                'gewicht': gewicht,
-                'groesse': groesse,
-                'measurements': []
-            }
-            store_detailed_user_profile(username, user_details)
-            st.session_state['page'] = 'additional_info'
-
-def save_data_to_csv(username, data, filename):
-    df = pd.DataFrame([data])
-    df.to_csv(filename, mode='a', header=not os.path.exists(filename), index=False)
-
-# Diese Funktion wird aufgerufen, wenn der Benutzer auf "Fertig" klickt
-def save_additional_data(username, conditions, medications, dosages):
-    data = {
-        'username': username,
-        'conditions': conditions,
-        'medications': medications,
-        'dosages': dosages
-    }
-    save_data_to_csv(username, data, 'additional_data.csv')
-    st.success('Daten gespeichert!')
-
-# Eine Funktion, um ein Textfeld hinzuzufügen
-def add_text_field(key, label):
-    return st.text_input(label, key=key)
-
-# Eine Funktion, um die Medikamente und Dosierungen hinzuzufügen
-def add_medication_field(key, label):
-    med_name = st.text_input(f"{label} Name", key=f"{key}_name")
-    dosages = {
-        'morgens': st.number_input("Morgens", key=f"{key}_morgens", min_value=0, max_value=10),
-        'mittags': st.number_input("Mittags", key=f"{key}_mittags", min_value=0, max_value=10),
-        'abends': st.number_input("Abends", key=f"{key}_abends", min_value=0, max_value=10),
-        'nachts': st.number_input("Nachts", key=f"{key}_nachts", min_value=0, max_value=10),
-    }
-    return med_name, dosages
-
-# Initialisiere den Session State
-if 'conditions' not in st.session_state:
-    st.session_state.conditions = []
-if 'medications' not in st.session_state:
-    st.session_state.medications = []
-if 'dosages' not in st.session_state:
-    st.session_state.dosages = []
-
-# Hier ist die Funktion, um die Benutzeroberfläche zu rendern
-def show_detailed_registration_form():
-    username = st.session_state.get('current_user', 'default_user')
-    with st.form("detailed_info_form"):
-        st.subheader("Weitere Angaben")
-
-        # Vorerkrankungen
-        for i in range(len(st.session_state.conditions) + 1):
-            condition = add_text_field(f"condition_{i}", "Vorerkrankung")
-            if condition:
-                st.session_state.conditions.append(condition)
-
-        # Medikamente
-        for j in range(len(st.session_state.medications) + 1):
-            med, doses = add_medication_field(f"medication_{j}", f"Medikament {j+1}")
-            if med:
-                st.session_state.medications.append(med)
-                st.session_state.dosages.append(doses)
-
-        # Speichern Button
-        submitted = st.form_submit_button("Fertig")
-        if submitted:
-            save_additional_data(username, st.session_state.conditions, st.session_state.medications, st.session_state.dosages)
-    
-    # Knöpfe, um weitere Felder hinzuzufügen
-    if st.button("Vorerkrankung hinzufügen"):
-        st.session_state.conditions.append('')  # Fügt leeren String hinzu, damit ein neues Feld erscheint
-    if st.button("Medikament hinzufügen"):
-        st.session_state.medications.append('')  # Fügt leeren String hinzu, damit ein neues Feld erscheint
-
-# Zeige die erweiterte Registrierungsform an
-show_detailed_registration_form()
-
-def show_profile():
-    back_to_home()
-    st.title('Profil')
-    current_user = st.session_state.get('current_user', None)
-    if current_user:
-        user_details = st.session_state['users'].get(current_user, {}).get('details', {})
-        gewicht = user_details.get('gewicht', 'Nicht angegeben')
-        groesse = user_details.get('groesse', 'Nicht angegeben')
-        st.markdown(f"**Gewicht:** {gewicht} kg")
-        st.markdown(f"**Größe:** {groesse} cm")
-    with st.form("zielwerte_form"):
-        st.subheader('Zielwerte')
-        st.text_input("Systolisch")
-        st.text_input("Diastolisch")
-        st.text_input("Puls")
-        st.selectbox("Auswahl", ['Option 1', 'Option 2'])
-        if st.form_submit_button("Ändern"):
-            st.success("Zielwerte aktualisiert!")
-    st.markdown("Systolisch: 120 mmHg")
-    st.markdown("Diastolisch: 80 mmHg")
-    st.markdown("Puls: 60 - 90")
-    
-def show_trend_analysis(measurements):
-    # Prepare data for plotting
-    dates_times = [f"{m['datum']} {m['uhrzeit']}" for m in measurements]  # Use f-string for safe concatenation
-
-    systolic_values = [m['systolic'] for m in measurements]
-    diastolic_values = [m['diastolic'] for m in measurements]
-
-    # Create traces for the systolic and diastolic values
-    trace1 = go.Bar(
-        x=dates_times,
-        y=systolic_values,
-        name='Systolisch'
-    )
-    
-    trace2 = go.Bar(
-        x=dates_times,
-        y=diastolic_values,
-        name='Diastolisch'
-    )
-
-    # Layout configuration
-    layout = go.Layout(
-        title='Trendanalyse für Blutdruckwerte',
-        xaxis=dict(title='Datum und Uhrzeit'),
-        yaxis=dict(title='Blutdruckwert'),
-        barmode='group'
-    )
-
-    # Combine traces into a figure
-    fig = go.Figure(data=[trace1, trace2], layout=layout)
-
-    # Display the figure
-    st.plotly_chart(fig, use_container_width=True)
-
-    
-def show_measurements():
-    back_to_home()
-    st.title('Messungen')
-
-    # Menu options on the side, allowing the user to select what to do
-    menu_options = ["Neue Messung hinzufügen", "History", "Trendanalyse"]
-    choice = st.sidebar.selectbox("Optionen", menu_options)
-    username = st.session_state['current_user']
-
-    if choice == "Neue Messung hinzufügen":
-
-        if not username:
-            st.error('Bitte melden Sie sich an, um Messungen hinzuzufügen.')
-            return
-        
-        with st.form("new_measurement"):
-            # Correct use of date and time
-            datum = st.date_input("Datum", date.today())
-            uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
-            systolic_value = st.number_input("Wert Systolisch (mmHg)", min_value=0, max_value=300, step=1)
-            diastolic_value = st.number_input("Wert Diastolisch (mmHg)", min_value=0, max_value=300, step=1)
-            pulse = st.number_input("Puls (bpm)", min_value=0, max_value=200, step=1)
-            comments = st.text_area("Sonstiges/Bemerkungen")
-            submit_measurement = st.form_submit_button("Speichern")
-
-            if submit_measurement:
-                # Prepare the measurement data to be saved
-                new_measurement = {
-                    'datum': datum.isoformat(),  # Convert date to string
-                    'uhrzeit': uhrzeit.strftime('%H:%M:%S'),  # Convert time to string
-                    'systolic': systolic_value,
-                    'diastolic': diastolic_value,
-                    'pulse': pulse,
-                    'comments': comments
-                }
-                add_measurement(username, new_measurement)
-                st.success("Messung gespeichert!")
-                # Reload the measurements to the session state after saving
-                st.session_state['measurements'] = st.session_state['users'][username]['details']['measurements']
-
-    elif choice == "History":
-        st.subheader("History")
-        # Ensure we're displaying the measurements from the user's profile
-        user_measurements = st.session_state['users'][username]['details']['measurements']
-        for measurement in user_measurements:
-            date_str = measurement['datum']
-            time_str = measurement['uhrzeit']
-            st.markdown(f"""
-                `{date_str} {time_str}` **Systolisch:** `{measurement['systolic']} mmHg` \
-                **Diastolisch:** `{measurement['diastolic']} mmHg` **Puls:** `{measurement['pulse']} bpm` \
-                **Bemerkungen:** `{measurement['comments']}`
-            """)
-
-    elif choice == "Trendanalyse":
-        st.subheader("Trendanalyse")
-        # Display the trend analysis using measurements from the user's profile
-        user_measurements = st.session_state['users'][username]['details']['measurements']
-        show_trend_analysis(user_measurements)
-        
+# Infotexte fertig
 
 # Display pages based on session state
 if st.session_state['page'] == 'home':
     show_home()
-elif st.session_state['page'] == 'detailed_registration':
-    show_detailed_registration()
-elif st.session_state['page'] == 'additional_info':
-    show_additional_info()
 elif st.session_state['page'] == 'home_screen':
     show_home_screen()
 elif st.session_state['page'] == 'profile':
@@ -745,4 +660,4 @@ elif st.session_state['page'] == 'Fitness':
 elif st.session_state['page'] == 'emergency_numbers':
     show_emergency_numbers()
 elif st.session_state['page'] == 'infos':
-    show_info_page()            
+    show_info_page()   
