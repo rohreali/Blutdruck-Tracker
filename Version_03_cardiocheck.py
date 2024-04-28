@@ -492,7 +492,8 @@ def show_fitness():
             datum = st.date_input("Datum", datetime.now().date())  # Hier wird date.today() verwendet
             uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
             dauer = st.text_input("Dauer")
-            intensitaet = st.text_input("Intensitaet")
+            intensitaet_options = ["Niedrig", "Moderat", "Hoch", "Sehr hoch"]
+            intensitaet = st.selectbox("Intensität", intensitaet_options)
             art = st.text_input("Art")
             kommentare = st.text_area("Kommentare")
             submit_button = st.form_submit_button("Speichern")
