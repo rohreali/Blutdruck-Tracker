@@ -485,8 +485,7 @@ def show_fitness():
     fitness_options = ["Aktivität hinzufügen", "History"]
     choice = st.sidebar.selectbox("Fitness Optionen", fitness_options)
 
-    if choice == "Aktivität hinzufügen":
-        back_to_home()  # Nur aufrufen, wenn der Benutzer die Fitnessaktivität hinzufügen möchte
+    if choice == "Aktivität hinzufügen": 
         with st.form("fitness_form"):
             datum = st.date_input("Datum", datetime.now().date())  # Hier wird date.today() verwendet
             uhrzeit = st.time_input("Uhrzeit", datetime.now().time())
