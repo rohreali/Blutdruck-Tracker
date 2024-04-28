@@ -20,6 +20,8 @@ USER_DATA_FILE = "user_data.csv"
 USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht", "geburtstag", "gewicht", "groesse"]
 MEASUREMENTS_DATA_FILE = "measurements_data.csv"
 MEASUREMENTS_DATA_COLUMNS = ["username", "datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"]
+MEDICATION_DATA_FILE = "medication_data.csv"
+MEDICATION_DATA_COLUMNS = ["username", "med_name", "morgens", "mittags", "abends", "nachts"]
 
 #alles zu Login, Registrierung und Home Bildschirm
 def init_github():
@@ -340,28 +342,46 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 
 #hier alles zu Messungen fertig
 
+#hier kommt Medi-Plan
 
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
         st.session_state['page'] = 'home_screen'
+    st.title('Medikamentenplan')
 
+def add_medication(username, med_name, morgens, mittags, abends, nachts):
+    medication_data = {
+        "username": username,
+        "med_name": med_name,
+        "morgens": morgens,
+        "mittags": mittags,
+        "abends": abends,
+        "nachts": nachts
+    }
+    st.session_state['medications'].append(medication_data)
+    save_medications_to_github()
 
-        
+def save_medications_to_github():
+    medication_list = st.session_state['medications']
+    # Convert medication list to DataFrame
+    medication_df = pd.DataFrame(medication_list)
+    # Save DataFrame to CSV
+    medication_df.to_csv(MEDICATION_DATA_FILE, index=False)
+    # Upload CSV to GitHub
+    upload_csv_to_github(MEDICATION_DATA_FILE)
 
+def load_medication_data():
+    repo = init_github()
+    try:
+        contents = repo.get_contents(MEDICATION_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
+        return pd.DataFrame()
 
 def show_medication_plan():
-    back_to_home()
-    username = st.session_state.get('current_user')
-    
-    if not username:
-        st.error("Bitte melden Sie sich an, um den Medikamentenplan zu bearbeiten.")
-        return
-    
-    st.title('Medikamentenplan')
-    user_data = st.session_state['users'][username]['details']
-    medication_plan = user_data.get('medication_plan', [])
-    
-    # Form for new medication entry
     with st.form("medication_form"):
         med_name = st.text_input("Medikament")
         morgens = st.text_input("Morgens")
@@ -371,14 +391,12 @@ def show_medication_plan():
         submit_button = st.form_submit_button("Medikament hinzufügen")
         
         if submit_button:
-            add_medication(username, med_name, morgens, mittags, abends, nachts)
-    
-    # Display the current medication plan
-    if medication_plan:
-        for med in medication_plan:
-            st.text(f"Medikament: {med['Medikament']}, Morgens: {med['Morgens']}, Mittags: {med['Mittags']}, Abends: {med['Abends']}, Nachts: {med['Nachts']}")
-    else:
-        st.write("Keine Medikamente hinzugefügt.")
+            current_user = st.session_state.get('current_user')
+            if current_user is not None:
+                add_medication(current_user, med_name, morgens, mittags, abends, nachts)
+                st.success("Medikament erfolgreich hinzugefügt!")
+            else:
+                st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
 
 #hier kommt Fitness        
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
