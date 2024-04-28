@@ -347,7 +347,7 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
         st.session_state['page'] = 'home_screen'
-    st.title('Medikamentenplan')
+    
 
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     medication_data = {
@@ -382,6 +382,7 @@ def load_medication_data():
         return pd.DataFrame()
 
 def show_medication_plan():
+    st.title('Medikamentenplan')
     with st.form("medication_form"):
         med_name = st.text_input("Medikament")
         morgens = st.text_input("Morgens")
