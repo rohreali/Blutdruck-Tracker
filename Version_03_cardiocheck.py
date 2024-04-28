@@ -104,13 +104,21 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         'name': name,
         'vorname': vorname,
         'geschlecht': geschlecht,
-        'geburtstag': geburtstag.strftime('%Y-%m-%d') if geburtstag else None,
+        'geburtstag': None,
         'gewicht': gewicht,
         'groesse': groesse,
         'measurements': [],
         'medication_plan': [],
         'fitness_activities': []
     }
+    if geburtstag:
+        try:
+            # Validate and format the birthdate
+            datetime.strptime(geburtstag, '%d-%m-%Y')
+            user_details['geburtstag'] = geburtstag
+        except ValueError:
+            st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
+            return False
 
     user_profiles.loc[username] = user_details
     save_user_profiles_and_upload(user_profiles)
