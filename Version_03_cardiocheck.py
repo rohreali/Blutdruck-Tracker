@@ -111,6 +111,11 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         'fitness_activities': []
     }
     hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    user_details['password_hash'] = hashed_pw.decode('utf-8')
+
+    # Benutzerprofil in DataFrame einfügen
+    user_profiles.loc[username] = user_details
+    
     if geburtstag:
         try:
             # Validate and format the birthdate
