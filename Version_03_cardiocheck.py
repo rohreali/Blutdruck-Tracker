@@ -404,6 +404,32 @@ def show_medication_plan():
             else:
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
 
+def load_medication_data():
+    repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    try:
+        contents = repo.get_contents(MEDICATION_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
+        return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
+
+def show_medication_plan():
+    back_to_home()
+    st.title('Medikamentenplan')
+    
+    # Laden der Medikamentendaten
+    medication_data = load_medication_data()
+    
+    # Anzeigen der Medikamentenliste, wenn vorhanden
+    if not medication_data.empty:
+        st.write("Hier ist Ihr Medikamentenplan:")
+        st.dataframe(medication_data)
+    else:
+        st.write("Es sind keine Medikamentenpläne vorhanden.")
+
+
 #hier kommt Fitness        
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
     user_data = st.session_state['users'].get(username)
