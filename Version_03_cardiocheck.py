@@ -171,7 +171,7 @@ def show_registration_form():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag", min_value=date(1950, 1, 1))
+        geburtstag = st.date_input("Geburtstag"))
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         submit_button = st.form_submit_button("Registrieren")
