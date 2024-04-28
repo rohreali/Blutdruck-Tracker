@@ -164,6 +164,12 @@ def show_measurements():
         if st.button('Zurück zum Home-Bildschirm'):
                 go_to_home_screen()
         st.title('Messungen')
+        data = load_measurement_data()
+    if not data.empty:
+        st.write("Hier wird die Historie der Messungen angezeigt:")
+        st.dataframe(data.style.set_properties(**{'background-color': '#f5f5f5', 'color': 'black'}))
+    else:
+        st.write("Es sind keine Messdaten vorhanden.")
         with st.form("measurement_form"):
             datum = st.date_input("Datum")
             uhrzeit = st.time_input("Uhrzeit")
