@@ -152,7 +152,112 @@ def user_interface():
 if __name__== "_main_":
     user_interface()
 
+#Login/ Registrierung
+def show_registration_form():
+    with st.form("registration_form"):
+        st.write("Registrieren")
+        username = st.text_input("Benutzername")
+        password = st.text_input("Passwort", type="password")
+        name = st.text_input("Name")
+        vorname = st.text_input("Vorname")
+        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
+        geburtstag = st.date_input("Geburtstag")
+        gewicht = st.number_input("Gewicht (kg)", format='%f')
+        groesse = st.number_input("Größe (cm)", format='%f')
+        submit_button = st.form_submit_button("Registrieren")
+
+        if submit_button:
+            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+                st.success("Registrierung erfolgreich!")
+            else:
+                st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
+def show_login_form():
+    with st.form("login_form"):
+        st.write("Einloggen")
+        username = st.text_input("Benutzername")
+        password = st.text_input("Passwort", type="password")
+        if st.form_submit_button("Login"):
+            if verify_login(username, password):
+                st.session_state['current_user'] = username
+                st.session_state['page'] = 'home_screen'
+            else:
+                st.error("Benutzername oder Passwort ist falsch.")
+
+#Home Bildschirm
+def show_home():
+    st.title('Herzlich Willkommen bei CardioCheck')
+    st.subheader('Ihr Blutdruck Tagebuch')
+    action = st.selectbox("Aktion wählen", ["Einloggen", "Registrieren"])
+    if action == "Registrieren":
+        show_registration_form()
+    elif action == "Einloggen":
+        show_login_form()
+
+def show_home_screen():
+    back_to_home()
+    st.title('CardioCheck')
+    st.markdown("## Home Bildschirm")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("Profil"):
+            st.session_state['page'] = 'profile'
+        if st.button("Fitness"):
+            st.session_state['page'] = 'Fitness'
+    with col2:
+        if st.button("Messungen"):
+            st.session_state['page'] = 'measurements'
+        if st.button("Notfall Nr."):
+            st.session_state['page'] = 'emergency_numbers'
+    with col3:
+        if st.button("Medi-Plan"):
+            st.session_state['page'] = 'medication-plan'
+        if st.button("Infos"):
+            st.session_state['page'] = 'infos'
+
 #hier Registrierung beendet
+
+#hier kommt der Code für Profil (fertig)
+def show_profile():
+    back_to_home()
+    st.title('Profil')
+    current_user = st.session_state.get('current_user', None)
+    if current_user:
+        user_profiles = st.session_state['users']
+        if current_user in user_profiles.index:
+            user_details = user_profiles.loc[current_user]
+
+            # Display user details except for the password
+            st.markdown("### Benutzerdetails")
+            for detail, value in user_details.items():
+                if detail != 'password_hash':  # Exclude password from display
+                    if detail == 'gewicht':
+                        st.markdown(f"*Gewicht:* {value} kg")  # Add unit kg
+                    elif detail == 'groesse':
+                        st.markdown(f"*Größe:* {value} cm")  # Add unit cm
+                    else:
+                        st.markdown(f"*{detail.title()}:* {value}")
+
+            # Allow user to update weight and height
+            st.markdown("### Aktualisieren Sie Ihr Gewicht und Größe")
+            gewicht = st.number_input("Gewicht (kg)", value=float(user_details['gewicht']) if user_details['gewicht'] else 0, format='%f')
+            groesse = st.number_input("Größe (cm)", value=float(user_details['groesse']) if user_details['groesse'] else 0, format='%f')
+            if st.button("Update"):
+                user_profiles.at[current_user, 'gewicht'] = gewicht
+                user_profiles.at[current_user, 'groesse'] = groesse
+                save_user_profiles_and_upload(user_profiles)
+                st.success("Profil erfolgreich aktualisiert!")
+        else:
+            st.error("Benutzer nicht gefunden.")
+    else:
+        st.error("Bitte melden Sie sich an, um Ihr Profil zu sehen.")
+
+    # Display norm values
+    st.subheader('Normwerte')
+    st.markdown("Systolisch: 120 mmHg")
+    st.markdown("Diastolisch: 80 mmHg")
+    st.markdown("Puls: 60 - 80")
+    
+#Ende vom Code Profil
 
 #Hier Alles zu Messungen
 
@@ -481,144 +586,6 @@ def show_info_page():
         st.success(f"Informationen zu {info_options} gespeichert!")
 
 # Infotexte fertig
-
-#Login/ Registrierung
-def show_registration_form():
-    with st.form("registration_form"):
-        st.write("Registrieren")
-        username = st.text_input("Benutzername")
-        password = st.text_input("Passwort", type="password")
-        name = st.text_input("Name")
-        vorname = st.text_input("Vorname")
-        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag")
-        gewicht = st.number_input("Gewicht (kg)", format='%f')
-        groesse = st.number_input("Größe (cm)", format='%f')
-        submit_button = st.form_submit_button("Registrieren")
-
-        if submit_button:
-            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
-                st.success("Registrierung erfolgreich!")
-            else:
-                st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
-def show_login_form():
-    with st.form("login_form"):
-        st.write("Einloggen")
-        username = st.text_input("Benutzername")
-        password = st.text_input("Passwort", type="password")
-        if st.form_submit_button("Login"):
-            if verify_login(username, password):
-                st.session_state['current_user'] = username
-                st.session_state['page'] = 'home_screen'
-            else:
-                st.error("Benutzername oder Passwort ist falsch.")
-
-#Home Bildschirm
-def show_home():
-    st.title('Herzlich Willkommen bei CardioCheck')
-    st.subheader('Ihr Blutdruck Tagebuch')
-    action = st.selectbox("Aktion wählen", ["Einloggen", "Registrieren"])
-    if action == "Registrieren":
-        show_registration_form()
-    elif action == "Einloggen":
-        show_login_form()
-
-def show_home_screen():
-    back_to_home()
-    st.title('CardioCheck')
-    st.markdown("## Home Bildschirm")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("Profil"):
-            st.session_state['page'] = 'profile'
-        if st.button("Fitness"):
-            st.session_state['page'] = 'Fitness'
-    with col2:
-        if st.button("Messungen"):
-            st.session_state['page'] = 'measurements'
-        if st.button("Notfall Nr."):
-            st.session_state['page'] = 'emergency_numbers'
-    with col3:
-        if st.button("Medi-Plan"):
-            st.session_state['page'] = 'medication-plan'
-        if st.button("Infos"):
-            st.session_state['page'] = 'infos'
-
-#hier kommt der Code für Profil (fertig)
-def show_profile():
-    back_to_home()
-    st.title('Profil')
-    current_user = st.session_state.get('current_user', None)
-    if current_user:
-        user_profiles = st.session_state['users']
-        if current_user in user_profiles.index:
-            user_details = user_profiles.loc[current_user]
-
-            # Display user details except for the password
-            st.markdown("### Benutzerdetails")
-            for detail, value in user_details.items():
-                if detail != 'password_hash':  # Exclude password from display
-                    if detail == 'gewicht':
-                        st.markdown(f"*Gewicht:* {value} kg")  # Add unit kg
-                    elif detail == 'groesse':
-                        st.markdown(f"*Größe:* {value} cm")  # Add unit cm
-                    else:
-                        st.markdown(f"*{detail.title()}:* {value}")
-
-            # Allow user to update weight and height
-            st.markdown("### Aktualisieren Sie Ihr Gewicht und Größe")
-            gewicht = st.number_input("Gewicht (kg)", value=float(user_details['gewicht']) if user_details['gewicht'] else 0, format='%f')
-            groesse = st.number_input("Größe (cm)", value=float(user_details['groesse']) if user_details['groesse'] else 0, format='%f')
-            if st.button("Update"):
-                user_profiles.at[current_user, 'gewicht'] = gewicht
-                user_profiles.at[current_user, 'groesse'] = groesse
-                save_user_profiles_and_upload(user_profiles)
-                st.success("Profil erfolgreich aktualisiert!")
-        else:
-            st.error("Benutzer nicht gefunden.")
-    else:
-        st.error("Bitte melden Sie sich an, um Ihr Profil zu sehen.")
-
-    # Display norm values
-    st.subheader('Normwerte')
-    st.markdown("Systolisch: 120 mmHg")
-    st.markdown("Diastolisch: 80 mmHg")
-    st.markdown("Puls: 60 - 80")
-    
-#Ende vom Code Profil
-def show_trend_analysis(measurements):
-    # Prepare data for plotting
-    dates_times = [f"{m['datum']} {m['uhrzeit']}" for m in measurements]  # Use f-string for safe concatenation
-
-    systolic_values = [m['systolic'] for m in measurements]
-    diastolic_values = [m['diastolic'] for m in measurements]
-
-    # Create traces for the systolic and diastolic values
-    trace1 = go.Bar(
-        x=dates_times,
-        y=systolic_values,
-        name='Systolisch'
-    )
-    
-    trace2 = go.Bar(
-        x=dates_times,
-        y=diastolic_values,
-        name='Diastolisch'
-    )
-
-    # Layout configuration
-    layout = go.Layout(
-        title='Trendanalyse für Blutdruckwerte',
-        xaxis=dict(title='Datum und Uhrzeit'),
-        yaxis=dict(title='Blutdruckwert'),
-        barmode='group'
-    )
-
-    # Combine traces into a figure
-    fig = go.Figure(data=[trace1, trace2], layout=layout)
-
-    # Display the figure
-    st.plotly_chart(fig, use_container_width=True)
 
 # Display pages based on session state
 if st.session_state['page'] == 'home':
