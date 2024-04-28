@@ -627,7 +627,7 @@ def show_emergency_numbers():
     st.write("Rega: 1414")
     
     # Form for user's personal emergency numbers
-    user_data = st.session_state['users'].loc[username]['details']
+    user_data = st.session_state['users'].loc[username]
     if 'emergency_numbers' not in user_data:
         user_data['emergency_numbers'] = {}
 
