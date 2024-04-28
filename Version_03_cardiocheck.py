@@ -415,7 +415,7 @@ def load_medication_data():
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
         return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
 
-def show_medication_plan():
+def show_medication_list():
     back_to_home()
     st.title('Medikamentenplan')
     
