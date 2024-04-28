@@ -109,7 +109,7 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         'measurements': [],
         'medication_plan': [],
         'fitness_activities': []
-    }
+        }
     if geburtstag:
         try:
             # Validate and format the birthdate
