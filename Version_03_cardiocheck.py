@@ -267,14 +267,26 @@ def show_profile():
 #Ende vom Code Profil
 
 #Hier Alles zu Messungen
+import streamlit as st
+import pandas as pd
+from github import Github
+from io import StringIO
+import csv
+from datetime import datetime
+
+MEASUREMENTS_DATA_FILE = "measurements.csv"  # Stellen Sie sicher, dass dies auf den richtigen Dateipfad zeigt
+
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  
 
+def show_home_button():
+    if st.button('Zurück zum Home-Bildschirm'):
+        go_to_home_screen()
+
 def show_measurements():
+    show_home_button()  # Zeige den Button vor den Messungen
     option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
     if option == "Neue Messung hinzufügen":
-        if st.button('Zurück zum Home-Bildschirm'):
-            go_to_home_screen()
         st.title('Messungen')
         with st.form("measurement_form"):
             datum = st.date_input("Datum")
@@ -294,8 +306,6 @@ def show_measurements():
                     st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
             
     elif option == "Messhistorie anzeigen":
-        if st.button('Zurück zum Home-Bildschirm'):
-            go_to_home_screen()
         show_measurement_history()
 
 def load_measurement_data():
