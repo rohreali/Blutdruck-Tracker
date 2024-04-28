@@ -620,18 +620,6 @@ def add_emergency_number(username, number_type, number):
 def store_emergency_numbers(username, number_type, number):
     add_emergency_number(username, number_type, number)
     st.success(f"{number_type} Nummer hinzugefügt: {number}")
-    
-def load_emergency_numbers():
-    """ Laden der Notfallnummern aus GitHub beim Start der Anwendung. """
-    try:
-        repo = init_github()
-        contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-        csv_content = contents.decoded_content.decode("utf-8")
-        data = pd.read_csv(StringIO(csv_content))
-        return data
-    except Exception as e:
-        st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-        return pd.DataFrame(columns=EMERGENCY_NUMBERS_COLUMNS)
         
 def show_emergency_numbers():
     back_to_home()
@@ -648,10 +636,6 @@ def show_emergency_numbers():
     st.write("Polizei: 117")
     st.write("Feuerwehr: 118")
     st.write("Rega: 1414")
-
-    # Lade vorhandene Notfallnummern
-    emergency_numbers = load_emergency_numbers()
-    st.session_state['emergency_numbers'] = emergency_numbers.to_dict('records')  # Update session state
     
     with st.form("emergency_numbers_form"):
         hausarzt_number = st.text_input('Hausarzt')
