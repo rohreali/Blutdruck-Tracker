@@ -270,7 +270,8 @@ def show_profile():
 
 #Hier Alles zu Messungen
 def back_to_home():
-    st.session_state['page'] = 'home_screen'
+    if st.button("Zum Home Bildschirm"):
+        st.session_state['page'] = 'home_screen'
 
 def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     if 'measurements' not in st.session_state:
