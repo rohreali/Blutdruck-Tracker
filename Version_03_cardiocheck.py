@@ -482,8 +482,9 @@ def show_fitness():
     if st.button("Zurück zum Home-Bildschirm"):
         back_to_home()
 
+    st.sidebar.title("Fitness Optionen")
     fitness_options = ["Aktivität hinzufügen", "History"]
-    choice = st.sidebar.selectbox("Fitness Optionen", fitness_options)
+    choice = st.sidebar.selectbox("", fitness_options)
 
     if choice == "Aktivität hinzufügen": 
         with st.form("fitness_form"):
