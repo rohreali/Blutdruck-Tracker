@@ -369,20 +369,19 @@ def save_medications_to_github():
     medication_df = pd.DataFrame(medication_list)
     # Save DataFrame to CSV
     medication_df.to_csv(MEDICATION_DATA_FILE, index=False)
-    # Upload CSV to GitHub
-    upload_csv_to_github(MEDICATION_DATA_FILE)
+    
+    # Initialize GitHub connection
+    g = Github(st.secrets["github"]["token"])
+    repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
 
-# Funktion zum Laden der Medikamentendaten
-def load_medication_data():
-    repo = init_github()
     try:
         contents = repo.get_contents(MEDICATION_DATA_FILE)
-        csv_content = contents.decoded_content.decode("utf-8")
-        data = pd.read_csv(StringIO(csv_content))
-        return data
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + medication_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update medication data", updated_csv, contents.sha)
+        st.success('Medication data updated on GitHub successfully!')
     except Exception as e:
-        st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
-        return pd.DataFrame()
+        repo.create_file(MEDICATION_DATA_FILE, "Create medication data file", medication_df.to_csv(index=False))
+        st.success('Medication CSV created on GitHub successfully!')
 
 # Funktion zum Anzeigen des Medikamentenplans
 def show_medication_plan():
