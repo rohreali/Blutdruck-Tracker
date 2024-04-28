@@ -160,6 +160,7 @@ def user_interface():
     
 if __name__== "_main_":
     user_interface()
+
 def show_registration_form():
     with st.form("registration_form"):
         st.write("Registrieren")
@@ -213,7 +214,7 @@ def show_home_screen():
     with col2:
         if st.button("Messungen"):
             st.session_state['page'] = 'measurements'
-            show_measurement_options()  # Hier wird die Funktion aufgerufen
+            #show_measurement_options()  # Hier wird die Funktion aufgerufen
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
     with col3:
@@ -270,8 +271,7 @@ def show_profile():
 
 #Hier Alles zu Messungen
 def back_to_home():
-    if st.button("Zum Home Bildschirm"):
-        st.session_state['page'] = 'home_screen'
+    st.session_state['page'] = 'home_screen'
 
 def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     if 'measurements' not in st.session_state:
@@ -353,7 +353,7 @@ def show_measurement_history():
     else:
         st.write("Es sind keine Messdaten vorhanden.")
 
-show_measurement_options()
+#show_measurement_options()
 
 #hier alles zu Messungen fertig
 
@@ -655,7 +655,7 @@ elif st.session_state['page'] == 'home_screen':
 elif st.session_state['page'] == 'profile':
     show_profile()
 elif st.session_state['page'] == 'measurements':
-    show_measurements()
+    show_measurement_options()
 elif st.session_state['page'] == 'medication-plan':
     show_medication_plan()
 elif st.session_state['page'] == 'Fitness':
