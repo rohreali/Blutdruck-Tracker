@@ -97,10 +97,9 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         except ValueError:
             st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
             return False
-    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    user_details = {
-        'password_hash': hashed_pw,
+     user_details = {
+        'password_hash': None,
         'name': name,
         'vorname': vorname,
         'geschlecht': geschlecht,
@@ -119,6 +118,9 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         except ValueError:
             st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
             return False
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+   
 
     user_profiles.loc[username] = user_details
     save_user_profiles_and_upload(user_profiles)
