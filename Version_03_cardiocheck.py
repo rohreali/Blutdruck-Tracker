@@ -56,7 +56,7 @@ def initialize_session_state():
     if 'current_user' not in st.session_state:
         st.session_state['current_user'] = None
     if 'medications' not in st.session_state:
-    st.session_state['medications'] = []
+        st.session_state['medications'] = []
 
 initialize_session_state()
 
