@@ -235,6 +235,7 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
         st.success('Measurement CSV created on GitHub successfully!')
 
+#hier alles zu Messungen fertig
 
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
@@ -301,7 +302,8 @@ def show_medication_plan():
             st.text(f"Medikament: {med['Medikament']}, Morgens: {med['Morgens']}, Mittags: {med['Mittags']}, Abends: {med['Abends']}, Nachts: {med['Nachts']}")
     else:
         st.write("Keine Medikamente hinzugefügt.")
-        
+
+#hier kommt Fitness        
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
     user_data = st.session_state['users'].get(username)
     if user_data:
@@ -400,7 +402,9 @@ def show_fitness_history():
     else:
         st.write(f"Keine Fitnessaktivitäten für die Woche {week_number} im Jahr {year_to_view} vorhanden.")
 
-# Function to store emergency numbers
+#Fitness fertig
+
+# Notfallnummern
 def store_emergency_numbers(username, emergency_numbers):
     user_details = st.session_state['users'][username]['details']
     user_details['emergency_numbers'] = emergency_numbers
@@ -446,7 +450,8 @@ def show_emergency_numbers():
         for number_type, number in emergency_numbers.items():
             if number:  # Only display if number is not empty
                 st.write(f"{number_type}: {number}")
-                
+
+#Notfall Nummer fertig
 def save_info_text(username, info_type, text):
     user_data = st.session_state['users'].get(username)
     if user_data:
@@ -475,7 +480,9 @@ def show_info_page():
         save_info_text(username, f'{info_options.lower()}_info', text_input)
         st.success(f"Informationen zu {info_options} gespeichert!")
 
+# Infotexte fertig
 
+#Login/ Registrierung
 def show_registration_form():
     with st.form("registration_form"):
         st.write("Registrieren")
@@ -506,6 +513,7 @@ def show_login_form():
             else:
                 st.error("Benutzername oder Passwort ist falsch.")
 
+#Home Bildschirm
 def show_home():
     st.title('Herzlich Willkommen bei CardioCheck')
     st.subheader('Ihr Blutdruck Tagebuch')
@@ -535,54 +543,6 @@ def show_home_screen():
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
-
-
-def show_detailed_registration():
-    username = st.session_state.get('current_user', None)
-    if not username:
-        st.error("User not found. Please register.")
-        st.session_state['page'] = 'home'
-        return
-
-    with st.form("user_detailed_registration"):
-        st.title('CardioCheck - Detaillierte Registrierung')
-        st.subheader('Bitte füllen Sie die weiteren Felder aus')
-        name = st.text_input("Name")
-        vorname = st.text_input("Vorname")
-        geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag", datetime.today())  # Corrected line here
-        gewicht = st.number_input("Gewicht (kg)", min_value=1.0)
-        groesse = st.number_input("Größe (cm)", min_value=1.0)
-        
-        if st.form_submit_button("Weiter"):  # Added submit button
-            user_details = {
-                'name': name,
-                'vorname': vorname,
-                'geschlecht': geschlecht,
-                'geburtstag': geburtstag.strftime('%Y-%m-%d'),
-                'gewicht': gewicht,
-                'groesse': groesse,
-                'measurements': []
-            }
-            store_detailed_user_profile(username, user_details)
-            st.session_state['page'] = 'additional_info'
-
-def show_additional_info():
-    back_to_home()
-    username = st.session_state.get('current_user')
-    st.title('Weitere Angaben')
-    with st.form("additional_info"):
-        vorerkrankungen = st.text_area("Vorerkrankungen")
-        medikamente = st.text_area("Medikamente")
-        medication_times = {
-            'morgens': st.checkbox('morgens'),
-            'mittags': st.checkbox('mittags'),
-            'abends': st.checkbox('abends'),
-            'nachts': st.checkbox('nachts')
-        }
-        if st.form_submit_button("Fertig"):
-            store_additional_info(username, vorerkrankungen, medikamente, medication_times)
-            st.success("Weitere Angaben gespeichert! Registrierung abgeschlossen.")
 
 #hier kommt der Code für Profil (fertig)
 def show_profile():
@@ -660,17 +620,9 @@ def show_trend_analysis(measurements):
     # Display the figure
     st.plotly_chart(fig, use_container_width=True)
 
-
-
-       
-
 # Display pages based on session state
 if st.session_state['page'] == 'home':
     show_home()
-elif st.session_state['page'] == 'detailed_registration':
-    show_detailed_registration()
-elif st.session_state['page'] == 'additional_info':
-    show_additional_info()
 elif st.session_state['page'] == 'home_screen':
     show_home_screen()
 elif st.session_state['page'] == 'profile':
