@@ -482,9 +482,9 @@ def show_fitness():
     if st.button("Zurück zum Home-Bildschirm"):
         back_to_home()
 
-    st.sidebar.title("Fitness Optionen")
+    st.sidebar.title("Optionen")
     fitness_options = ["Aktivität hinzufügen", "History"]
-    choice = st.sidebar.selectbox("", fitness_options)
+    choice = st.sidebar.radio("", fitness_options)
 
     if choice == "Aktivität hinzufügen": 
         with st.form("fitness_form"):
@@ -556,6 +556,7 @@ def show_fitness_history():
         st.table(df_week)
     else:
         st.write(f"Keine Fitnessaktivitäten für die Woche {week_number} im Jahr {year_to_view} vorhanden.")
+
 
 # Notfallnummern
 def store_emergency_numbers(username, emergency_numbers):
