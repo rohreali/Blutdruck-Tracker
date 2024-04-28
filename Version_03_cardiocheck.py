@@ -581,7 +581,6 @@ def add_emergency_number(username, number_type, number):
     initialize_emergency_numbers()
     emergency_number = {"username": username, "type": number_type, "number": number}
     st.session_state['emergency_numbers'].append(emergency_number)
-    save_emergency_numbers_to_github()
     
 def load_emergency_numbers():
     """ Laden der Notfallnummern aus GitHub beim Start der Anwendung. """
