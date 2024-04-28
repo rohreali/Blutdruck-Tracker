@@ -669,13 +669,6 @@ def show_emergency_numbers():
         for entry in [en for en in emergency_numbers_list if en['username'] == username]:
             st.write(f"{entry['type']}: {entry['number']}")
 
-def initialize_app():
-    """ Initialisiert alle erforderlichen Daten beim Start der Anwendung. """
-    st.session_state['emergency_numbers'] = load_emergency_numbers().to_dict('records')
-    initialize_session_state()
-
-initialize_app()
-
 #Notfall Nummer fertig
 def save_info_text(username, info_type, text):
     user_data = st.session_state['users'].get(username)
