@@ -24,6 +24,8 @@ MEDICATION_DATA_FILE = "medication_data.csv"
 MEDICATION_DATA_COLUMNS = ["username", "med_name", "morgens", "mittags", "abends", "nachts"]
 FITNESS_DATA_FILE = "fitness_data.csv"
 FITNESS_DATA_COLUMNS= [ "username", "datum", "uhrzeit", "dauer", "intensitaet", "Art", "Kommentare"]
+EMERGENCY_NUMBERS_FILE = "emergency_numbers.csv"
+EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "number"]
 
 #alles zu Login, Registrierung und Home Bildschirm
 def init_github():
@@ -576,12 +578,38 @@ def show_fitness_history():
 
 
 # Notfallnummern
+
+
 def store_emergency_numbers(username, emergency_numbers):
     user_details = st.session_state['users'][username]['details']
     user_details['emergency_numbers'] = emergency_numbers
     store_detailed_user_profile(username, user_details)
 
 # Function to display the emergency numbers page
+def save_emergency_numbers_to_github():
+    emergency_numbers_list = st.session_state.get('emergency_numbers', [])
+    emergency_numbers_df = pd.DataFrame(emergency_numbers_list)
+    emergency_numbers_df.to_csv(EMERGENCY_NUMBERS_FILE, index=False)
+    repo = init_github()
+    try:
+        contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + emergency_numbers_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update emergency numbers data", updated_csv, contents.sha)
+        st.success('Emergency numbers data updated on GitHub successfully!')
+    except Exception as e:
+        repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", emergency_numbers_df.to_csv(index=False))
+        st.success('Emergency numbers CSV created on GitHub successfully!')
+
+def store_emergency_numbers(username, number_type, number):
+    if 'emergency_numbers' not in st.session_state:
+        st.session_state['emergency_numbers'] = []
+    st.session_state['emergency_numbers'].append({
+        "username": username,
+        "type": number_type,
+        "number": number
+    })
+    save_emergency_numbers_to_github()
+
 def show_emergency_numbers():
     back_to_home()
     username = st.session_state.get('current_user')
@@ -606,13 +634,13 @@ def show_emergency_numbers():
     emergency_numbers = user_data['emergency_numbers']
 
     with st.form("emergency_numbers_form"):
-        for number_type in ['Hausarzt', 'Eigene']:
-            emergency_numbers[number_type] = st.text_input(number_type, emergency_numbers.get(number_type, ''))
+        hausarzt_number = st.text_input('Hausarzt', emergency_numbers.get('Hausarzt', ''))
+        eigene_number = st.text_input('Eigene', emergency_numbers.get('Eigene', ''))
         submit_button = st.form_submit_button("Speichern")
         
         if submit_button:
-            user_data['emergency_numbers'] = emergency_numbers
-            save_user_profiles_and_upload()
+            store_emergency_numbers(username, 'Hausarzt', hausarzt_number)
+            store_emergency_numbers(username, 'Eigene', eigene_number)
             st.success("Persönliche Notfallnummern gespeichert!")
 
     # Display only the saved personal emergency numbers
