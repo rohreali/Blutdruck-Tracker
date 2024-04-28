@@ -202,6 +202,7 @@ def show_home():
 
 def show_home_screen():
     back_to_home()
+    st.image("dein_logo.png", use_column_width=True)
     st.title('CardioCheck')
     st.markdown("## Home Bildschirm")
     col1, col2, col3 = st.columns(3)
