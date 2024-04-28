@@ -478,9 +478,10 @@ def show_fitness():
         st.error("Bitte melden Sie sich an, um Fitnessdaten zu bearbeiten.")
         return
 
-    st.title('Fitness')
     if st.button("Zurück zum Home-Bildschirm"):
         back_to_home()
+
+    st.title('Fitness')
 
     st.sidebar.title("Optionen")
     fitness_options = ["Aktivität hinzufügen", "History"]
@@ -503,6 +504,7 @@ def show_fitness():
 
     elif choice == "History":
         show_fitness_history()
+
 
 def load_fitness_data():
     repo = init_github()
