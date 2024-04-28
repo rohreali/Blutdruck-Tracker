@@ -119,7 +119,7 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
     if geburtstag:
         try:
             # Validate and format the birthdate
-            datetime.strptime(geburtstag, '%d-%m-%Y')
+            datetime.strptime(geburtstag, '%Y-%m-%d')
             user_details['geburtstag'] = geburtstag
         except ValueError:
             st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
