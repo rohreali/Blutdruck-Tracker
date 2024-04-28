@@ -608,24 +608,33 @@ def save_emergency_numbers_to_github():
         return
 
     emergency_numbers_df = pd.DataFrame(emergency_numbers_list)
+    csv_content = emergency_numbers_df.to_csv(index=False)
     repo = init_github()
 
     try:
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-        updated_csv = emergency_numbers_df.to_csv(index=False)
-        repo.update_file(contents.path, "Update emergency numbers data", updated_csv, contents.sha)
+        repo.update_file(contents.path, "Update emergency numbers data", csv_content, contents.sha)
         st.success('Emergency numbers data updated on GitHub successfully!')
     except Exception as e:
-        repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", emergency_numbers_df.to_csv(index=False))
-        st.success('Emergency numbers CSV created on GitHub successfully!')
+        if '404' in str(e):  # File not found
+            try:
+                repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", csv_content)
+                st.success('Emergency numbers CSV created on GitHub successfully!')
+            except Exception as e:
+                st.error(f'Failed to create emergency numbers CSV: {e}')
+        else:
+            st.error(f'Failed to update emergency numbers on GitHub: {e}')
 
-def add_emergency_number(username, number_type, number):
+"""def add_emergency_number(username, number_type, number):
     initialize_emergency_numbers()
     st.session_state['emergency_numbers'].append({
         "username": username,
         "type": number_type,
         "number": number
     })
+    save_emergency_numbers_to_github()"""
+def store_emergency_numbers(username, number_type, number):
+    add_emergency_number(username, number_type, number)
     save_emergency_numbers_to_github()
 
 def store_emergency_numbers(username, number_type, number):
