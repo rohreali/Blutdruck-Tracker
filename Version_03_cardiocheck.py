@@ -349,7 +349,6 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
         st.session_state['page'] = 'home_screen'
-    
 
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     medication_data = {
@@ -363,6 +362,7 @@ def add_medication(username, med_name, morgens, mittags, abends, nachts):
     st.session_state['medications'].append(medication_data)
     save_medications_to_github()
 
+# Funktion zum Speichern der Medikamentendaten
 def save_medications_to_github():
     medication_list = st.session_state['medications']
     # Convert medication list to DataFrame
@@ -372,6 +372,7 @@ def save_medications_to_github():
     # Upload CSV to GitHub
     upload_csv_to_github(MEDICATION_DATA_FILE)
 
+# Funktion zum Laden der Medikamentendaten
 def load_medication_data():
     repo = init_github()
     try:
@@ -383,6 +384,7 @@ def load_medication_data():
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
         return pd.DataFrame()
 
+# Funktion zum Anzeigen des Medikamentenplans
 def show_medication_plan():
     back_to_home()
     st.title('Medikamentenplan')
@@ -401,6 +403,25 @@ def show_medication_plan():
                 st.success("Medikament erfolgreich hinzugefügt!")
             else:
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
+
+# Funktion zum Anzeigen der Medikamentenliste
+def show_medication_list():
+    back_to_home()
+    st.title('Medikamentenliste')
+    medication_data = load_medication_data()
+    if not medication_data.empty:
+        st.write("Hier ist Ihre Medikamentenliste:")
+        st.dataframe(medication_data)
+    else:
+        st.write("Es sind keine Medikamente eingetragen.")
+
+# Zeigen der Medikamentenliste oder des Medikamentenplans basierend auf der Benutzeraktion
+if st.session_state['page'] == 'medication-plan':
+    show_medication_plan()
+elif st.session_state['page'] == 'medication-list':
+    show_medication_list()
+
+
 
 #hier kommt Fitness        
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
