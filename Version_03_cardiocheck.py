@@ -93,38 +93,24 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         try:
             # Validiere das eingegebene Geburtsdatum und formatiere es
             datetime.strptime(geburtstag, '%d-%m-%Y')
-            user_details['geburtstag_str'] = geburtstag
+            user_details['geburtstag'] = geburtstag
         except ValueError:
             st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
             return False
-        
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
     user_details = {
-        'password_hash': None,
+        'password_hash': hashed_pw,
         'name': name,
         'vorname': vorname,
         'geschlecht': geschlecht,
-        'geburtstag': None,
+        'geburtstag': geburtstag.strftime('%Y-%m-%d') if geburtstag else None,
         'gewicht': gewicht,
         'groesse': groesse,
         'measurements': [],
         'medication_plan': [],
         'fitness_activities': []
     }
-    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    user_details['password_hash'] = hashed_pw.decode('utf-8')
-
-    # Benutzerprofil in DataFrame einfügen
-    user_profiles.loc[username] = user_details
-    
-    if geburtstag:
-        try:
-            # Validate and format the birthdate
-            datetime.strptime(geburtstag, '%Y-%m-%d')
-            user_details['geburtstag'] = geburtstag
-        except ValueError:
-            st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
-            return False
-      
 
     user_profiles.loc[username] = user_details
     save_user_profiles_and_upload(user_profiles)
