@@ -580,10 +580,7 @@ def show_fitness_history():
 # Notfallnummern
 
 
-def store_emergency_numbers(username, emergency_numbers):
-    user_details = st.session_state['users'][username]['details']
-    user_details['emergency_numbers'] = emergency_numbers
-    store_detailed_user_profile(username, user_details)
+
 
 # Function to display the emergency numbers page
 def save_emergency_numbers_to_github():
