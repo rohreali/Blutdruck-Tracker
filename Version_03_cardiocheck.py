@@ -99,7 +99,7 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
             return False
 
      user_details = {
-        'password_hash': None,
+        'password_hash': hashed_pw,
         'name': name,
         'vorname': vorname,
         'geschlecht': geschlecht,
@@ -109,7 +109,7 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         'measurements': [],
         'medication_plan': [],
         'fitness_activities': []
-        }
+    }
     if geburtstag:
         try:
             # Validate and format the birthdate
