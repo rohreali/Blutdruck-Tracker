@@ -579,7 +579,10 @@ def show_fitness_history():
 
 # Notfallnummern
 
-
+def store_emergency_numbers(username, emergency_numbers):
+    user_details = st.session_state['users'][username]['details']
+    user_details['emergency_numbers'] = emergency_numbers
+    store_detailed_user_profile(username, user_details)
 
 
 # Function to display the emergency numbers page
@@ -624,7 +627,7 @@ def show_emergency_numbers():
     st.write("Rega: 1414")
     
     # Form for user's personal emergency numbers
-    user_data = st.session_state['users'][username]#['details']
+    user_data = st.session_state['users']['username']['details']
     if 'emergency_numbers' not in user_data:
         user_data['emergency_numbers'] = {}
 
