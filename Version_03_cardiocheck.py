@@ -349,6 +349,8 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
         st.session_state['page'] = 'home_screen'
+    if st.button("Zum Home Bildschirm", key="home_button"):
+        st.session_state['page'] = 'home_screen'
 
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     medication_data = {
@@ -406,6 +408,7 @@ def show_medication_plan():
 
 # Funktion zum Anzeigen der Medikamentenliste
 def show_medication_list():
+    back_to_home()
     st.title('Medikamentenliste')
     medication_data = load_medication_data()
     if not medication_data.empty:
