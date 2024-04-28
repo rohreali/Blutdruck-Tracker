@@ -21,6 +21,7 @@ USER_DATA_COLUMNS = ["username", "password_hash", "name", "vorname", "geschlecht
 MEASUREMENTS_DATA_FILE = "measurements_data.csv"
 MEASUREMENTS_DATA_COLUMNS = ["username", "datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"]
 
+#alles zu Login, Registrierung und Home Bildschirm
 def init_github():
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
@@ -151,8 +152,6 @@ def user_interface():
     
 if __name__== "_main_":
     user_interface()
-
-#Login/ Registrierung
 def show_registration_form():
     with st.form("registration_form"):
         st.write("Registrieren")
@@ -260,7 +259,6 @@ def show_profile():
 #Ende vom Code Profil
 
 #Hier Alles zu Messungen
-
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  
 def show_measurements():
@@ -342,38 +340,12 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 
 #hier alles zu Messungen fertig
 
+
 def back_to_home():
     if st.button("Zum Home Bildschirm"):
         st.session_state['page'] = 'home_screen'
 
-def store_detailed_user_profile(username, details):
-    if username in st.session_state['users']:
-        st.session_state['users'][username]['details'] = details
-        save_user_profiles_and_upload()
-    else:
-        st.error("User not found. Please register.")
 
-def store_additional_info(username, vorerkrankungen, medikamente, medication_times):
-    user_details = st.session_state['users'][username]['details']
-    user_details['vorerkrankungen'] = vorerkrankungen
-    user_details['medikamente'] = medikamente
-    user_details['medication_times'] = medication_times
-    store_detailed_user_profile(username, user_details)
-def add_medication(username, med_name, morgens, mittags, abends, nachts):
-    user_data = st.session_state['users'].get(username)
-    if user_data:
-        # Ensure the 'medication_plan' key exists
-        if 'medication_plan' not in user_data['details']:
-            user_data['details']['medication_plan'] = []
-        new_medication = {
-            'Medikament': med_name,
-            'Morgens': morgens,
-            'Mittags': mittags,
-            'Abends': abends,
-            'Nachts': nachts,
-        }
-        user_data['details']['medication_plan'].append(new_medication)
-        save_user_profiles_and_upload()
         
 
 
