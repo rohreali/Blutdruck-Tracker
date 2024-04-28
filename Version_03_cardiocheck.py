@@ -177,7 +177,8 @@ def show_registration_form():
         submit_button = st.form_submit_button("Registrieren")
 
         if submit_button:
-            if register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
+            geburtstag_str = geburtstag.strftime('%d-%m-%Y')
+            if register_user(username, password, name, vorname, geschlecht, geburtstag_str, gewicht, groesse):
                 st.success("Registrierung erfolgreich!")
             else:
                 st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
