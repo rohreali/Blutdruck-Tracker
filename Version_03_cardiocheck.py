@@ -354,6 +354,8 @@ def back_to_home():
     st.session_state['page'] = 'home_screen'
     
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
+    if 'medications' not in st.session_state:
+        st.session_state['medications'] = []
     medication_data = {
         "username": username,
         "med_name": med_name,
@@ -365,15 +367,11 @@ def add_medication(username, med_name, morgens, mittags, abends, nachts):
     st.session_state['medications'].append(medication_data)
     save_medications_to_github()
 
-# Funktion zum Speichern der Medikamentendaten
 def save_medications_to_github():
     medication_list = st.session_state['medications']
-    # Convert medication list to DataFrame
     medication_df = pd.DataFrame(medication_list)
-    # Save DataFrame to CSV
     medication_df.to_csv(MEDICATION_DATA_FILE, index=False)
     
-    # Initialize GitHub connection
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
 
@@ -386,13 +384,10 @@ def save_medications_to_github():
         repo.create_file(MEDICATION_DATA_FILE, "Create medication data file", medication_df.to_csv(index=False))
         st.success('Medication CSV created on GitHub successfully!')
 
-# Funktion zum Anzeigen des Medikamentenplans
 def show_medication_plan():
     option = st.sidebar.selectbox("Optionen", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
     if option == "Neues Medikament hinzufügen":
-        if st.button('Zum Home Bildschirm'):
-            back_to_home()
-        st.title ('Medikamentenplan')
+        st.title('Medikamentenplan')
         with st.form("medication_form"):
             med_name = st.text_input("Medikament")
             morgens = st.text_input("Morgens")
@@ -410,11 +405,10 @@ def show_medication_plan():
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
         
     elif option == "Medikamentenplan anzeigen":
-        if st.button('Zum Home Bildschirm'):
-            back_to_home()
         show_medication_list()
+
 def load_medication_data():
-    repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    repo = init_github()
     try:
         contents = repo.get_contents(MEDICATION_DATA_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
@@ -422,16 +416,13 @@ def load_medication_data():
         return data
     except Exception as e:
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
-        return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
+        return pd.DataFrame()
 
 def show_medication_list():
-    back_to_home()
     st.title('Medikamentenplan')
     
-    # Laden der Medikamentendaten
     medication_data = load_medication_data()
     
-    # Anzeigen der Medikamentenliste, wenn vorhanden
     if not medication_data.empty:
         st.write("Hier ist Ihr Medikamentenplan:")
         st.dataframe(medication_data)
