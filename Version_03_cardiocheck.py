@@ -39,7 +39,7 @@ def upload_csv_to_github(file_path, repo):
         content = file.read()
     try:
         contents = repo.get_contents(file_name)
-        repo.update_file(contents.path, "Update user data", content, contents.sha)
+        repo.update_file(contents.path, "Update user data", content, contFents.sha)
         st.success('CSV updated on GitHub successfully!')
     except:
         repo.create_file(file_name, "Create user data file", content)
@@ -171,7 +171,7 @@ def show_registration_form():
         name = st.text_input("Name")
         vorname = st.text_input("Vorname")
         geschlecht = st.radio("Geschlecht", ['Männlich', 'Weiblich', 'Divers'])
-        geburtstag = st.date_input("Geburtstag")
+        geburtstag = st.date_input("Geburtstag", min_value=datetime.date(1950, 1, 1))
         gewicht = st.number_input("Gewicht (kg)", format='%f')
         groesse = st.number_input("Größe (cm)", format='%f')
         submit_button = st.form_submit_button("Registrieren")
