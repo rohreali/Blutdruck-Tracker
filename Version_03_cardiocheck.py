@@ -274,9 +274,11 @@ def back_to_home():
     st.session_state['page'] = 'home_screen'
 
 def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
+    current_user = st.session_state.get('current_user')
     if 'measurements' not in st.session_state:
         st.session_state['measurements'] = []
     measurement_data = {
+        "username": current_user,  # Diese Zeile fehlte
         "datum": datum.strftime('%Y-%m-%d'),
         "uhrzeit": uhrzeit.strftime('%H:%M'),
         "systolic": systolic,
@@ -286,6 +288,7 @@ def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     }
     st.session_state['measurements'].append(measurement_data)
     save_measurements_to_github()
+
 
 def save_measurements_to_github():
     measurement_list = st.session_state.get('measurements', [])
