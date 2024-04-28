@@ -355,9 +355,9 @@ def back_to_home():
         ...
 
 # Einmaligen Zurück-Button außerhalb der Funktion erstellen
-home_button_key = "home_button"
-if st.button("Zum Home Bildschirm", key=home_button_key):
+if st.button("Zum Home Bildschirm"):
     st.session_state['page'] = 'home_screen'
+
 
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     medication_data = {
