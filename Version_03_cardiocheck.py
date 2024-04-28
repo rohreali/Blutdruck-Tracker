@@ -386,15 +386,18 @@ def save_medications_to_github():
 
 # Funktion zum Anzeigen des Medikamentenplans
 def show_medication_plan():
-    back_to_home()
-    st.title('Medikamentenplan')
-    with st.form("medication_form"):
-        med_name = st.text_input("Medikament")
-        morgens = st.text_input("Morgens")
-        mittags = st.text_input("Mittags")
-        abends = st.text_input("Abends")
-        nachts = st.text_input("Nachts")
-        submit_button = st.form_submit_button("Medikament hinzufügen")
+    option = st.sidebar.selectbox("Optionen", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
+    if option == "Neues Medikament hinzufügen":
+        if st.button('Zurück zum Homebildschirm'):
+            back_to_home()
+        st.title ('Medikamentenplan')
+        with st.form("medication_form"):
+            med_name = st.text_input("Medikament")
+            morgens = st.text_input("Morgens")
+            mittags = st.text_input("Mittags")
+            abends = st.text_input("Abends")
+            nachts = st.text_input("Nachts")
+            submit_button = st.form_submit_button("Medikament hinzufügen")
         
         if submit_button:
             current_user = st.session_state.get('current_user')
@@ -403,7 +406,11 @@ def show_medication_plan():
                 st.success("Medikament erfolgreich hinzugefügt!")
             else:
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
-
+        
+    elif option == "Medikamentenplan anzeigen":
+        if st.button('zurück zum Homebildschirm'):
+            back_to_home()
+        show_medication_list()
 def load_medication_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
     try:
