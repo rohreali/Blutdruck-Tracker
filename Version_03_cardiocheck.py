@@ -385,7 +385,9 @@ def save_medications_to_github():
         st.success('Medication CSV created on GitHub successfully!')
 
 def show_medication_plan():
-    option = st.sidebar.selectbox("Optionen", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen", "Zurück zum Homebildschirm"])
+    if st.button('Zurück zum Homebildschirm'):
+        back_to_home()
+    option = st.radio("Optionen", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
     if option == "Neues Medikament hinzufügen":
         st.title('Medikamentenplan')
         with st.form("medication_form"):
@@ -406,8 +408,6 @@ def show_medication_plan():
         
     elif option == "Medikamentenplan anzeigen":
         show_medication_list()
-    elif option == "Zurück zum Homebildschirm":
-        back_to_home()
 
 def load_medication_data():
     repo = init_github()
@@ -430,7 +430,6 @@ def show_medication_list():
         st.dataframe(medication_data)
     else:
         st.write("Es sind keine Medikamentenpläne vorhanden.")
-
 
 
 
