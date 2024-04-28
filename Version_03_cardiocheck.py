@@ -227,8 +227,10 @@ def show_home_screen():
 #hier Registrierung beendet
 
 #hier kommt der Code für Profil (fertig)
+def back_to_home():
+    st.session_state['page'] = 'home_screen'
+
 def show_profile():
-    back_to_home()
     st.title('Profil')
     current_user = st.session_state.get('current_user', None)
     if current_user:
