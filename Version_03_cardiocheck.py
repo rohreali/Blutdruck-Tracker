@@ -443,20 +443,19 @@ def back_to_home():
     st.session_state['page'] = 'home_screen'
     
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
-    fitness_data = st.session_state['users'].get(username)
-    if fitness_data:
-        if 'fitness_activities' not in fitness_data['details']:
-            fitness_data['details']['fitness_activities'] = []
-        new_activity = {
-            'Datum': datum.strftime('%Y-%m-%d'),
-            'Uhrzeit': uhrzeit.strftime('%H:%M:%S'),
-            'Dauer': dauer,
-            'Intensitaet': intensitaet,
-            'Art': art,
-            'Kommentare': kommentare
-        }
-        fitness_data['details']['fitness_activities'].append(new_activity)
-        save_fitness_data_to_github()
+    if 'fitness_activities' not in st.session_state:
+        st.session_state['fitness_activities'] = []
+    new_activity = {
+        'username': username,
+        'Datum': datum.strftime('%Y-%m-%d'),
+        'Uhrzeit': uhrzeit.strftime('%H:%M:%S'),
+        'Dauer': dauer,
+        'Intensitaet': intensitaet,
+        'Art': art,
+        'Kommentare': kommentare
+    }
+    st.session_state['fitness_activities'].append(new_activity)
+    save_fitness_data_to_github()
 
 def save_fitness_data_to_github():
     fitness_list = st.session_state['fitness_activities']
@@ -533,8 +532,7 @@ def show_fitness_history():
     start_date, end_date = get_start_end_dates_from_week_number(year_to_view, week_number)
     st.write(f"Anzeigen der Fitnessaktivitäten für die Woche vom {start_date} bis {end_date}")
 
-    fitness_data = st.session_state['users'][username]['details']
-    fitness_activities = fitness_data.get('fitness_activities', [])
+    fitness_activities = st.session_state.get('fitness_activities', [])
 
     week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     df_week = pd.DataFrame(week_days, columns=['Datum'])
@@ -546,7 +544,7 @@ def show_fitness_history():
         activity_date = datetime.strptime(activity['Datum'], '%Y-%m-%d').date()
         if start_date <= activity_date <= end_date:
             day_name = activity_date.strftime("%a")
-            idx = week_days.index(day_name)
+            idx =week_days.index(day_name)
             df_week.at[idx, 'Dauer'] = activity['Dauer']
             df_week.at[idx, 'Intensitaet'] = activity['Intensitaet']
             df_week.at[idx, 'Art'] = activity['Art']
@@ -557,7 +555,6 @@ def show_fitness_history():
         st.table(df_week)
     else:
         st.write(f"Keine Fitnessaktivitäten für die Woche {week_number} im Jahr {year_to_view} vorhanden.")
-#Fitness fertig
 
 # Notfallnummern
 def store_emergency_numbers(username, emergency_numbers):
