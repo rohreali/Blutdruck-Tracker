@@ -214,6 +214,7 @@ def show_home_screen():
     with col2:
         if st.button("Messungen"):
             st.session_state['page'] = 'measurements'
+            show_measurement_options()  # Hier wird die Funktion aufgerufen
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
     with col3:
@@ -221,6 +222,7 @@ def show_home_screen():
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
+
 
 #hier Registrierung beendet
 
