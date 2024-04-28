@@ -267,46 +267,68 @@ def show_profile():
 #Ende vom Code Profil
 
 #Hier Alles zu Messungen
-import streamlit as st
-import pandas as pd
-from github import Github
-from io import StringIO
-import csv
-from datetime import datetime
+def back_to_home():
+    st.session_state['page'] = 'home_screen'
 
-MEASUREMENTS_DATA_FILE = "measurements.csv"  # Stellen Sie sicher, dass dies auf den richtigen Dateipfad zeigt
+def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
+    if 'measurements' not in st.session_state:
+        st.session_state['measurements'] = []
+    measurement_data = {
+        "datum": datum.strftime('%Y-%m-%d'),
+        "uhrzeit": uhrzeit.strftime('%H:%M'),
+        "systolic": systolic,
+        "diastolic": diastolic,
+        "pulse": pulse,
+        "comments": comments
+    }
+    st.session_state['measurements'].append(measurement_data)
+    save_measurements_to_github()
 
-def go_to_home_screen():
-    st.session_state['page'] = 'home_screen'  
+def save_measurements_to_github():
+    measurement_list = st.session_state.get('measurements', [])
+    measurement_df = pd.DataFrame(measurement_list)
+    measurement_df.to_csv(MEASUREMENTS_DATA_FILE, index=False)
 
-def show_home_button():
-    if st.button('Zurück zum Home-Bildschirm'):
-        go_to_home_screen()
+    g = Github(st.secrets["github"]["token"])
+    repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
 
-def show_measurements():
-    show_home_button()  # Zeige den Button vor den Messungen
-    option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
+    try:
+        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + measurement_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update measurement data", updated_csv, contents.sha)
+        st.success('Measurement data updated on GitHub successfully!')
+    except Exception as e:
+        repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", measurement_df.to_csv(index=False))
+        st.success('Measurement CSV created on GitHub successfully!')
+
+def show_measurement_options():
+    st.sidebar.title("Messungen Optionen")
+    option = st.sidebar.radio("", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
     if option == "Neue Messung hinzufügen":
-        st.title('Messungen')
-        with st.form("measurement_form"):
-            datum = st.date_input("Datum")
-            uhrzeit = st.time_input("Uhrzeit")
-            wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
-            wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
-            puls = st.number_input("Puls (bpm)", min_value=0)
-            kommentare = st.text_area("Kommentare")
-            submit_button = st.form_submit_button("Messungen speichern")
-
-            if submit_button:
-                current_user = st.session_state.get('current_user')
-                if current_user is not None:
-                    save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
-                    st.success("Messungen erfolgreich gespeichert!")
-                else:
-                    st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
-            
+        show_add_measurement_form()
     elif option == "Messhistorie anzeigen":
         show_measurement_history()
+
+def show_add_measurement_form():
+    if st.button('Zurück zum Homebildschirm'):
+        back_to_home()
+    st.title('Messungen')
+    with st.form("measurement_form"):
+        datum = st.date_input("Datum")
+        uhrzeit = st.time_input("Uhrzeit")
+        wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
+        wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
+        puls = st.number_input("Puls (bpm)", min_value=0)
+        kommentare = st.text_area("Kommentare")
+        submit_button = st.form_submit_button("Messungen speichern")
+
+        if submit_button:
+            current_user = st.session_state.get('current_user')
+            if current_user is not None:
+                add_measurement(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
+                st.success("Messungen erfolgreich gespeichert!")
+            else:
+                st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
 
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
@@ -327,38 +349,8 @@ def show_measurement_history():
         st.dataframe(data)
     else:
         st.write("Es sind keine Messdaten vorhanden.")
-            
-def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comments):
-    # Convert the data to a dictionary to store it in a CSV format
-    measurement_data = {
-        "datum": datum.strftime('%Y-%m-%d'),
-        "uhrzeit": uhrzeit.strftime('%H:%M'),
-        "systolic": systolic,
-        "diastolic": diastolic,
-        "pulse": pulse,
-        "comments": comments
-    }
 
-    # Use StringIO to simulate a file object
-    csv_file = StringIO()
-    writer = csv.DictWriter(csv_file, fieldnames=["datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"])
-    writer.writeheader()
-    writer.writerow(measurement_data)
-    csv_content = csv_file.getvalue()
-    csv_file.close()
-
-    # Initialize GitHub connection
-    repo = init_github()
-    try:
-        contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
-        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + csv_content.split('\n', 1)[1]  # Skip the header
-        repo.update_file(contents.path, "Update measurement data", updated_csv, contents.sha)
-        st.success('Measurement data updated on GitHub successfully!')
-    except Exception as e:
-        repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
-        st.success('Measurement CSV created on GitHub successfully!')
-
-show_measurements()
+show_measurement_options()
 
 #hier alles zu Messungen fertig
 
