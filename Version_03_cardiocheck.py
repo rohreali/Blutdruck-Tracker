@@ -269,11 +269,12 @@ def show_profile():
 #Hier Alles zu Messungen
 def go_to_home_screen():
     st.session_state['page'] = 'home_screen'  
+
 def show_measurements():
     option = st.sidebar.selectbox("Optionen", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
     if option == "Neue Messung hinzufügen":
         if st.button('Zurück zum Home-Bildschirm'):
-                go_to_home_screen()
+            go_to_home_screen()
         st.title('Messungen')
         with st.form("measurement_form"):
             datum = st.date_input("Datum")
@@ -287,15 +288,16 @@ def show_measurements():
             if submit_button:
                 current_user = st.session_state.get('current_user')
                 if current_user is not None:
-                    save_measurements_to_github(current_user, datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
+                    save_measurements_to_github(datum, uhrzeit, wert_systolisch, wert_diastolisch, puls, kommentare)
                     st.success("Messungen erfolgreich gespeichert!")
                 else:
                     st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
             
     elif option == "Messhistorie anzeigen":
-         if st.button('Zurück zum Home-Bildschirm'):
-             go_to_home_screen()
-         show_measurement_history()
+        if st.button('Zurück zum Home-Bildschirm'):
+            go_to_home_screen()
+        show_measurement_history()
+
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
     try:
@@ -329,7 +331,7 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 
     # Use StringIO to simulate a file object
     csv_file = StringIO()
-    writer = csv.DictWriter(csv_file, fieldnames=MEASUREMENTS_DATA_COLUMNS)
+    writer = csv.DictWriter(csv_file, fieldnames=["datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"])
     writer.writeheader()
     writer.writerow(measurement_data)
     csv_content = csv_file.getvalue()
@@ -345,6 +347,8 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
     except Exception as e:
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", csv_content)
         st.success('Measurement CSV created on GitHub successfully!')
+
+show_measurements()
 
 #hier alles zu Messungen fertig
 
