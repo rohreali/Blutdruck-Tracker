@@ -407,7 +407,15 @@ def show_medication_plan():
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
         
     elif option == "Medikamentenplan anzeigen":
-        show_medication_list()
+        st.title('Medikamentenplan')
+    
+        medication_data = load_medication_data()
+    
+        if not medication_data.empty:
+            st.write("Hier ist Ihr Medikamentenplan:")
+            st.dataframe(medication_data)
+        else:
+            st.write("Es sind keine Medikamentenpläne vorhanden.")
 
 def load_medication_data():
     repo = init_github()
@@ -420,16 +428,6 @@ def load_medication_data():
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
         return pd.DataFrame()
 
-def show_medication_list():
-    st.title('Medikamentenplan')
-    
-    medication_data = load_medication_data()
-    
-    if not medication_data.empty:
-        st.write("Hier ist Ihr Medikamentenplan:")
-        st.dataframe(medication_data)
-    else:
-        st.write("Es sind keine Medikamentenpläne vorhanden.")
 
 
 #hier kommt Fitness        
