@@ -97,9 +97,9 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         except ValueError:
             st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
             return False
-        hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        
     user_details = {
-        'password_hash': hashed_pw,
+        'password_hash': None,
         'name': name,
         'vorname': vorname,
         'geschlecht': geschlecht,
@@ -110,6 +110,7 @@ def register_user(username, password, name=None, vorname=None, geschlecht=None, 
         'medication_plan': [],
         'fitness_activities': []
     }
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     if geburtstag:
         try:
             # Validate and format the birthdate
