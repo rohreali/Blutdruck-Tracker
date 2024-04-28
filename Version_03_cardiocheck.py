@@ -586,7 +586,7 @@ def store_emergency_numbers(username, emergency_numbers):
 
 
 # Function to display the emergency numbers page
-ddef save_emergency_numbers_to_github():
+def save_emergency_numbers_to_github():
     emergency_numbers_list = st.session_state.get('emergency_numbers', [])
     if not emergency_numbers_list:
         st.warning("Keine Notfallnummern zum Speichern vorhanden.")
