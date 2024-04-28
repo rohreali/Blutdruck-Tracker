@@ -586,19 +586,18 @@ def store_emergency_numbers(username, emergency_numbers):
 
 
 # Function to display the emergency numbers page
-def save_emergency_numbers_to_github():
+ddef save_emergency_numbers_to_github():
     emergency_numbers_list = st.session_state.get('emergency_numbers', [])
     if not emergency_numbers_list:
         st.warning("Keine Notfallnummern zum Speichern vorhanden.")
         return
 
     emergency_numbers_df = pd.DataFrame(emergency_numbers_list)
-    emergency_numbers_df.to_csv(EMERGENCY_NUMBERS_FILE, index=False)
     repo = init_github()
 
     try:
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + emergency_numbers_df.to_csv(index=False)
+        updated_csv = emergency_numbers_df.to_csv(index=False)
         repo.update_file(contents.path, "Update emergency numbers data", updated_csv, contents.sha)
         st.success('Emergency numbers data updated on GitHub successfully!')
     except Exception as e:
@@ -608,11 +607,15 @@ def save_emergency_numbers_to_github():
 def store_emergency_numbers(username, number_type, number):
     if 'emergency_numbers' not in st.session_state:
         st.session_state['emergency_numbers'] = []
+
+    # Fügen Sie den neuen Eintrag zur Liste hinzu
     st.session_state['emergency_numbers'].append({
         "username": username,
         "type": number_type,
         "number": number
     })
+
+    # Speichern Sie die Daten sofort nach dem Hinzufügen
     save_emergency_numbers_to_github()
 
 def show_emergency_numbers():
@@ -625,13 +628,7 @@ def show_emergency_numbers():
     
     st.title('Notfallnummern')
     
-    # Fixed emergency numbers display
-    st.write("Krankenhaus: 114")
-    st.write("Polizei: 117")
-    st.write("Feuerwehr: 118")
-    st.write("Rega: 1414")
-    
-    # Form for user's personal emergency numbers
+    # Form für persönliche Notfallnummern
     with st.form("emergency_numbers_form"):
         hausarzt_number = st.text_input('Hausarzt')
         eigene_number = st.text_input('Eigene')
@@ -642,12 +639,13 @@ def show_emergency_numbers():
             store_emergency_numbers(username, 'Eigene', eigene_number)
             st.success("Persönliche Notfallnummern gespeichert!")
 
-    # Display the saved personal emergency numbers
-    st.subheader("Gespeicherte Notfallnummern:")
+    # Anzeigen der gespeicherten persönlichen Notfallnummern
     emergency_numbers_list = st.session_state.get('emergency_numbers', [])
-    for entry in emergency_numbers_list:
-        if entry['username'] == username:
-            st.write(f"{entry['type']}: {entry['number']}")
+    if emergency_numbers_list:
+        st.subheader("Gespeicherte Notfallnummern:")
+        for entry in emergency_numbers_list:
+            if entry['username'] == username:
+                st.write(f"{entry['type']}: {entry['number']}")
 
 #Notfall Nummer fertig
 def save_info_text(username, info_type, text):
