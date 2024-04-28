@@ -352,7 +352,7 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 
 def back_to_home():
     st.session_state['page'] = 'home_screen'
-    
+
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     if 'medications' not in st.session_state:
         st.session_state['medications'] = []
@@ -387,6 +387,8 @@ def save_medications_to_github():
 def show_medication_plan():
     option = st.sidebar.selectbox("Optionen", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
     if option == "Neues Medikament hinzufügen":
+        if st.button('Zum Home Bildschirm'):
+            back_to_home()
         st.title('Medikamentenplan')
         with st.form("medication_form"):
             med_name = st.text_input("Medikament")
@@ -405,6 +407,8 @@ def show_medication_plan():
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
         
     elif option == "Medikamentenplan anzeigen":
+        if st.button('Zum Home Bildschirm'):
+            back_to_home()
         show_medication_list()
 
 def load_medication_data():
@@ -419,6 +423,8 @@ def load_medication_data():
         return pd.DataFrame()
 
 def show_medication_list():
+    if st.button('Zum Home Bildschirm'):
+        back_to_home()
     st.title('Medikamentenplan')
     
     medication_data = load_medication_data()
@@ -428,6 +434,7 @@ def show_medication_list():
         st.dataframe(medication_data)
     else:
         st.write("Es sind keine Medikamentenpläne vorhanden.")
+
 
 #hier kommt Fitness        
 def back_to_home():
