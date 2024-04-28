@@ -352,7 +352,7 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 
 def back_to_home():
     st.session_state['page'] = 'home_screen'
-
+    
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     if 'medications' not in st.session_state:
         st.session_state['medications'] = []
@@ -385,11 +385,9 @@ def save_medications_to_github():
         st.success('Medication CSV created on GitHub successfully!')
 
 def show_medication_plan():
-    option = st.sidebar.selectbox("Optionen", ["Zum Home Bildschirm", "Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
-    if option == "Zum Home Bildschirm":
-        back_to_home()
-    elif option == "Neues Medikament hinzufügen":
-        st.title('Neues Medikament hinzufügen')
+    option = st.sidebar.selectbox("Optionen", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
+    if option == "Neues Medikament hinzufügen":
+        st.title('Medikamentenplan')
         with st.form("medication_form"):
             med_name = st.text_input("Medikament")
             morgens = st.text_input("Morgens")
@@ -407,15 +405,7 @@ def show_medication_plan():
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Medikamente hinzuzufügen.")
         
     elif option == "Medikamentenplan anzeigen":
-        st.title('Medikamentenplan')
-    
-        medication_data = load_medication_data()
-    
-        if not medication_data.empty:
-            st.write("Hier ist Ihr Medikamentenplan:")
-            st.dataframe(medication_data)
-        else:
-            st.write("Es sind keine Medikamentenpläne vorhanden.")
+        show_medication_list()
 
 def load_medication_data():
     repo = init_github()
@@ -427,6 +417,17 @@ def load_medication_data():
     except Exception as e:
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
         return pd.DataFrame()
+
+def show_medication_list():
+    st.title('Medikamentenplan')
+    
+    medication_data = load_medication_data()
+    
+    if not medication_data.empty:
+        st.write("Hier ist Ihr Medikamentenplan:")
+        st.dataframe(medication_data)
+    else:
+        st.write("Es sind keine Medikamentenpläne vorhanden.")
 
 
 
