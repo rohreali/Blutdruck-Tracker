@@ -406,7 +406,6 @@ def show_medication_plan():
 
 # Funktion zum Anzeigen der Medikamentenliste
 def show_medication_list():
-    back_to_home()
     st.title('Medikamentenliste')
     medication_data = load_medication_data()
     if not medication_data.empty:
