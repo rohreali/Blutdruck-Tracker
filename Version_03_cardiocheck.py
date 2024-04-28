@@ -382,6 +382,7 @@ def load_medication_data():
         return pd.DataFrame()
 
 def show_medication_plan():
+    back_to_home()
     st.title('Medikamentenplan')
     with st.form("medication_form"):
         med_name = st.text_input("Medikament")
