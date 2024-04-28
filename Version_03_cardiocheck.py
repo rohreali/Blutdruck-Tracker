@@ -84,37 +84,37 @@ def save_user_profiles_and_upload(user_profiles):
         st.error(f'Fehler beim Hochladen der Daten auf GitHub: {e}')
         return False
 
-def register_user(username, password, name=None, vorname=None, geschlecht=None, geburtstag=None, gewicht=None, groesse=None):
+def register_user(username, password, name, vorname, geschlecht, geburtstag, gewicht, groesse):
     user_profiles = load_user_profiles()
     if username in user_profiles.index:
-        st.error("Username already taken. Please choose another.")
+        st.error("Benutzername bereits vergeben. Bitte wählen Sie einen anderen.")
         return False
-    if geburtstag:
-        try:
-            # Validiere das eingegebene Geburtsdatum und formatiere es
-            datetime.strptime(geburtstag, '%d-%m-%Y')
-            user_details['geburtstag'] = geburtstag
-        except ValueError:
-            st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
-            return False
-    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
+    try:
+        # Versuch, das Geburtsdatum zu validieren und zu formatieren
+        geburtstag = datetime.strptime(geburtstag, '%d-%m-%Y').strftime('%Y-%m-%d')
+    except ValueError:
+        st.error("Das Geburtsdatum muss im Format TT-MM-JJJJ eingegeben werden.")
+        return False
+
+    # Passworthash erzeugen
+    hashed_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    # Vorbereitung der Benutzerdetails für den neuen Benutzer
     user_details = {
         'password_hash': hashed_pw,
         'name': name,
         'vorname': vorname,
         'geschlecht': geschlecht,
-        'geburtstag': geburtstag.strftime('%Y-%m-%d') if geburtstag else None,
+        'geburtstag': geburtstag,
         'gewicht': gewicht,
-        'groesse': groesse,
-        'measurements': [],
-        'medication_plan': [],
-        'fitness_activities': []
+        'groesse': groesse
     }
 
+    # Hinzufügen der neuen Benutzerdaten zum DataFrame
     user_profiles.loc[username] = user_details
     save_user_profiles_and_upload(user_profiles)
-    st.success("User registered successfully!")
+    st.success("Benutzer erfolgreich registriert!")
     return True
 
 def verify_login(username, password):
