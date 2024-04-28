@@ -216,7 +216,6 @@ def show_home_screen():
     with col2:
         if st.button("Messungen"):
             st.session_state['page'] = 'measurements'
-            #show_measurement_options()  # Hier wird die Funktion aufgerufen
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
     with col3:
@@ -578,12 +577,6 @@ def show_fitness_history():
 
 
 # Notfallnummern
-"""
-def store_emergency_numbers(username, emergency_numbers):
-    user_details = st.session_state['users'][username]['details']
-    user_details['emergency_numbers'] = emergency_numbers
-    store_detailed_user_profile(username, user_details)
-"""
 def add_emergency_number(username, number_type, number):
     initialize_emergency_numbers()
     emergency_number = {"username": username, "type": number_type, "number": number}
@@ -631,21 +624,9 @@ def save_emergency_numbers_to_github():
         else:
             st.error(f'Failed to update emergency numbers on GitHub: {e}')
 
-"""def add_emergency_number(username, number_type, number):
-    initialize_emergency_numbers()
-    st.session_state['emergency_numbers'].append({
-        "username": username,
-        "type": number_type,
-        "number": number
-    })
-    save_emergency_numbers_to_github()"""
 def store_emergency_numbers(username, number_type, number):
     add_emergency_number(username, number_type, number)
     save_emergency_numbers_to_github()
-
-def store_emergency_numbers(username, number_type, number):
-    add_emergency_number(username, number_type, number)
-    st.success(f"{number_type} Nummer hinzugefügt: {number}")
         
 def show_emergency_numbers():
     back_to_home()
