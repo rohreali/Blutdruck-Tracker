@@ -346,6 +346,19 @@ def save_measurements_to_github(datum, uhrzeit, systolic, diastolic, pulse, comm
 
 #hier kommt Medi-Plan
 
+def back_to_home():
+    if st.session_state['page'] == 'medication-plan':
+        st.title('Medikamentenplan')
+        ...
+    elif st.session_state['page'] == 'medication-list':
+        st.title('Medikamentenliste')
+        ...
+
+# Einmaligen Zurück-Button außerhalb der Funktion erstellen
+home_button_key = "home_button"
+if st.button("Zum Home Bildschirm", key=home_button_key):
+    st.session_state['page'] = 'home_screen'
+
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     medication_data = {
         "username": username,
@@ -381,7 +394,7 @@ def save_medications_to_github():
 
 # Funktion zum Anzeigen des Medikamentenplans
 def show_medication_plan():
-    go_to_home_screen()
+    back_to_home()
     st.title('Medikamentenplan')
     with st.form("medication_form"):
         med_name = st.text_input("Medikament")
@@ -401,7 +414,7 @@ def show_medication_plan():
 
 # Funktion zum Anzeigen der Medikamentenliste
 def show_medication_list():
-    go_to_home_screen()
+    back_to_home()
     st.title('Medikamentenliste')
     medication_data = load_medication_data()
     if not medication_data.empty:
