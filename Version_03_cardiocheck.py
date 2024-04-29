@@ -680,7 +680,7 @@ def show_info_page():
 
     if info_options == "Blutdruck":
         st.markdown("### Informationen zum Blutdruck")
-        st.markdown("Hier könnten Ihre Informationen zum Blutdruck stehen.")
+        st.markdown("Was ist Blutdruck? Blutdruck ist der Druck, den dein Blut auf die Wände deiner Blutgefäße ausübt, während es durch deinen Körper fließt. Es wird in zwei Zahlen ausgedrückt, zum Beispiel 120/80. Die erste Zahl ist der systolische Druck (der höhere Wert), der den Druck in den Gefäßen während der Herzkontraktion angibt. Die zweite Zahl ist der diastolische Druck (der niedrigere Wert), der den Druck zwischen den Herzschlägen misst, wenn das Herz entspannt ist.")
         st.markdown("Zum Beispiel: Der Blutdruck wird normalerweise in Millimeter Quecksilbersäule (mmHg) gemessen und besteht aus zwei Werten, dem systolischen und diastolischen Druck.")
     elif info_options == "Bewegung und Blutdruck":
         st.markdown("### Informationen zu Bewegung und Blutdruck")
