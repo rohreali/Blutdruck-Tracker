@@ -374,21 +374,24 @@ def show_measurement_history_weekly():
 
     if measurement_data is not None and not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
-
+        
         weekly_data['Wochentag'] = weekly_data['datum'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%a'))
         days_of_week = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         df_week = pd.DataFrame(days_of_week, columns=['Wochentag'])
         df_week.set_index('Wochentag', inplace=True)
 
-        for day in days_of_week:
-            daily_data = weekly_data[weekly_data['Wochentag'] == day]
-            if not daily_data.empty:
-                df_week.loc[day, 'Systolisch'] = daily_data['systolic'].mean()
-                df_week.loc[day, 'Diastolisch'] = daily_data['diastolic'].mean()
-                df_week.loc[day, 'Puls'] = daily_data['pulse'].mean()
-                df_week.loc[day, 'Kommentare'] = ', '.join(daily_data['comments'])
+        for activity in weekly_data.itertuples():
+            activity_date = datetime.strptime(activity.datum, '%Y-%m-%d').date()
+            day_name = activity_date.strftime("%a")
+            df_week.loc[day_name, 'Datum'] = activity.datum
+            df_week.loc[day_name, 'Uhrzeit'] = activity.uhrzeit
+            df_week.loc[day_name, 'Systolisch'] = activity.systolic
+            df_week.loc[day_name, 'Diastolisch'] = activity.diastolic
+            df_week.loc[day_name, 'Puls'] = activity.pulse
+            df_week.loc[day_name, 'Kommentare'] = activity.comments
 
-        st.table(df_week)
+        st.table(df_week.fillna(''))
+
 #hier alles zu Messungen fertig
 
 #hier kommt Medi-Plan
