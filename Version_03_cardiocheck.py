@@ -658,6 +658,8 @@ def show_emergency_numbers():
             add_emergency_number(current_user, 'Notfallkontakt', eigene_number)
 
 #Info- Page
+def go_to_home():
+    st.session_state['page'] = 'home_screen'
 def setup_sidebar():
     st.sidebar.title("Optionen")  # Titel nur einmal aufrufen
     info_options = st.sidebar.radio("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
@@ -693,15 +695,6 @@ def show_info_pages():
         st.markdown("### Informationen zu Bewegung und Blutdruck")
         st.markdown(bewegung_blutdruck_info)
 
-def go_to_home():
-    st.session_state['page'] = 'home_screen'
-
-if __name__ == "__main__":
-    if 'page' not in st.session_state:
-        st.session_state['page'] = 'home_screen'
-
-    if st.session_state['page'] == 'home_screen':
-        show_home_screen()
     elif st.session_state['page'] == 'infos':
         show_info_pages()
 # Infotexte fertig
