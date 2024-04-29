@@ -361,6 +361,13 @@ def load_measurement_data():
         return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
     pass
 
+def color_extreme_values(val):
+    """
+    Färbt extrem hohe oder niedrige Blutdruckwerte rot.
+    """
+    color = 'red' if (val >= 180 or val <= 90) else 'none'
+    return f'background-color: {color}'
+
 def show_measurement_history_weekly():
     username = st.session_state.get('current_user')
     st.title('Messhistorie - Diese Woche')
@@ -391,7 +398,9 @@ def show_measurement_history_weekly():
             df_week.loc[day_name, 'Puls'] = activity.pulse
             df_week.loc[day_name, 'Kommentare'] = activity.comments
 
-        st.table(df_week.fillna(''))
+        # Anwendung des Stylings für Systolisch und Diastolisch
+        styled_df = df_week.style.applymap(color_extreme_values, subset=['Systolisch', 'Diastolisch'])
+        st.dataframe(styled_df)
 
 def show_trend_analysis():
     # Sicherstellen, dass der Nutzer angemeldet ist
