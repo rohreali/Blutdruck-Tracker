@@ -224,8 +224,8 @@ def show_home_screen():
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
             
-    st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
-    st.write("")  # Du kannst mehrere Zeilen hinzufügen, je nach benötigtem Abstand
+        st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
+        st.write("")  # Du kannst mehrere Zeilen hinzufügen, je nach benötigtem Abstand
     
         if st.button("Logout"):
             logout()
