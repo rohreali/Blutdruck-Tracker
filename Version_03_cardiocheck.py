@@ -692,7 +692,7 @@ def show_info_pages():
 
     # Sidebar-Optionen für die Auswahl der Kategorie
     st.sidebar.title("Optionen")  # Titel nur einmal aufrufen, um oben anzuzeigen
-    info_options = st.sidebar.radio("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
+    info_options = st.sidebar.radio("", ["Kategorie auswählen", "Blutdruck", "Bewegung und Blutdruck"])
 
     if info_options == "Blutdruck":
         st.markdown("### Informationen zum Blutdruck")
@@ -701,6 +701,7 @@ def show_info_pages():
     elif info_options == "Bewegung und Blutdruck":
         st.markdown("### Informationen zu Bewegung und Blutdruck")
         st.markdown(bewegung_blutdruck_info)
+
 
 
 # Aufruf der Funktion
