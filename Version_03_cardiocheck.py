@@ -224,18 +224,20 @@ def show_home_screen():
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
             
-        st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
-        st.write("")  # Du kannst mehrere Zeilen hinzufügen, je nach benötigtem Abstand
-    
-        if st.button("Logout"):
-            logout()
     with col3:
         if st.button("Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
 
-        
+        st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
+        st.write("")  # Du kannst mehrere Zeilen hinzufügen, je nach benötigtem Abstand
+        st.write("")
+        st.write("")
+        st.write("")
+
+        if st.button("Logout"):
+            logout()
 
 #hier Registrierung beendet
 
