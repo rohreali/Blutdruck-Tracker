@@ -491,7 +491,7 @@ def show_fitness():
         st.error("Bitte melden Sie sich an, um Fitnessdaten zu bearbeiten.")
         return
 
-    if st.button("Zurück zum Home-Bildschirm"):
+    if st.button("Zurück zum Homebildschirm"):
         back_to_home()
 
     st.title('Fitness')
