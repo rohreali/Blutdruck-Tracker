@@ -666,7 +666,7 @@ def load_emergency_numbers():
         return data
     except Exception as e:
         st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-        return pd.DataFrame()
+        return []
 
 #Notfall Nummer fertig
 def save_info_text(username, info_type, text):
