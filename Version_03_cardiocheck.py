@@ -574,6 +574,8 @@ def show_fitness_history():
 
 
 # Notfallnummern
+def go_to_home():
+    st.session_state['page'] = 'home'
 def initialize_emergency_numbers():
     if 'emergency_numbers' not in st.session_state:
         st.session_state['emergency_numbers'] = []
@@ -624,7 +626,8 @@ def load_emergency_numbers():
         return []  # Gibt leeren Liste zurück, wenn ein Fehler auftritt
 def show_emergency_numbers():
     st.title('Meine Notfallnummern')
-
+    if st.button("Home"):
+        go_to_home()
     current_user = st.session_state.get('current_user')
     if not current_user:
         st.error("Sie müssen angemeldet sein, um Ihre Notfallnummern anzuzeigen.")
