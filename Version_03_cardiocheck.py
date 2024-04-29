@@ -361,8 +361,6 @@ def show_measurement_history():
     else:
         st.write("Es sind keine Messdaten vorhanden.")
 
-#show_measurement_options()
-
 #hier alles zu Messungen fertig
 
 #hier kommt Medi-Plan
@@ -450,8 +448,6 @@ def show_medication_list():
         st.dataframe(medication_data)
     else:
         st.write("Es sind keine Medikamentenpläne vorhanden.")
-
-
 
 #hier kommt Fitness        
 def back_to_home():
@@ -671,6 +667,7 @@ def save_info_text(username, info_type, text):
         user_data['details'][info_type] = text
         save_user_profiles_and_upload()
 
+#Info- Page
 def show_info_page():
     back_to_home()
     username = st.session_state.get('current_user')
@@ -679,19 +676,16 @@ def show_info_page():
         return
     
     st.title('Gesundheitsinformationen')
-    info_options = st.sidebar.selectbox("Kategorie auswählen", ["Blutdruck", "Fitness"])
+    info_options = st.sidebar.selectbox("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
 
-    # Lade den gespeicherten Text aus dem Benutzerprofil
-    user_details = st.session_state['users'].get(username, {}).get('details', {})
-    saved_text = user_details.get(f'{info_options.lower()}_info', 'Hier Info-Text eingeben')
-
-    # Texteingabe für den Infotext
-    text_input = st.text_area(f"Informationen zu {info_options}", value=saved_text)
-
-    # Speicherbutton
-    if st.button('Speichern'):
-        save_info_text(username, f'{info_options.lower()}_info', text_input)
-        st.success(f"Informationen zu {info_options} gespeichert!")
+    if info_options == "Blutdruck":
+        st.markdown("### Informationen zum Blutdruck")
+        st.markdown("Hier könnten Ihre Informationen zum Blutdruck stehen.")
+        st.markdown("Zum Beispiel: Der Blutdruck wird normalerweise in Millimeter Quecksilbersäule (mmHg) gemessen und besteht aus zwei Werten, dem systolischen und diastolischen Druck.")
+    elif info_options == "Bewegung und Blutdruck":
+        st.markdown("### Informationen zu Bewegung und Blutdruck")
+        st.markdown("Hier könnten Ihre Informationen zur Beziehung zwischen Bewegung und Blutdruck stehen.")
+        st.markdown("Zum Beispiel: Regelmäßige körperliche Aktivität kann dazu beitragen, den Blutdruck zu senken und das Risiko von Herz-Kreislauf-Erkrankungen zu reduzieren.")
 
 # Infotexte fertig
 
