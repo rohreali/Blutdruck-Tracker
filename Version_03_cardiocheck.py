@@ -574,7 +574,9 @@ def show_fitness_history():
 
 
 # Notfallnummern
-
+def initialize_emergency_numbers():
+    if 'emergency_numbers' not in st.session_state:
+        st.session_state['emergency_numbers'] = []
 def add_emergency_number(username, number_type, number):
     initialize_emergency_numbers()
     existing_entries = st.session_state['emergency_numbers']
