@@ -668,8 +668,6 @@ def save_info_text(username, info_type, text):
         save_user_profiles_and_upload()
 
 #Info- Page
-import streamlit as st
-
 def show_info_pages():
     # Funktion zum Lesen des Textes aus der Datei
     def read_text_from_file(filename):
@@ -691,7 +689,10 @@ def show_info_pages():
 
     # Seiten für die Anzeige der Infotexte erstellen
     st.title('Gesundheitsinformationen')
-    info_options = st.sidebar.selectbox("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
+
+    # Sidebar-Optionen für die Auswahl der Kategorie
+    st.sidebar.title("Optionen")
+    info_options = st.sidebar.radio("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
 
     if info_options == "Blutdruck":
         st.markdown("### Informationen zum Blutdruck")
