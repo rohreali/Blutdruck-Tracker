@@ -278,6 +278,13 @@ def show_profile():
 def back_to_home():
     st.session_state['page'] = 'home_screen'
 
+def get_start_end_dates_from_week_number(year, week_number):
+    first_day_of_year = datetime(year, 1, 1)
+    start_of_week = first_day_of_year + pd.Timedelta(days=(week_number - 1) * 7)
+    start_of_week -= pd.Timedelta(days=start_of_week.weekday())
+    end_of_week = start_of_week + pd.Timedelta(days=6)
+    return start_of_week.date(), end_of_week.date()
+
 def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     current_user = st.session_state.get('current_user')
     if 'measurements' not in st.session_state:
@@ -353,14 +360,19 @@ def load_measurement_data():
         return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
 
 def show_measurement_history():
-    st.title('Messhistorie')
-    data = load_measurement_data()
-    if not data.empty:
-        st.write("Hier wird die Historie der Messungen angezeigt:")
-        st.dataframe(data)
-    else:
-        st.write("Es sind keine Messdaten vorhanden.")
+    username = st.session_state.get('current_user')
+    st.title('Measurement History - This Week')
+    
+    week_number = st.number_input('Week Number (1-52)', min_value=1, max_value=52, value=datetime.now().isocalendar()[1], format='%d')
+    year_to_view = st.number_input('Year', min_value=2020, max_value=2100, value=datetime.now().year, format='%d')
 
+    start_date, end_date = get_start_end_dates_from_week_number(year_to_view, week_number)
+    st.write(f"Displaying measurements for the week from {start_date} to {end_date}")
+
+    measurement_data = load_measurement_data()  # Diese Funktion muss bereits definiert sein
+    if not measurement_data.empty:
+        # Implementieren Sie hier die Logik zur Anzeige der Messdaten, wie oben beschrieben
+        pass
 #hier alles zu Messungen fertig
 
 #hier kommt Medi-Plan
