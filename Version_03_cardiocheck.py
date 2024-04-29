@@ -228,9 +228,9 @@ def show_home_screen():
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
+    with col5:
         if st.button("Logout"):
             logout()
-
 
 #hier Registrierung beendet
 
