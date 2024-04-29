@@ -223,14 +223,14 @@ def show_home_screen():
             st.session_state['page'] = 'measurements'
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
+        if st.button("Logout"):
+            logout()
     with col3:
         if st.button("Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
-    with col5:
-        if st.button("Logout"):
-            logout()
+        
 
 #hier Registrierung beendet
 
