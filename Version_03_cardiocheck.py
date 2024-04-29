@@ -39,7 +39,7 @@ def upload_csv_to_github(file_path, repo):
         content = file.read()
     try:
         contents = repo.get_contents(file_name)
-        repo.update_file(contents.path, "Update user data", content, contFents.sha)
+        repo.update_file(contents.path, "Update user data", content, contents.sha)
         st.success('CSV updated on GitHub successfully!')
     except:
         repo.create_file(file_name, "Create user data file", content)
