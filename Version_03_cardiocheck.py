@@ -223,6 +223,10 @@ def show_home_screen():
             st.session_state['page'] = 'measurements'
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
+            
+    st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
+    st.write("")  # Du kannst mehrere Zeilen hinzufügen, je nach benötigtem Abstand
+    
         if st.button("Logout"):
             logout()
     with col3:
@@ -230,6 +234,7 @@ def show_home_screen():
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
+
         
 
 #hier Registrierung beendet
