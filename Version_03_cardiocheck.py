@@ -219,7 +219,7 @@ def show_home_screen():
         if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
     with col3:
-        if st.button("Medi-Plan"):
+        if st.button("Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
