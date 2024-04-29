@@ -702,8 +702,6 @@ def show_info_pages():
         st.markdown("### Informationen zu Bewegung und Blutdruck")
         st.markdown(bewegung_blutdruck_info)
 
-# Aufruf der Funktion
-show_info_pages()
 # Infotexte fertig
 
 # Display pages based on session state
