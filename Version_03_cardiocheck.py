@@ -668,25 +668,30 @@ def save_info_text(username, info_type, text):
         save_user_profiles_and_upload()
 
 #Info- Page
-def show_info_page():
-    back_to_home()
-    username = st.session_state.get('current_user')
-    if not username:
-        st.error("Bitte melden Sie sich an.")
-        return
-    
+def show_info_pages():
+    # Funktion zum Lesen des Textes aus der Datei
+    def read_text_from_file(filename):
+        with open(filename, "r", encoding="utf-8") as file:
+            return file.read()
+
+    # Infotexte aus den Dateien lesen
+    blutdruck_info = read_text_from_file("blutdruck_info.txt")
+    bewegung_blutdruck_info = read_text_from_file("bewegung_blutdruck_info.txt")
+
+    # Seiten für die Anzeige der Infotexte erstellen
     st.title('Gesundheitsinformationen')
     info_options = st.sidebar.selectbox("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
 
     if info_options == "Blutdruck":
         st.markdown("### Informationen zum Blutdruck")
-        st.markdown("Was ist Blutdruck? Blutdruck ist der Druck, den dein Blut auf die Wände deiner Blutgefäße ausübt, während es durch deinen Körper fließt. Es wird in zwei Zahlen ausgedrückt, zum Beispiel 120/80. Die erste Zahl ist der systolische Druck (der höhere Wert), der den Druck in den Gefäßen während der Herzkontraktion angibt. Die zweite Zahl ist der diastolische Druck (der niedrigere Wert), der den Druck zwischen den Herzschlägen misst, wenn das Herz entspannt ist.")
-        st.markdown("Zum Beispiel: Der Blutdruck wird normalerweise in Millimeter Quecksilbersäule (mmHg) gemessen und besteht aus zwei Werten, dem systolischen und diastolischen Druck.")
+        st.markdown(blutdruck_info)
+
     elif info_options == "Bewegung und Blutdruck":
         st.markdown("### Informationen zu Bewegung und Blutdruck")
-        st.markdown("Hier könnten Ihre Informationen zur Beziehung zwischen Bewegung und Blutdruck stehen.")
-        st.markdown("Zum Beispiel: Regelmäßige körperliche Aktivität kann dazu beitragen, den Blutdruck zu senken und das Risiko von Herz-Kreislauf-Erkrankungen zu reduzieren.")
+        st.markdown(bewegung_blutdruck_info)
 
+# Aufruf der Funktion
+show_info_pages()
 # Infotexte fertig
 
 # Display pages based on session state
@@ -705,4 +710,4 @@ elif st.session_state['page'] == 'Fitness':
 elif st.session_state['page'] == 'emergency_numbers':
     show_emergency_numbers()
 elif st.session_state['page'] == 'infos':
-    show_info_page()   
+    show_info_pages()   
