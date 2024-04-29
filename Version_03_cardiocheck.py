@@ -361,19 +361,6 @@ def load_measurement_data():
         return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
     pass
 
-def color_extreme_values(val):
-    """
-    Färbt extrem hohe oder niedrige Blutdruckwerte rot.
-    Überprüft, ob der Wert numerisch ist und wendet die Farbbedingung an.
-    """
-    try:
-        if pd.notnull(val):
-            if (val >= 180 or val <= 90):
-                return 'background-color: red'
-    except TypeError:
-        pass
-    return ''
-
 def show_measurement_history_weekly():
     username = st.session_state.get('current_user')
     st.title('Messhistorie - Diese Woche')
@@ -389,13 +376,6 @@ def show_measurement_history_weekly():
     if measurement_data is not None and not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
         
-        # Konvertieren der Daten zu numerischen Werten und Bereinigung
-        weekly_data['systolic'] = pd.to_numeric(weekly_data['systolic'], errors='coerce')
-        weekly_data['diastolic'] = pd.to_numeric(weekly_data['diastolic'], errors='coerce')
-
-        # Entfernen von Zeilen mit NaN-Werten in 'systolic' und 'diastolic', falls notwendig
-        weekly_data.dropna(subset=['systolic', 'diastolic'], inplace=True)
-
         weekly_data['Wochentag'] = weekly_data['datum'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%a'))
         days_of_week = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         df_week = pd.DataFrame(days_of_week, columns=['Wochentag'])
@@ -411,10 +391,7 @@ def show_measurement_history_weekly():
             df_week.loc[day_name, 'Puls'] = activity.pulse
             df_week.loc[day_name, 'Kommentare'] = activity.comments
 
-        # Anwendung des Stylings für Systolisch und Diastolisch
-        styled_df = df_week.style.applymap(color_extreme_values, subset=['Systolisch', 'Diastolisch'])
-        st.dataframe(styled_df)
-
+        st.table(df_week.fillna(''))
 
 def show_trend_analysis():
     # Sicherstellen, dass der Nutzer angemeldet ist
