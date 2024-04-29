@@ -640,7 +640,7 @@ def show_emergency_numbers():
     st.write("Gespeicherte Notfallnummern:")
     emergency_data = load_emergency_numbers()
     for entry in emergency_data:
-        st.write(f"- {entry['name']}: {entry['number']}")
+        st.write(f"- {entry['username']}: {entry['number']}")
 
     st.write("Neue Notfallnummer hinzufügen:")
     with st.form("emergency_numbers_form"):
