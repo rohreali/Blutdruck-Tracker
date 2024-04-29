@@ -202,6 +202,11 @@ def show_home():
         show_registration_form()
     elif action == "Einloggen":
         show_login_form()
+def logout():
+    # Setzt die session_state Variablen zurück
+    st.session_state['current_user'] = None
+    st.session_state['page'] = 'home'
+    st.info("Sie wurden erfolgreich ausgeloggt.")        
 
 def show_home_screen():
     back_to_home()
@@ -223,6 +228,8 @@ def show_home_screen():
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
+        if st.button("Logout"):
+            logout()
 
 
 #hier Registrierung beendet
