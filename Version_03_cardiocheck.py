@@ -321,12 +321,14 @@ def save_measurements_to_github():
 
 def show_measurement_options():
     st.sidebar.title("Messungen Optionen")
-    option = st.sidebar.radio("", ["Neue Messung hinzufügen", "Messhistorie anzeigen"])
+    option = st.sidebar.radio(
+        "", ["Neue Messung hinzufügen", "Messhistorie anzeigen", "Trendanalyse"])
     if option == "Neue Messung hinzufügen":
         show_add_measurement_form()
     elif option == "Messhistorie anzeigen":
         show_measurement_history_weekly()
-
+    elif option == "Trendanalyse":
+        show_trend_analysis()
 def show_add_measurement_form():
     if st.button('Zurück zum Homebildschirm'):
         back_to_home()
@@ -391,6 +393,47 @@ def show_measurement_history_weekly():
             df_week.loc[day_name, 'Kommentare'] = activity.comments
 
         st.table(df_week.fillna(''))
+
+def show_trend_analysis():
+    # Sicherstellen, dass der Nutzer angemeldet ist
+    current_user = st.session_state.get('current_user')
+    if not current_user:
+        st.error("Bitte melden Sie sich an, um die Trendanalyse zu sehen.")
+        return
+    if st.button('Zurück zum Homebildschirm'):
+        back_to_home()
+    st.title('Trendanalyse der Messwerte')
+    
+    # Laden der Messdaten für den angemeldeten Nutzer
+    measurement_data = load_measurement_data()
+    user_measurements = measurement_data[measurement_data['username'] == current_user]
+
+    if user_measurements.empty:
+        st.write("Es liegen keine Messdaten zur Analyse vor.")
+        return
+
+    # Umwandeln der Datums- und Zeitangaben in Python datetime Objekte für die Analyse
+    user_measurements['datetime'] = pd.to_datetime(user_measurements['datum'] + ' ' + user_measurements['uhrzeit'])
+
+    # Sortieren der Messungen nach Datum und Zeit
+    user_measurements.sort_values(by='datetime', ascending=True, inplace=True)
+    
+    # Erstellen der Diagramme für Systolischen Druck, Diastolischen Druck und Puls
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['systolic'], mode='lines+markers', name='Systolisch'))
+    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['diastolic'], mode='lines+markers', name='Diastolisch'))
+    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['pulse'], mode='lines+markers', name='Puls'))
+    
+    # Diagramm Layout anpassen
+    fig.update_layout(title='Trendanalyse der Messwerte über die Zeit',
+                      xaxis_title='Datum und Uhrzeit',
+                      yaxis_title='Messwerte',
+                      legend_title='Messwerte',
+                      margin=dict(l=0, r=0, t=30, b=0))
+    
+    # Diagramm anzeigen
+    st.plotly_chart(fig, use_container_width=True)
+
 
 #hier alles zu Messungen fertig
 
