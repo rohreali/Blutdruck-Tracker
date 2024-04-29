@@ -25,7 +25,7 @@ MEDICATION_DATA_COLUMNS = ["username", "med_name", "morgens", "mittags", "abends
 FITNESS_DATA_FILE = "fitness_data.csv"
 FITNESS_DATA_COLUMNS= [ "username", "datum", "uhrzeit", "dauer", "intensitaet", "Art", "Kommentare"]
 EMERGENCY_NUMBERS_FILE = "emergency_numbers.csv"
-EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "number"]
+EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "name", "number"]
 
 #alles zu Login, Registrierung und Home Bildschirm
 def init_github():
@@ -596,49 +596,69 @@ def initialize_emergency_numbers():
         st.session_state['emergency_numbers'] = []
 
 # Function to display the emergency numbers page
+def add_emergency_number(username, number_type, name, number):
+    initialize_emergency_numbers()
+    emergency_number = {"username": username, "type": number_type, "name": name, "number": number}
+    st.session_state['emergency_numbers'].append(emergency_number)
+    save_emergency_numbers_to_github()
+
 def save_emergency_numbers_to_github():
-    emergency_numbers_list = st.session_state.get('emergency_numbers', [])
-    if not emergency_numbers_list:
-        st.warning("Keine Notfallnummern zum Speichern vorhanden.")
-        return
+    emergency_list = st.session_state['emergency_numbers']
+    emergency_df = pd.DataFrame(emergency_list)
+    emergency_df.to_csv(EMERGENCY_NUMBERS_FILE, index=False)
 
-    emergency_numbers_df = pd.DataFrame(emergency_numbers_list)
-    csv_content = emergency_numbers_df.to_csv(index=False)
-    repo = init_github()
-
+    g = Github(st.secrets["github"]["token"])
+    repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
+    
     try:
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-        repo.update_file(contents.path, "Update emergency numbers data", csv_content, contents.sha)
+        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + emergency_df.to_csv(index=False)
+        repo.update_file(contents.path, "Update emergency numbers data", updated_csv, contents.sha)
         st.success('Emergency numbers data updated on GitHub successfully!')
     except Exception as e:
-        if '404' in str(e):  # File not found
-            try:
-                repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", csv_content)
-                st.success('Emergency numbers CSV created on GitHub successfully!')
-            except Exception as e:
-                st.error(f'Failed to create emergency numbers CSV: {e}')
-        else:
-            st.error(f'Failed to update emergency numbers on GitHub: {e}')
+        repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", emergency_df.to_csv(index=False))
+        st.success('Emergency numbers CSV created on GitHub successfully!')
 
-def store_emergency_numbers(username, number_type, number):
-    add_emergency_number(username, number_type, number)
-    save_emergency_numbers_to_github()
-        
 def show_emergency_numbers():
-    back_to_home()
-    username = st.session_state.get('current_user')
+    st.title('Meine Notfallnummern')
     
-    if not username:
-        st.error("Bitte melden Sie sich an, um eigene Notfallnummern hinzuzufügen.")
-        return
+    st.write("Vorgegebene Notfallnummern:")
+    st.write("- Polizei: 117")
+    st.write("- Feuerwehr: 118")
+    st.write("- Krankenwagen: 114")
+    st.write("- Rega: 1414")
+    st.write("- Toxzentrum: 143")
+
+    st.write("Eigene Notfallnummern:")
+    emergency_data = load_emergency_numbers()
+    st.dataframe(emergency_data)
+
+    st.write("Neue Notfallnummer hinzufügen:")
+    with st.form("emergency_number_form"):
+        name = st.text_input("Name des Kontakts")
+        number = st.text_input("Telefonnummer des Kontakts")
+        number_type = st.selectbox("Typ der Nummer", ["Hausarzt", "Notfallkontakt"])
+        submit_button = st.form_submit_button("Nummer hinzufügen")
     
-    st.title('Notfallnummern')
-    
-    # Fixed emergency numbers display
-    st.write("Krankenhaus: 114")
-    st.write("Polizei: 117")
-    st.write("Feuerwehr: 118")
-    st.write("Rega: 1414")
+    if submit_button:
+        current_user = st.session_state.get('current_user')
+        if current_user is not None:
+            add_emergency_number(current_user, number_type, name, number)
+            st.success("Nummer erfolgreich hinzugefügt!")
+        else:
+            st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Notfallnummern hinzuzufügen.")
+
+def load_emergency_numbers():
+    try:
+        repo = init_github()
+        contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
+        return pd.DataFrame()
+
 
 # Lade vorhandene Notfallnummern
     emergency_numbers = load_emergency_numbers()
