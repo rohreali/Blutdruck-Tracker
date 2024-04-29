@@ -576,35 +576,28 @@ def show_fitness_history():
 # Notfallnummern
 def add_emergency_number(username, number_type, number):
     initialize_emergency_numbers()
-    emergency_number = {"username": username, "type": number_type, "number": number}
-    st.session_state['emergency_numbers'].append(emergency_number)
-    
+    new_entry = {"username": username, "type": number_type, "number": number}
+    existing_entries = st.session_state['emergency_numbers']
+    # Entfernen des vorhandenen Eintrags vom selben Typ
+    existing_entries = [entry for entry in existing_entries if entry['type'] != number_type]
+    existing_entries.append(new_entry)
+    st.session_state['emergency_numbers'] = existing_entries
+    save_emergency_numbers_to_github(existing_entries)
+
 def load_emergency_numbers():
-    """ Laden der Notfallnummern aus GitHub beim Start der Anwendung. """
     try:
         repo = init_github()
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
-        return data
+        return data.to_dict('records')
     except Exception as e:
         st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-        return pd.DataFrame(columns=EMERGENCY_NUMBERS_COLUMNS)
-        
+        return []
+
 def initialize_emergency_numbers():
     if 'emergency_numbers' not in st.session_state:
         st.session_state['emergency_numbers'] = []
-
-# Function to display the emergency numbers page
-def store_emergency_numbers(username, number_type, number):
-    initialize_emergency_numbers()
-    new_entry = {"username": username, "type": number_type, "number": number}
-    existing_entries = st.session_state['emergency_numbers']
-    # Remove existing entry of the same type
-    existing_entries = [entry for entry in existing_entries if entry['type'] != number_type]
-    existing_entries.append(new_entry)
-    st.session_state['emergency_numbers'] = existing_entries
-    save_emergency_numbers_to_github(existing_entries)
 
 def save_emergency_numbers_to_github(entries):
     emergency_df = pd.DataFrame(entries)
@@ -640,7 +633,6 @@ def show_emergency_numbers():
     st.write("Gespeicherte Notfallnummern:")
     emergency_data = load_emergency_numbers()
     for entry in emergency_data:
-        print(entry)
         st.write(f"- {entry['username']}: {entry['number']}")
 
     st.write("Neue Notfallnummer hinzufügen:")
@@ -650,23 +642,10 @@ def show_emergency_numbers():
         submit_button = st.form_submit_button("Speichern")
         
         if submit_button:
-            store_emergency_numbers(current_user, 'Hausarzt', hausarzt_number)
-            store_emergency_numbers(current_user, 'Notfallkontakt', eigene_number)
+            add_emergency_number(current_user, 'Hausarzt', hausarzt_number)
+            add_emergency_number(current_user, 'Notfallkontakt', eigene_number)
 
-def initialize_emergency_numbers():
-    if 'emergency_numbers' not in st.session_state:
-        st.session_state['emergency_numbers'] = []
 
-def load_emergency_numbers():
-    try:
-        repo = init_github()
-        contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-        csv_content = contents.decoded_content.decode("utf-8")
-        data = pd.read_csv(StringIO(csv_content))
-        return data.to_dict('records')
-    except Exception as e:
-        st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-        return []
 
 
 #Notfall Nummer fertig
