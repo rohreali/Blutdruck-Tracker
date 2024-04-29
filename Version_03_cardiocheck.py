@@ -195,15 +195,15 @@ def show_login_form():
                 st.error("Benutzername oder Passwort ist falsch.")
 
 #Home Bildschirm
-def logout_user():
-    st.session_state['current_user'] = None
-    st.session_state['page'] = 'home'
+def show_home():
+    st.title('Herzlich Willkommen bei CardioCheck')
+    st.subheader('Ihr Blutdruck Tagebuch')
+    action = st.selectbox("Aktion wählen", ["Einloggen", "Registrieren"])
+    if action == "Registrieren":
+        show_registration_form()
+    elif action == "Einloggen":
+        show_login_form()
 
-def show_logout_button():
-    if st.button("Logout"):
-        logout_user()
-
-# Anpassung der show_home_screen Funktion, um den Logout-Button anzuzeigen
 def show_home_screen():
     back_to_home()
     st.title('CardioCheck')
@@ -224,7 +224,6 @@ def show_home_screen():
             st.session_state['page'] = 'medication-plan'
         if st.button("Infos"):
             st.session_state['page'] = 'infos'
-    show_logout_button()
 
 
 #hier Registrierung beendet
