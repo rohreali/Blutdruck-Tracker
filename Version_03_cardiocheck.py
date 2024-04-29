@@ -414,6 +414,10 @@ def show_trend_analysis():
     # Umwandeln der Datums- und Zeitangaben in Python datetime Objekte für die Analyse
     user_measurements['datetime'] = pd.to_datetime(user_measurements['datum'] + ' ' + user_measurements['uhrzeit'])
 
+    # Datentypen der Messwerte sicherstellen
+    user_measurements['systolic'] = pd.to_numeric(user_measurements['systolic'], errors='coerce')
+    user_measurements['diastolic'] = pd.to_numeric(user_measurements['diastolic'], errors='coerce')
+
     # Sortieren der Messungen nach Datum und Zeit
     user_measurements.sort_values(by='datetime', ascending=True, inplace=True)
 
