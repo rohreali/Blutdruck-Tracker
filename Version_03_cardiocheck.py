@@ -668,11 +668,22 @@ def save_info_text(username, info_type, text):
         save_user_profiles_and_upload()
 
 #Info- Page
+import streamlit as st
+
 def show_info_pages():
     # Funktion zum Lesen des Textes aus der Datei
     def read_text_from_file(filename):
-        with open(filename, "r", encoding="utf-8") as file:
-            return file.read()
+        encodings = ['utf-8', 'ISO-8859-1']  # Verschiedene Zeichenformate ausprobieren
+
+        for encoding in encodings:
+            try:
+                with open(filename, "r", encoding=encoding) as file:
+                    return file.read()
+            except UnicodeDecodeError:
+                continue
+
+        # Fehlerbehandlung, falls keine geeignete Kodierung gefunden wird
+        st.error("Fehler beim Lesen der Datei. Bitte überprüfen Sie das Zeichenformat.")
 
     # Infotexte aus den Dateien lesen
     blutdruck_info = read_text_from_file("blutdruck_info.txt")
@@ -689,6 +700,9 @@ def show_info_pages():
     elif info_options == "Bewegung und Blutdruck":
         st.markdown("### Informationen zu Bewegung und Blutdruck")
         st.markdown(bewegung_blutdruck_info)
+
+# Aufruf der Funktion
+show_info_pages()
 
 # Aufruf der Funktion
 show_info_pages()
