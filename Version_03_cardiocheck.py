@@ -235,6 +235,9 @@ def show_home_screen():
         st.write("")
         st.write("")
         st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
 
         if st.button("Logout"):
             logout()
