@@ -663,10 +663,11 @@ def load_emergency_numbers():
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
-        return data
+        return data.to_dict('records')
     except Exception as e:
         st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
         return []
+
 
 #Notfall Nummer fertig
 def save_info_text(username, info_type, text):
