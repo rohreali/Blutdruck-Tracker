@@ -575,7 +575,7 @@ def show_fitness_history():
 
 # Notfallnummern
 def go_to_home():
-    st.session_state['page'] = 'Zurück zum Homebildschirm'
+    st.session_state['page'] = 'home'
 def initialize_emergency_numbers():
     if 'emergency_numbers' not in st.session_state:
         st.session_state['emergency_numbers'] = []
