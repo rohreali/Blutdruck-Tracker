@@ -658,6 +658,9 @@ def show_emergency_numbers():
             add_emergency_number(current_user, 'Notfallkontakt', eigene_number)
 
 #Info- Page
+
+def go_to_home():
+    st.session_state['page'] = 'home_screen'
 def show_info_pages():
     # Funktion zum Lesen des Textes aus der Datei
     def read_text_from_file(filename):
@@ -677,6 +680,8 @@ def show_info_pages():
     blutdruck_info = read_text_from_file("blutdruck_info.txt")
     bewegung_blutdruck_info = read_text_from_file("bewegung_blutdruck_info.txt")
 
+    if st.button("Zurück zum Homebildschirm"):
+        go_to_home()
     # Seiten für die Anzeige der Infotexte erstellen
     st.title('Gesundheitsinformationen')
 
