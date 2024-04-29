@@ -363,6 +363,8 @@ def load_measurement_data():
 
 def show_measurement_history_weekly():
     username = st.session_state.get('current_user')
+    if st.button('Zurück zum Homebildschirm'):
+        back_to_home()
     st.title('Messhistorie - Diese Woche')
 
     week_number = st.number_input('Wochennummer (1-52)', min_value=1, max_value=52, value=datetime.now().isocalendar()[1], format='%d')
