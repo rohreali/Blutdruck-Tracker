@@ -658,46 +658,51 @@ def show_emergency_numbers():
             add_emergency_number(current_user, 'Notfallkontakt', eigene_number)
 
 #Info- Page
+def setup_sidebar():
+    st.sidebar.title("Optionen")  # Titel nur einmal aufrufen
+    info_options = st.sidebar.radio("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
+    return info_options
 
-def go_to_home():
-    st.session_state['page'] = 'home_screen'
 def show_info_pages():
+    info_options = setup_sidebar()
+
+    if st.button("Zurück zum Homebildschirm"):
+        go_to_home()
+
+    st.title('Gesundheitsinformationen')
+
     # Funktion zum Lesen des Textes aus der Datei
     def read_text_from_file(filename):
         encodings = ['utf-8', 'ISO-8859-1']  # Verschiedene Zeichenformate ausprobieren
-
         for encoding in encodings:
             try:
                 with open(filename, "r", encoding=encoding) as file:
                     return file.read()
             except UnicodeDecodeError:
                 continue
-
-        # Fehlerbehandlung, falls keine geeignete Kodierung gefunden wird
         st.error("Fehler beim Lesen der Datei. Bitte überprüfen Sie das Zeichenformat.")
+        return ""
 
-    # Infotexte aus den Dateien lesen
     blutdruck_info = read_text_from_file("blutdruck_info.txt")
     bewegung_blutdruck_info = read_text_from_file("bewegung_blutdruck_info.txt")
-
-    if st.button("Zurück zum Homebildschirm"):
-        go_to_home()
-    # Seiten für die Anzeige der Infotexte erstellen
-    st.title('Gesundheitsinformationen')
-
-    # Sidebar-Optionen für die Auswahl der Kategorie
-    st.sidebar.title("Optionen")  # Titel nur einmal aufrufen, um oben anzuzeigen
-    info_options = st.sidebar.radio("Kategorie auswählen", ["Blutdruck", "Bewegung und Blutdruck"])
 
     if info_options == "Blutdruck":
         st.markdown("### Informationen zum Blutdruck")
         st.markdown(blutdruck_info)
-
     elif info_options == "Bewegung und Blutdruck":
         st.markdown("### Informationen zu Bewegung und Blutdruck")
         st.markdown(bewegung_blutdruck_info)
 
-    if st.button("Infos"):
+def go_to_home():
+    st.session_state['page'] = 'home_screen'
+
+if __name__ == "__main__":
+    if 'page' not in st.session_state:
+        st.session_state['page'] = 'home_screen'
+
+    if st.session_state['page'] == 'home_screen':
+        show_home_screen()
+    elif st.session_state['page'] == 'infos':
         show_info_pages()
 # Infotexte fertig
 
