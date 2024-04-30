@@ -352,6 +352,7 @@ def save_measurements_to_github():
         st.success('Measurement CSV created on GitHub successfully!')
 
 def show_measurement_options():
+    display_logo(in_sidebar=True)
     st.sidebar.title("Messungen Optionen")
     option = st.sidebar.radio(
         "", ["Neue Messung hinzufügen", "Messhistorie anzeigen", "Trendanalyse"])
@@ -363,7 +364,6 @@ def show_measurement_options():
         show_trend_analysis()
 def show_add_measurement_form():
     display_logo()
-    display_logo(in_sidebar=True)
     if st.button('Zurück zum Homebildschirm'):
         back_to_home()
     st.title('Messungen')
