@@ -933,6 +933,11 @@ def show_emergency_numbers():
     st.write("Gespeicherte Notfallnummern:")
     emergency_data = load_emergency_numbers()
     current_numbers = {entry['type']: entry['number'] for entry in emergency_data if entry['username'] == current_user}
+    if current_numbers:
+        for number_type, number in current_numbers.items():
+            st.write(f"- {number_type}: {number}")
+    else:
+        st.write("Keine Notfallnummern gespeichert.")
 
     # Eingabe neuer Notfallnummern
     with st.form("emergency_numbers_form"):
@@ -948,6 +953,7 @@ def show_emergency_numbers():
                     add_emergency_number(current_user, number_type, number)
             st.success("Notfallnummer(n) erfolgreich gespeichert!")
             st.experimental_rerun()
+
 
 
 #Info- Page
