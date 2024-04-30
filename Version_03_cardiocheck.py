@@ -886,29 +886,29 @@ def add_emergency_number(username, number_type, number):
     save_emergency_numbers_to_github(existing_entries)
 
 def load_emergency_numbers():
-    if 'emergency_numbers' not in st.session_state:
+    if 'emergency_numbers' not in st.session_state or not st.session_state['emergency_numbers']:
         repo = init_github()  # Stellen Sie sicher, dass das GitHub-Repository initialisiert ist
         try:
             contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
             csv_content = contents.decoded_content.decode("utf-8")
             data = pd.read_csv(StringIO(csv_content))
-            st.session_state['emergency_numbers'] = data.to_dict('records')
+            st.session_state['emergency_numbers'] = data.to_dict('records')  # Speichern in der Session State
         except Exception as e:
             st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
             st.session_state['emergency_numbers'] = []
-
-def save_emergency_numbers_to_github():
-    emergency_df = pd.DataFrame(st.session_state['emergency_numbers'])
+def save_emergency_numbers_to_github(entries):
+    emergency_df = pd.DataFrame(entries)
     emergency_df.to_csv(EMERGENCY_NUMBERS_FILE, index=False)
 
     repo = init_github()
+
     try:
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
         updated_csv = emergency_df.to_csv(index=False)
         repo.update_file(contents.path, "Update emergency numbers data", updated_csv, contents.sha)
         st.success('Emergency numbers data updated on GitHub successfully!')
     except Exception as e:
-        repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", updated_csv)
+        repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", emergency_df.to_csv(index=False))
         st.success('Emergency numbers CSV created on GitHub successfully!')
 
 def show_emergency_numbers():
@@ -916,27 +916,44 @@ def show_emergency_numbers():
     if st.button("Zurück zum Homebildschirm"):
         go_to_home()
 
-    load_emergency_numbers()  # Laden der Notfallnummern bei jedem Seitenaufruf
-
     st.title('Meine Notfallnummern')
     current_user = st.session_state.get('current_user')
     if not current_user:
         st.error("Sie müssen angemeldet sein, um Ihre Notfallnummern anzuzeigen.")
         return
 
-    # Anzeigen und Bearbeiten der Notfallnummern
-    current_numbers = {entry['type']: entry['number'] for entry in st.session_state['emergency_numbers'] if entry['username'] == current_user}
-    number_types = ['Hausarzt', 'Notfallkontakt']
-    with st.form("emergency_numbers_form"):
-        for number_type in number_types:
-            current_value = current_numbers.get(number_type, '')
-            new_number = st.text_input(number_type, value=current_value)
-            if new_number != current_value:  # Überprüfen, ob eine Änderung vorgenommen wurde
-                add_emergency_number(current_user, number_type, new_number)
+    # Anzeigen allgemeiner Notfallnummern
+    st.write("Allgemeine Notfallnummern:")
+    st.write("- Polizei: 117")
+    st.write("- Feuerwehr: 118")
+    st.write("- Krankenwagen: 114")
+    st.write("- Rega: 1414")
+    st.write("- Toxzentrum: 143")
 
-        if st.form_submit_button("Speichern"):
-            save_emergency_numbers_to_github()  # Aktualisieren der Notfallnummern auf GitHub
-            st.experimental_rerun()  # Neuladen der Seite zur Anzeige der aktualisierten Daten
+    # Laden und Anzeigen benutzerspezifischer Notfallnummern
+    st.write("Gespeicherte Notfallnummern:")
+    emergency_data = load_emergency_numbers()
+    current_numbers = {entry['type']: entry['number'] for entry in emergency_data if entry['username'] == current_user}
+    if current_numbers:
+        for number_type, number in current_numbers.items():
+            st.write(f"- {number_type}: {number}")
+    else:
+        st.write("Keine Notfallnummern gespeichert.")
+
+    # Eingabe neuer Notfallnummern
+    with st.form("emergency_numbers_form"):
+        number_types = ['Hausarzt', 'Notfallkontakt']
+        inputs = {}
+        for number_type in number_types:
+            inputs[number_type] = st.text_input(f'{number_type}', value=current_numbers.get(number_type, ''))
+        submit_button = st.form_submit_button("Speichern")
+
+        if submit_button:
+            for number_type, number in inputs.items():
+                if number:  # Überprüfen, ob ein Wert eingegeben wurde
+                    add_emergency_number(current_user, number_type, number)
+            st.success("Notfallnummer(n) erfolgreich gespeichert!")
+            st.experimental_rerun()
 
 
 
