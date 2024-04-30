@@ -446,15 +446,15 @@ def show_measurement_history_weekly():
 
         # Messungen für jeden Wochentag in den DataFrame einfügen
         for day, measurements in daily_measurements.items():
-            for measurement in measurements:
-                df_week = df_week.append({
-                    'Datum': measurement.datum,
-                    'Uhrzeit': measurement.uhrzeit,
-                    'Systolisch': measurement.systolic,
-                    'Diastolisch': measurement.diastolic,
-                    'Puls': measurement.pulse,
-                    'Kommentare': measurement.comments
-                }, ignore_index=True)
+            day_data = pd.DataFrame([{
+                'Datum': measurement.datum,
+                'Uhrzeit': measurement.uhrzeit,
+                'Systolisch': measurement.systolic,
+                'Diastolisch': measurement.diastolic,
+                'Puls': measurement.pulse,
+                'Kommentare': measurement.comments
+            } for measurement in measurements])
+            df_week = pd.concat([df_week, day_data], ignore_index=True)
 
         # DataFrame anzeigen
         st.table(df_week)
@@ -469,6 +469,7 @@ def show_measurement_history_weekly():
         )
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
+
 
 
 
