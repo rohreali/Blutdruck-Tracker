@@ -901,21 +901,28 @@ def save_emergency_numbers_to_github(entries):
         st.success('Emergency numbers CSV created on GitHub successfully!')
 
 def load_emergency_numbers():
-    if 'emergency_numbers' not in st.session_state:
-        repo = init_github()
-        try:
-            contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-            csv_content = contents.decoded_content.decode("utf-8")
-            data = pd.read_csv(StringIO(csv_content))
-            st.session_state['emergency_numbers'] = data.to_dict('records')
-        except Exception as e:
-            st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-            st.session_state['emergency_numbers'] = []
+    repo = init_github()
+    try:
+        contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        st.session_state['emergency_numbers'] = data.to_dict('records')
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
+        st.session_state['emergency_numbers'] = []
+
+def init_github():
+    g = Github(st.secrets["github"]["token"])
+    repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
+    return repo
+
 
 def show_emergency_numbers():
     display_logo()
     if st.button("Zurück zum Homebildschirm"):
         go_to_home()
+
+    load_emergency_numbers()  # Laden der Notfallnummern, sobald die Seite aufgerufen wird
 
     st.title('Meine Notfallnummern')
     current_user = st.session_state.get('current_user')
@@ -923,9 +930,7 @@ def show_emergency_numbers():
         st.error("Sie müssen angemeldet sein, um Ihre Notfallnummern anzuzeigen.")
         return
 
-    load_emergency_numbers()  # Stellen Sie sicher, dass dies am Anfang steht
-
-    # Anzeigen allgemeiner Notfallnummern
+    # Anzeigen allgemeiner und benutzerspezifischer Notfallnummern
     st.write("Allgemeine Notfallnummern:")
     st.write("- Polizei: 117")
     st.write("- Feuerwehr: 118")
@@ -933,17 +938,15 @@ def show_emergency_numbers():
     st.write("- Rega: 1414")
     st.write("- Toxzentrum: 143")
 
-    # Laden und Anzeigen benutzerspezifischer Notfallnummern
-    st.write("Gespeicherte Notfallnummern:")
-    emergency_data = load_emergency_numbers()
-    current_numbers = {entry['type']: entry['number'] for entry in emergency_data if entry['username'] == current_user}
+    emergency_data = st.session_state.get('emergency_numbers', [])
+    current_numbers = {entry['type']: entry['number'] for entry in emergency_data if entry.get('username') == current_user}
+    
     if current_numbers:
         for number_type, number in current_numbers.items():
             st.write(f"- {number_type}: {number}")
     else:
         st.write("Keine Notfallnummern gespeichert.")
 
-    # Eingabe neuer Notfallnummern
     with st.form("emergency_numbers_form"):
         number_types = ['Hausarzt', 'Notfallkontakt']
         inputs = {}
@@ -953,7 +956,7 @@ def show_emergency_numbers():
 
         if submit_button:
             for number_type, number in inputs.items():
-                if number:  # Überprüfen, ob ein Wert eingegeben wurde
+                if number:
                     add_emergency_number(current_user, number_type, number)
             st.success("Notfallnummer(n) erfolgreich gespeichert!")
             st.experimental_rerun()
