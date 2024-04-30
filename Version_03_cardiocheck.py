@@ -620,21 +620,20 @@ def show_medication_list():
     
     medication_data = load_medication_data()
     
+    # Display the medication plan if data is available
     if not medication_data.empty:
         st.write("Hier ist Ihr Medikamentenplan:")
         st.dataframe(medication_data)
-    else:
-        st.write("Es sind keine Medikamentenpläne vorhanden.")
-
-   # Funktion im Streamlit Interface aufrufen
-    if not measurement_data.empty:
+        
+        # Check if there's medication data to generate a PDF
         pdf_file = create_medication_pdf(medication_data)
         st.download_button(label="Download Medikamentenplan PDF",
                            data=pdf_file,
-                           file_name="medication.pdf",
+                           file_name="medication_plan.pdf",
                            mime='application/pdf')
     else:
-            st.write("Keine Daten zum Herunterladen verfügbar.")
+        st.write("Es sind keine Medikamentenpläne vorhanden.")
+
 def create_medication_pdf(medication_data):
     pdf_buffer = BytesIO()
     doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
