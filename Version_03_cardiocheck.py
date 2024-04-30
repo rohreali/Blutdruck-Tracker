@@ -444,6 +444,15 @@ def show_measurement_history_weekly():
             df_week.loc[day_name, 'Kommentare'] = activity.comments
 
         st.table(df_week.fillna(''))
+
+         # Code für den Download-Button
+        pdf_file = create_measurement_pdf(weekly_data)  # Erstelle PDF aus den gefilterten Daten
+        st.download_button(
+            label="Download Messdaten PDF",
+            data=pdf_file,
+            file_name="messdaten.pdf",
+            mime='application/pdf'
+        )
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
 
