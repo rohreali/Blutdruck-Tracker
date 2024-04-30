@@ -380,8 +380,10 @@ def show_add_measurement_form():
         back_to_home()
     st.title('Messungen')
     with st.form("measurement_form"):
-        datum = st.date_input("Datum")
-        uhrzeit = st.time_input("Uhrzeit")
+        datum = st.date_input("Datum", value=datetime.today())
+        # Setzen eines expliziten Standardwerts für die Uhrzeit
+        default_time = datetime.now().time()  # Aktuelle Uhrzeit als Standardwert
+        uhrzeit = st.time_input("Uhrzeit", value=default_time)
         wert_systolisch = st.number_input("Wert Systolisch (mmHg)", min_value=0)
         wert_diastolisch = st.number_input("Wert Diastolisch (mmHg)", min_value=0)
         puls = st.number_input("Puls (bpm)", min_value=0)
@@ -395,6 +397,7 @@ def show_add_measurement_form():
                 st.success("Messungen erfolgreich gespeichert!")
             else:
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
+
 
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
