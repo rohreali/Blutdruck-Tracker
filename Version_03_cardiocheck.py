@@ -255,12 +255,15 @@ def show_home_screen():
     st.write("")
     st.write("")
     st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
 
     # Logout-Button am unteren Ende der Seite
     st.markdown("""
         <div style='text-align: right;'>
             <button onclick="window.location.href='/';" style='color: #ffffff; background-color: #FF807A; 
-            border-radius: 10px; border: none; cursor: pointer; padding: 10px 24px; font-size: 24px;'>
+            border-radius: 10px; border: none; cursor: pointer; padding: 10px 24px; font-size: 28px;'>
             🚪 Logout</button>
         </div>
         """, unsafe_allow_html=True)
@@ -273,20 +276,25 @@ def show_home_screen():
             border-radius: 10px;
             border: 1px solid #FF807A;
             color: #ffffff;
-            font-size: 26px;  /* Erhöhte Schriftgröße für bessere Lesbarkeit */
-            height: 4em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
+            font-size: 28px;  /* Erhöhte Schriftgröße für optimale Lesbarkeit */
+            height: 4.5em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
             padding: 0.25em 0.5em;
             background-color: #FF807A;
             transition: all 0.3s;
             cursor: pointer;
-            line-height: 1.5;
+            line-height: 1.6;
         }
         .stButton>button:hover {
             border: 1px solid #FF6859;
             background-color: #FF6859;
         }
+        /* Größere Icons */
+        .stButton>button::before {
+            font-size: 1.5em; /* Größere Icons */
+        }
         </style>
     """, unsafe_allow_html=True)
+
 
 
 
