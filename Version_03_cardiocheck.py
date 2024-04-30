@@ -259,7 +259,7 @@ def show_home_screen():
     # Logout-Button am unteren Ende der Seite
     st.markdown("""
         <div style='text-align: right;'>
-            <button onclick="window.location.href='/';" style='color: #ffffff; background-color: #FFA07A; 
+            <button onclick="window.location.href='/';" style='color: #ffffff; background-color: #FF807A; 
             border-radius: 10px; border: none; cursor: pointer; padding: 10px 24px; font-size: 20px;'>
             🚪 Logout</button>
         </div>
@@ -271,22 +271,23 @@ def show_home_screen():
         .stButton>button {
             width: 100%;
             border-radius: 10px;
-            border: 1px solid #FFA07A;
+            border: 1px solid #FF807A;
             color: #ffffff;
             font-size: 20px;
             height: 3em;
             padding: 0.25em 0.5em;
-            background-color: #FFA07A;
+            background-color: #FF807A;
             transition: all 0.3s;
             cursor: pointer;
             line-height: 1.5;
         }
         .stButton>button:hover {
-            border: 1px solid #FF7F50;
-            background-color: #FF7F50;
+            border: 1px solid #FF6859;
+            background-color: #FF6859;
         }
         </style>
     """, unsafe_allow_html=True)
+
 
 
 
