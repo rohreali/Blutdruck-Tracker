@@ -427,28 +427,33 @@ def show_measurement_history_weekly():
 
     if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
-        
-        # Erstelle eine Gruppierung nach Datum und Wochentag
         weekly_data['Wochentag'] = weekly_data['datum'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%a'))
-        days_of_week = weekly_data['Wochentag'].unique().tolist()
+        days_of_week = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        df_week = pd.DataFrame(days_of_week, columns=['Wochentag'])
+        df_week.set_index('Wochentag', inplace=True)
         
+        display_data = []
+
         for day in days_of_week:
-            st.markdown(f"### {day}")
-            day_data = weekly_data[weekly_data['Wochentag'] == day]
-            for index, row in day_data.iterrows():
-                st.write(f"- {row['datum']} {row['uhrzeit']} - Systolisch: {row['systolic']} mmHg, Diastolisch: {row['diastolic']} mmHg, Puls: {row['pulse']} bpm, Kommentare: {row['comments']}")
+            day_measurements = weekly_data[weekly_data['Wochentag'] == day]
+            if not day_measurements.empty:
+                for _, row in day_measurements.iterrows():
+                    display_data.append([row['datum'], row['uhrzeit'], row['systolic'], row['diastolic'], row['pulse'], row['comments']])
 
-        # Code für den Download-Button
-        pdf_file = create_measurement_pdf(weekly_data)  # Erstelle PDF aus den gefilterten Daten
-        st.download_button(
-            label="Download Messdaten PDF",
-            data=pdf_file,
-            file_name="messdaten.pdf",
-            mime='application/pdf'
-        )
+        if display_data:
+            df_display = pd.DataFrame(display_data, columns=['Datum', 'Uhrzeit', 'Systolisch', 'Diastolisch', 'Puls', 'Kommentare'])
+            st.table(df_display)
+            pdf_file = create_measurement_pdf(df_display)  # Erstelle PDF aus den angezeigten Daten
+            st.download_button(
+                label="Download Messdaten PDF",
+                data=pdf_file.getvalue(),  # Achten Sie darauf, dass die Daten als Bytes vorliegen
+                file_name="messdaten.pdf",
+                mime='application/pdf'
+            )
+        else:
+            st.write("Keine Daten zum Herunterladen verfügbar.")
     else:
-        st.write("Keine Daten zum Herunterladen verfügbar.")
-
+        st.write("Keine Messdaten vorhanden.")
 
 def show_trend_analysis():
     display_logo()
