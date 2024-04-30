@@ -233,27 +233,29 @@ def logout():
     st.session_state['page'] = 'home'
     st.info("Sie wurden erfolgreich ausgeloggt.")        
 
-def set_page(page_name):
-    st.session_state['page'] = page_name
+def show_home_screen():
+    display_logo()
+    st.title('CardioCheck')
+    st.markdown("## Willkommen beim CardioCheck Dashboard")
+
+    # Definiert das Layout für die Buttons
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("👤 Profil"):
-            set_page('profile')
+        if st.button ("👤 Profil"):
+            st.session_state['page']='profile'
         if st.button("💪 Fitness"):
-            set_page('Fitness')
+            st.session_state['page']= 'Fitness'
     with col2:
         if st.button("📊 Messungen"):
-            set_page('measurements')
+            st.session_state['page']='measurements'
         if st.button("🆘 Notfall Nr."):
-            set_page('emergency_numbers')
+            st.session_state['page']='emergency_numbers'
     with col3:
         if st.button("💊 Medikamenten Plan"):
-            set_page('medication-plan')
-        if st.button("ℹ️ Infos"):
-            set_page('infos')
+            st.session_state['page']= 'medication-plan'
+        if st.button("ℹ️ Infos"):  
+            st.session_state['page']='infos'
 
-    if st.button("Logout", key='logout'):
-        logout()
 
     # Spacer zur besseren Positionierung des Logout-Buttons
     st.write("")
@@ -299,13 +301,6 @@ def set_page(page_name):
         }
         </style>
     """, unsafe_allow_html=True)
-
-
-
-
-
-
-
 
 #hier Registrierung beendet
 
