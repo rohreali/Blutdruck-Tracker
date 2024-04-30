@@ -27,6 +27,10 @@ EMERGENCY_NUMBERS_FILE = "emergency_numbers.csv"
 EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "number"]
 
 #alles zu Login, Registrierung und Home Bildschirm
+def display_logo():
+    logo_path = "/mnt/data/Logo.png"
+    st.image(logo_path, width=150)  # Sie können die Breite anpassen, um die Größe des Logos zu steuern
+
 def init_github():
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
