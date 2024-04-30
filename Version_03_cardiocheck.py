@@ -519,7 +519,6 @@ def save_medications_to_github():
         st.success('Medication CSV created on GitHub successfully!')
 
 def show_medication_plan():
-    display_logo()
     st.sidebar.title("Optionen")
     option = st.sidebar.radio("", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
     if option == "Neues Medikament hinzufügen":
@@ -661,7 +660,6 @@ def get_start_end_dates_from_week_number(year, week_number):
     return start_of_week.date(), end_of_week.date()
 
 def show_fitness_history():
-    display_logo()
     username = st.session_state.get('current_user')
     st.title('Fitness History - Diese Woche')
 
