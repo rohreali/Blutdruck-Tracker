@@ -445,18 +445,19 @@ def show_measurement_history_weekly():
         df_week = pd.DataFrame(columns=['Datum', 'Uhrzeit', 'Systolisch', 'Diastolisch', 'Puls', 'Kommentare'])
 
         # Messungen für jeden Wochentag in den DataFrame einfügen
-        for day, measurements in daily_measurements.items():
-            for measurement in measurements:
-                df_week = df_week.append({
-                    'Datum': measurement.datum,
-                    'Uhrzeit': measurement.uhrzeit,
-                    'Systolisch': measurement.systolic,
-                    'Diastolisch': measurement.diastolic,
-                    'Puls': measurement.pulse,
-                    'Kommentare': measurement.comments
-                }, ignore_index=True)
+        # Messungen für jeden Wochentag in den DataFrame einfügen
+    for day, measurements in daily_measurements.items():
+        for measurement in measurements:
+            new_row = pd.DataFrame([{
+                'Datum': measurement.datum,
+                'Uhrzeit': measurement.uhrzeit,
+                'Systolisch': measurement.systolic,
+                'Diastolisch': measurement.diastolic,
+                'Puls': measurement.pulse,
+                'Kommentare': measurement.comments
+            }])
+            df_week = pd.concat([df_week, new_row], ignore_index=True)
 
-        st.table(df_week.fillna(''))
 
         # Code für den Download-Button
         pdf_file = create_measurement_pdf(weekly_data)  # Erstelle PDF aus den gefilterten Daten
