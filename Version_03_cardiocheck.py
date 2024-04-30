@@ -427,33 +427,44 @@ def show_measurement_history_weekly():
 
     if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
-        weekly_data['Wochentag'] = weekly_data['datum'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%a'))
-        days_of_week = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        df_week = pd.DataFrame(days_of_week, columns=['Wochentag'])
-        df_week.set_index('Wochentag', inplace=True)
-        
-        display_data = []
 
-        for day in days_of_week:
-            day_measurements = weekly_data[weekly_data['Wochentag'] == day]
-            if not day_measurements.empty:
-                for _, row in day_measurements.iterrows():
-                    display_data.append([row['datum'], row['uhrzeit'], row['systolic'], row['diastolic'], row['pulse'], row['comments']])
+        # Dictionary zum Sammeln der Messungen für jeden Wochentag initialisieren
+        daily_measurements = {day: [] for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}
 
-        if display_data:
-            df_display = pd.DataFrame(display_data, columns=['Datum', 'Uhrzeit', 'Systolisch', 'Diastolisch', 'Puls', 'Kommentare'])
-            st.table(df_display)
-            pdf_file = create_measurement_pdf(df_display)  # Erstelle PDF aus den angezeigten Daten
-            st.download_button(
-                label="Download Messdaten PDF",
-                data=pdf_file.getvalue(),  # Achten Sie darauf, dass die Daten als Bytes vorliegen
-                file_name="messdaten.pdf",
-                mime='application/pdf'
-            )
-        else:
-            st.write("Keine Daten zum Herunterladen verfügbar.")
+        # Messungen nach Wochentagen gruppieren
+        for activity in weekly_data.itertuples():
+            activity_date = datetime.strptime(activity.datum, '%Y-%m-%d').date()
+            day_name = activity_date.strftime("%a")
+            daily_measurements[day_name].append(activity)
+
+        # DataFrame für die Anzeige vorbereiten
+        df_week = pd.DataFrame(columns=['Datum', 'Uhrzeit', 'Systolisch', 'Diastolisch', 'Puls', 'Kommentare'])
+
+        # Messungen für jeden Wochentag in den DataFrame einfügen
+        for day, measurements in daily_measurements.items():
+            for measurement in measurements:
+                df_week = df_week.append({
+                    'Datum': measurement.datum,
+                    'Uhrzeit': measurement.uhrzeit,
+                    'Systolisch': measurement.systolic,
+                    'Diastolisch': measurement.diastolic,
+                    'Puls': measurement.pulse,
+                    'Kommentare': measurement.comments
+                }, ignore_index=True)
+
+        st.table(df_week.fillna(''))
+
+        # Code für den Download-Button
+        pdf_file = create_measurement_pdf(weekly_data)  # Erstelle PDF aus den gefilterten Daten
+        st.download_button(
+            label="Download Messdaten PDF",
+            data=pdf_file,
+            file_name="messdaten.pdf",
+            mime='application/pdf'
+        )
     else:
-        st.write("Keine Messdaten vorhanden.")
+        st.write("Keine Daten zum Herunterladen verfügbar.")
+
 
 def show_trend_analysis():
     display_logo()
