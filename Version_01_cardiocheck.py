@@ -266,6 +266,8 @@ def show_home_screen():
     st.write("")
     st.write("")
 
+    if st.button("Logout"):
+            logout() 
     # Logout-Button am unteren Ende der Seite
     st.markdown("""
         <div style='text-align: right;'>
