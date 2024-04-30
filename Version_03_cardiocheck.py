@@ -436,6 +436,9 @@ def show_measurement_history_weekly():
             df_week.loc[day_name, 'Kommentare'] = activity.comments
 
         st.table(df_week.fillna(''))
+    # Funktion im Streamlit Interface aufrufen
+    if st.button("PDF der Messdaten erstellen und herunterladen"):
+        download_measurements()
 
 def show_trend_analysis():
     display_logo()
@@ -539,9 +542,7 @@ def download_measurements():
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
 
-# Funktion im Streamlit Interface aufrufen
-if st.button("PDF der Messdaten erstellen und herunterladen"):
-    download_measurements()
+
 
 
 #hier alles zu Messungen fertig
