@@ -43,7 +43,7 @@ def display_logo(in_sidebar=False):
     else:
         # Anzeigen des Logos im Hauptbereich
         col1, col2, col3 = st.columns([1,2,1])
-        with col2:
+        with col3:
             st.image(logo_path, width=150)
 
 def init_github():
