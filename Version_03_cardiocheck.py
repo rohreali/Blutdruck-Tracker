@@ -33,7 +33,7 @@ def display_logo():
     # Erstellen einer Spalte zur zentrierten Darstellung des Logos
     col1, col2, col3 = st.columns([1,2,1])
     with col3:  # Logo zentral in der mittleren Spalte anzeigen
-        st.image(logo_path, width=200)  # Passen Sie die Breite nach Bedarf an
+        st.image(logo_path, width=100)  # Passen Sie die Breite nach Bedarf an
 
 def init_github():
     g = Github(st.secrets["github"]["token"])
