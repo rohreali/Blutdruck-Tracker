@@ -139,6 +139,7 @@ def verify_login(username, password):
     st.error("Incorrect username or password.")
     return False
 def user_interface():
+    display_logo()
     st.title('User Registration and Login')
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
