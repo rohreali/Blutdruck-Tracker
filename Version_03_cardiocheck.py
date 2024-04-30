@@ -932,20 +932,21 @@ def show_emergency_numbers():
     # Laden und Anzeigen benutzerspezifischer Notfallnummern
     st.write("Gespeicherte Notfallnummern:")
     emergency_data = load_emergency_numbers()
-    for entry in [e for e in emergency_data if e['username'] == current_user]:
-        st.write(f"- {entry['type']}: {entry['number']}")
+    current_numbers = {entry['type']: entry['number'] for entry in emergency_data if entry['username'] == current_user}
 
     # Eingabe neuer Notfallnummern
     with st.form("emergency_numbers_form"):
-        number_type_options = ['Hausarzt', 'Notfallkontakt']  # Beschränken Sie die Auswahl auf diese beiden Typen
-        number_type = st.selectbox('Nummertyp auswählen', number_type_options)
-        number = st.text_input('Notfallnummer')
+        number_types = ['Hausarzt', 'Notfallkontakt']
+        inputs = {}
+        for number_type in number_types:
+            inputs[number_type] = st.text_input(f'{number_type}', value=current_numbers.get(number_type, ''))
         submit_button = st.form_submit_button("Speichern")
 
         if submit_button:
-            add_emergency_number(current_user, number_type, number)
-            st.success("Notfallnummer erfolgreich gespeichert!")
-            # Lade die Seite neu, um die aktualisierten Nummern anzuzeigen
+            for number_type, number in inputs.items():
+                if number:  # Überprüfen, ob ein Wert eingegeben wurde
+                    add_emergency_number(current_user, number_type, number)
+            st.success("Notfallnummer(n) erfolgreich gespeichert!")
             st.experimental_rerun()
 
 
