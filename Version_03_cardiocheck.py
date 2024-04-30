@@ -35,6 +35,17 @@ def display_logo():
     with col3:  # Logo zentral in der mittleren Spalte anzeigen
         st.image(logo_path, width=150)  # Passen Sie die Breite nach Bedarf an
 
+def display_logo(in_sidebar=False):
+    logo_path = "Logo.png"
+    if in_sidebar:
+        # Anzeigen des Logos in der Sidebar
+        st.sidebar.image(logo_path, width=150)  # Anpassung der Breite nach Bedarf
+    else:
+        # Anzeigen des Logos im Hauptbereich
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            st.image(logo_path, width=150)
+
 def init_github():
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
@@ -606,6 +617,7 @@ def save_fitness_data_to_github():
 
 def show_fitness():
     display_logo()
+    display_logo(in_sidebar=True)
     username = st.session_state.get('current_user')
 
     if not username:
