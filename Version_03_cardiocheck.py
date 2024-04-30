@@ -28,7 +28,7 @@ EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "number"]
 
 #alles zu Login, Registrierung und Home Bildschirm
 def display_logo():
-    logo_path = "/mnt/data/Logo.png"
+    logo_path = "https://github.com/rohreali/Blutdruck-Tracker/blob/main/Logo.png"
     st.image(logo_path, width=150)  # Sie können die Breite anpassen, um die Größe des Logos zu steuern
 
 def init_github():
