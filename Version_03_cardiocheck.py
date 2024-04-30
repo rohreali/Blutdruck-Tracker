@@ -535,7 +535,7 @@ def show_trend_analysis():
 
     st.markdown("""
     <div style='background-color: #ffcccc; padding: 10px; border-radius: 5px;'>
-    <p style='color: red;'>Bei extrem hohen Werten über 180/110mmHg oder bei extrem tiefen Werten unter 90/60 handelt es sich um Extremwerte und Sie sollten sofort Ihren Arzt kontaktieren.</p>
+    <p style='color: red;'>Bei extrem hohen Werten über 180/110mmHg oder bei extrem tiefen Werten unter 90/60mmHg handelt es sich um Extremwerte und Sie sollten sofort Ihren Arzt kontaktieren.</p>
     </div>
     """, unsafe_allow_html=True)
 
