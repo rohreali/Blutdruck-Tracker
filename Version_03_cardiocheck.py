@@ -626,6 +626,17 @@ def show_medication_list():
     else:
         st.write("Es sind keine Medikamentenpläne vorhanden.")
 
+   # Funktion im Streamlit Interface aufrufen
+    if not measurement_data.empty:
+        pdf_file = create_medication_pdf(medication_data)
+        st.download_button(label="Download Medikamentenplan PDF",
+                           data=pdf_file,
+                           file_name="medication.pdf",
+                           mime='application/pdf')
+    else:
+            st.write("Keine Daten zum Herunterladen verfügbar.")
+
+
 #hier kommt Fitness        
 def back_to_home():
     st.session_state['page'] = 'home_screen'
