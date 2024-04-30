@@ -937,12 +937,16 @@ def show_emergency_numbers():
 
     # Eingabe neuer Notfallnummern
     with st.form("emergency_numbers_form"):
-        number_type = st.text_input('Nummertyp (z.B. Hausarzt, Notfallkontakt)')
+        number_type_options = ['Hausarzt', 'Notfallkontakt']  # Beschränken Sie die Auswahl auf diese beiden Typen
+        number_type = st.selectbox('Nummertyp auswählen', number_type_options)
         number = st.text_input('Notfallnummer')
         submit_button = st.form_submit_button("Speichern")
-        
+
         if submit_button:
             add_emergency_number(current_user, number_type, number)
+            st.success("Notfallnummer erfolgreich gespeichert!")
+            # Lade die Seite neu, um die aktualisierten Nummern anzuzeigen
+            st.experimental_rerun()
 
 
 #Info- Page
