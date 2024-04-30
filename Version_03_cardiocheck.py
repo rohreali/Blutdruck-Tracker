@@ -623,15 +623,22 @@ def show_medication_plan():
         show_medication_list()
 
 def load_medication_data():
+    current_user = st.session_state.get('current_user')
+    if current_user is None:
+        st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um den Medikamentenplan anzuzeigen.")
+        return pd.DataFrame()
+
     repo = init_github()
     try:
         contents = repo.get_contents(MEDICATION_DATA_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
-        return data
+        user_medication_data = data[data['username'] == current_user]
+        return user_medication_data
     except Exception as e:
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
         return pd.DataFrame()
+
 
 def show_medication_list():
     st.title('Medikamentenplan')
