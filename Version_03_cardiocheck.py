@@ -204,7 +204,6 @@ def show_login_form():
 
 #Home Bildschirm
 def show_home():
-    display_logo()
     st.title('Herzlich Willkommen bei CardioCheck')
     st.subheader('Ihr Blutdruck Tagebuch')
     action = st.selectbox("Aktion wählen", ["Einloggen", "Registrieren"])
@@ -219,6 +218,7 @@ def logout():
     st.info("Sie wurden erfolgreich ausgeloggt.")        
 
 def show_home_screen():
+    display_logo()
     back_to_home()
     st.title('CardioCheck')
     st.markdown("## Home Bildschirm")
