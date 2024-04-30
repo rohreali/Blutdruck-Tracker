@@ -421,8 +421,8 @@ def show_measurement_history_weekly():
         back_to_home()
     st.title('Messhistorie - Diese Woche')
 
-    week_number = st.number_input('Wochennummer (1-52)', min_value=1, max_value=52, value=datetime.now().isocalendar()[1], format='%d')
-    year_to_view = st.number_input('Jahr', min_value=2020, max_value=datetime.now().year, value=datetime.now().year, format='%d')
+    week_number = st.number_input('Wochennummer (1-52)', min_value=1, max_value=52, value=datetime.now().isocalendar()[1])
+    year_to_view = st.number_input('Jahr', min_value=2020, max_value=datetime.now().year, value=datetime.now().year)
 
     start_date, end_date = get_start_end_dates_from_week_number(year_to_view, week_number)
     st.write(f"Anzeigen der Messungen für die Woche vom {start_date} bis {end_date}")
@@ -442,25 +442,25 @@ def show_measurement_history_weekly():
             daily_measurements[day_name].append(activity)
 
         # DataFrame für die Anzeige vorbereiten
-        df_week = pd.DataFrame(columns=['Datum', 'Uhrzeit', 'Systolisch', 'Diastolisch', 'Puls', 'Kommentare'])
+        df_week = pd.DataFrame()
 
         # Messungen für jeden Wochentag in den DataFrame einfügen
-        # Messungen für jeden Wochentag in den DataFrame einfügen
-    for day, measurements in daily_measurements.items():
-        for measurement in measurements:
-            new_row = pd.DataFrame([{
-                'Datum': measurement.datum,
-                'Uhrzeit': measurement.uhrzeit,
-                'Systolisch': measurement.systolic,
-                'Diastolisch': measurement.diastolic,
-                'Puls': measurement.pulse,
-                'Kommentare': measurement.comments
-            }])
-            df_week = pd.concat([df_week, new_row], ignore_index=True)
+        for day, measurements in daily_measurements.items():
+            for measurement in measurements:
+                df_week = df_week.append({
+                    'Datum': measurement.datum,
+                    'Uhrzeit': measurement.uhrzeit,
+                    'Systolisch': measurement.systolic,
+                    'Diastolisch': measurement.diastolic,
+                    'Puls': measurement.pulse,
+                    'Kommentare': measurement.comments
+                }, ignore_index=True)
 
+        # DataFrame anzeigen
+        st.table(df_week)
 
         # Code für den Download-Button
-        pdf_file = create_measurement_pdf(weekly_data)  # Erstelle PDF aus den gefilterten Daten
+        pdf_file = create_measurement_pdf(df_week)
         st.download_button(
             label="Download Messdaten PDF",
             data=pdf_file,
@@ -469,6 +469,7 @@ def show_measurement_history_weekly():
         )
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
+
 
 
 def show_trend_analysis():
