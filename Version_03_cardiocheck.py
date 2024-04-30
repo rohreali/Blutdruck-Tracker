@@ -885,17 +885,6 @@ def add_emergency_number(username, number_type, number):
     st.session_state['emergency_numbers'] = existing_entries
     save_emergency_numbers_to_github(existing_entries)
 
-def load_emergency_numbers():
-    if 'emergency_numbers' not in st.session_state or not st.session_state['emergency_numbers']:
-        repo = init_github()  # Stellen Sie sicher, dass das GitHub-Repository initialisiert ist
-        try:
-            contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-            csv_content = contents.decoded_content.decode("utf-8")
-            data = pd.read_csv(StringIO(csv_content))
-            st.session_state['emergency_numbers'] = data.to_dict('records')  # Speichern in der Session State
-        except Exception as e:
-            st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-            st.session_state['emergency_numbers'] = []
 def save_emergency_numbers_to_github(entries):
     emergency_df = pd.DataFrame(entries)
     emergency_df.to_csv(EMERGENCY_NUMBERS_FILE, index=False)
@@ -911,6 +900,16 @@ def save_emergency_numbers_to_github(entries):
         repo.create_file(EMERGENCY_NUMBERS_FILE, "Create emergency numbers data file", emergency_df.to_csv(index=False))
         st.success('Emergency numbers CSV created on GitHub successfully!')
 
+def load_emergency_numbers():
+    repo = init_github()  # Stellen Sie sicher, dass das GitHub-Repository initialisiert ist
+    try:
+        contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        return data.to_dict('records')  # Konvertiere den DataFrame in eine Liste von Dictionaries
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
+        return []  # Gibt leere Liste zurück, wenn ein Fehler auftritt
 def show_emergency_numbers():
     display_logo()
     if st.button("Zurück zum Homebildschirm"):
