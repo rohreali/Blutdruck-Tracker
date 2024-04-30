@@ -506,10 +506,10 @@ def show_trend_analysis():
     high_risk = user_measurements[(user_measurements['systolic'] >= 180) | (user_measurements['diastolic'] >= 110)]
     low_risk = user_measurements[(user_measurements['systolic'] <= 90) | (user_measurements['diastolic'] <= 60)]
 
-    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['systolic'], mode='markers', name='Hoher Systolischer Risiko', marker=dict(color='red', size=10)))
-    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['diastolic'], mode='markers', name='Hoher Diastolischer Risiko', marker=dict(color='red', size=10)))
-    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['systolic'], mode='markers', name='Niedriger Systolischer Risiko', marker=dict(color='blue', size=10)))
-    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['diastolic'], mode='markers', name='Niedriger Diastolischer Risiko', marker=dict(color='blue', size=10)))
+    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['systolic'], mode='markers', name='Hoher Systolischer Wert', marker=dict(color='red', size=10)))
+    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['diastolic'], mode='markers', name='Hoher Diastolischer Wert', marker=dict(color='red', size=10)))
+    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['systolic'], mode='markers', name='Niedriger Systolischer Wert', marker=dict(color='blue', size=10)))
+    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['diastolic'], mode='markers', name='Niedriger Diastolischer Wert', marker=dict(color='blue', size=10)))
 
     # Diagramm Layout anpassen
     fig.update_layout(title='Trendanalyse der Messwerte über die Zeit',
@@ -520,6 +520,12 @@ def show_trend_analysis():
 
     # Diagramm anzeigen
     st.plotly_chart(fig, use_container_width=True)
+
+    st.markdown("""
+    <div style='background-color: #ffcccc; padding: 10px; border-radius: 5px;'>
+    <p style='color: red;'>Bei extrem hohen Werten über 180/110mmHg oder bei extrem tiefen Werten unter 90/60 handelt es sich um Extremwerte und Sie sollten sofort Ihren Arzt kontaktieren.</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 def create_measurement_pdf(measurement_data):
     pdf_buffer = BytesIO()
