@@ -519,6 +519,7 @@ def save_medications_to_github():
         st.success('Medication CSV created on GitHub successfully!')
 
 def show_medication_plan():
+    display_logo()
     st.sidebar.title("Optionen")
     option = st.sidebar.radio("", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
     if option == "Neues Medikament hinzufügen":
@@ -558,6 +559,7 @@ def load_medication_data():
         return pd.DataFrame()
 
 def show_medication_list():
+    display_logo()
     st.title('Medikamentenplan')
     
     medication_data = load_medication_data()
@@ -604,6 +606,7 @@ def save_fitness_data_to_github():
         st.success('Fitness CSV created on GitHub successfully!')
 
 def show_fitness():
+    display_logo()
     username = st.session_state.get('current_user')
 
     if not username:
@@ -658,6 +661,7 @@ def get_start_end_dates_from_week_number(year, week_number):
     return start_of_week.date(), end_of_week.date()
 
 def show_fitness_history():
+    display_logo()
     username = st.session_state.get('current_user')
     st.title('Fitness History - Diese Woche')
 
@@ -744,6 +748,7 @@ def load_emergency_numbers():
         st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
         return []  # Gibt leeren Liste zurück, wenn ein Fehler auftritt
 def show_emergency_numbers():
+    display_logo()
     if st.button("Zurück zum Homebildschirm"):
         go_to_home()
     st.title('Meine Notfallnummern')
@@ -785,6 +790,7 @@ def setup_sidebar():
     return info_options
 
 def show_info_pages():
+    display_logo()
     info_options = setup_sidebar()
 
     if st.button("Zurück zum Homebildschirm"):
