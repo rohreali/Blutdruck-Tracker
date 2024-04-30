@@ -15,6 +15,9 @@ import csv
 from io import StringIO
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib import colors
 from io import BytesIO
 
 
@@ -313,8 +316,6 @@ def show_profile():
 #Hier Alles zu Messungen
 def back_to_home():
     st.session_state['page'] = 'home_screen'
-    
-
 
 def get_start_end_dates_from_week_number(year, week_number):
     first_day_of_year = datetime(year, 1, 1)
@@ -502,39 +503,36 @@ def show_trend_analysis():
     st.plotly_chart(fig, use_container_width=True)
 
 def create_measurement_pdf(measurement_data):
-    # BytesIO Objekt für die PDF-Datei
     pdf_buffer = BytesIO()
-    c = canvas.Canvas(pdf_buffer, pagesize=letter)
-    width, height = letter  # Breite und Höhe des PDF-Dokuments
-
-    # Titel des Dokuments
-    c.drawString(100, height - 100, "Messdaten Report")
-
-    # Etwas Abstand für den Header
-    y = height - 150
-
-    # Kopfzeile
-    c.drawString(50, y, "Datum")
-    c.drawString(150, y, "Uhrzeit")
-    c.drawString(250, y, "Systolisch")
-    c.drawString(350, y, "Diastolisch")
-    c.drawString(450, y, "Puls")
-    c.drawString(550, y, "Kommentare")
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
     
-    # Daten hinzufügen
+    # Titel hinzufügen
+    title = Paragraph("Messdaten Report", styles['Title'])
+    elements.append(title)
+
+    # Daten für die Tabelle vorbereiten
+    data = [["Datum", "Uhrzeit", "Systolisch", "Diastolisch", "Puls", "Kommentare"]]
     for index, row in measurement_data.iterrows():
-        y -= 50
-        c.drawString(50, y, str(row['datum']))
-        c.drawString(150, y, str(row['uhrzeit']))
-        c.drawString(250, y, str(row['systolic']))
-        c.drawString(350, y, str(row['diastolic']))
-        c.drawString(450, y, str(row['pulse']))
-        c.drawString(550, y, str(row['comments']))
+        data.append([row['datum'], row['uhrzeit'], row['systolic'], row['diastolic'], row['pulse'], row['comments'] or ""])
 
-    # PDF speichern
-    c.save()
-
-    # Zurücksetzen des Buffers auf den Anfang, damit er gelesen werden kann
+    # Tabelle erstellen
+    t = Table(data)
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0,0), (-1,0), 12),
+        ('BACKGROUND', (0,1), (-1,-1), colors.beige),
+        ('GRID', (0,0), (-1,-1), 1, colors.black),
+        ('BOX', (0,0), (-1,-1), 2, colors.black),
+    ]))
+    elements.append(t)
+    
+    # PDF erstellen
+    doc.build(elements)
     pdf_buffer.seek(0)
     return pdf_buffer
 
