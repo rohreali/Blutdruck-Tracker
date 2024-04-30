@@ -19,6 +19,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from io import BytesIO
+import numpy as np
 
 
 # Konstanten
@@ -647,8 +648,33 @@ def show_medication_list():
     
     # Display the medication plan if data is available
     if not medication_data.empty:
-        st.write("Hier ist Ihr Medikamentenplan:")
-        st.dataframe(medication_data)
+        # Create a nicely styled table
+        st.write('<style>div.Widget.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
+        st.write('<style>div.Widget.row-widget.stRadio > div > label{padding:5px;}</style>', unsafe_allow_html=True)
+        
+        st.markdown("""
+            <style>
+            table.dataframe {
+                font-family: Arial, sans-serif;
+                border-collapse: collapse;
+                width: 100%;
+            }
+            table.dataframe td, table.dataframe th {
+                border: 1px solid #dddddd;
+                padding: 8px;
+                text-align: left;
+            }
+            table.dataframe tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+            table.dataframe th {
+                background-color: #4CAF50;
+                color: white;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+        
+        st.table(medication_data)
         
         # Check if there's medication data to generate a PDF
         pdf_file = create_medication_pdf(medication_data)
