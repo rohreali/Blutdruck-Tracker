@@ -822,7 +822,7 @@ def create_fitness_pdf(fitness_data):
     elements = []
     styles = getSampleStyleSheet()
 
-    # Title for the fitness report
+    # Adding title
     title = Paragraph("Fitness Report", styles['Title'])
     elements.append(title)
 
@@ -830,15 +830,15 @@ def create_fitness_pdf(fitness_data):
     data = [["Datum", "Uhrzeit", "Dauer", "Intensität", "Art", "Kommentare"]]
     for index, row in fitness_data.iterrows():
         data.append([
-            row['datum'], 
-            row['uhrzeit'], 
-            row['dauer'], 
-            row['intensitaet'], 
-            row['Art'], 
-            row['Kommentare'] or ""
+            row['Datum'],  # Make sure the column names are correctly referenced
+            row['Uhrzeit'], 
+            row['Dauer'], 
+            row.get('Intensitaet', ''),  # Use .get for optional fields
+            row.get('Art', ''), 
+            row.get('Kommentare', '')  # Provide a default empty string if key might not exist
         ])
 
-    # Create the table
+    # Create the table with the data
     t = Table(data)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
@@ -856,6 +856,7 @@ def create_fitness_pdf(fitness_data):
     doc.build(elements)
     pdf_buffer.seek(0)
     return pdf_buffer
+
 
 
 
