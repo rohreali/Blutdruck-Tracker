@@ -864,21 +864,24 @@ def initialize_emergency_numbers():
     if 'emergency_numbers' not in st.session_state:
         st.session_state['emergency_numbers'] = []
 def add_emergency_number(username, number_type, number):
+    # Initialisiere die Notfallnummern, wenn noch nicht geschehen
     initialize_emergency_numbers()
     existing_entries = st.session_state['emergency_numbers']
     updated = False
-    
-    # Update bestehender Eintrag, wenn vorhanden
+
+    # Update des bestehenden Eintrags, wenn vorhanden
     for entry in existing_entries:
         if entry['username'] == username and entry['type'] == number_type:
             entry['number'] = number
             updated = True
+            break
 
     # Neuer Eintrag, wenn nicht vorhanden
     if not updated:
         new_entry = {"username": username, "type": number_type, "number": number}
         existing_entries.append(new_entry)
-    
+
+    # Aktualisiere den globalen Zustand
     st.session_state['emergency_numbers'] = existing_entries
     save_emergency_numbers_to_github(existing_entries)
 
@@ -886,8 +889,7 @@ def save_emergency_numbers_to_github(entries):
     emergency_df = pd.DataFrame(entries)
     emergency_df.to_csv(EMERGENCY_NUMBERS_FILE, index=False)
 
-    g = Github(st.secrets["github"]["token"])
-    repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
+    repo = init_github()
 
     try:
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
@@ -899,25 +901,26 @@ def save_emergency_numbers_to_github(entries):
         st.success('Emergency numbers CSV created on GitHub successfully!')
 
 def load_emergency_numbers():
-    repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    repo = init_github()  # Stellen Sie sicher, dass das GitHub-Repository initialisiert ist
     try:
         contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
-        return data.to_dict('records')
+        return data.to_dict('records')  # Konvertiere den DataFrame in eine Liste von Dictionaries
     except Exception as e:
         st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-        return []  # Gibt leeren Liste zurück, wenn ein Fehler auftritt
+        return []  # Gibt leere Liste zurück, wenn ein Fehler auftritt
 def show_emergency_numbers():
     display_logo()
     if st.button("Zurück zum Homebildschirm"):
         go_to_home()
+
     st.title('Meine Notfallnummern')
     current_user = st.session_state.get('current_user')
     if not current_user:
         st.error("Sie müssen angemeldet sein, um Ihre Notfallnummern anzuzeigen.")
         return
-    
+
     # Anzeigen allgemeiner Notfallnummern
     st.write("Allgemeine Notfallnummern:")
     st.write("- Polizei: 117")
@@ -934,13 +937,13 @@ def show_emergency_numbers():
 
     # Eingabe neuer Notfallnummern
     with st.form("emergency_numbers_form"):
-        hausarzt_number = st.text_input('Hausarzt')
-        eigene_number = st.text_input('Notfallkontakt')
+        number_type = st.text_input('Nummertyp (z.B. Hausarzt, Notfallkontakt)')
+        number = st.text_input('Notfallnummer')
         submit_button = st.form_submit_button("Speichern")
         
         if submit_button:
-            add_emergency_number(current_user, 'Hausarzt', hausarzt_number)
-            add_emergency_number(current_user, 'Notfallkontakt', eigene_number)
+            add_emergency_number(current_user, number_type, number)
+
 
 #Info- Page
 def go_to_home():
