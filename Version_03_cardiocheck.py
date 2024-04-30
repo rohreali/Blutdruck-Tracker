@@ -39,12 +39,12 @@ def display_logo(in_sidebar=False):
     logo_path = "Logo.png"
     if in_sidebar:
         # Anzeigen des Logos in der Sidebar
-        st.sidebar.image(logo_path, width=150)  # Anpassung der Breite nach Bedarf
+        st.sidebar.image(logo_path, width=120)  # Anpassung der Breite nach Bedarf
     else:
         # Anzeigen des Logos im Hauptbereich
         col1, col2, col3 = st.columns([1,2,1])
         with col3:
-            st.image(logo_path, width=130)
+            st.image(logo_path, width=150)
 
 def init_github():
     g = Github(st.secrets["github"]["token"])
