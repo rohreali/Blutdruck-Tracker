@@ -314,57 +314,7 @@ def show_profile():
 def back_to_home():
     st.session_state['page'] = 'home_screen'
     
-def create_measurement_pdf(measurement_data):
-    # BytesIO Objekt für die PDF-Datei
-    pdf_buffer = BytesIO()
-    c = canvas.Canvas(pdf_buffer, pagesize=letter)
-    width, height = letter  # Breite und Höhe des PDF-Dokuments
 
-    # Titel des Dokuments
-    c.drawString(100, height - 100, "Messdaten Report")
-
-    # Etwas Abstand für den Header
-    y = height - 150
-
-    # Kopfzeile
-    c.drawString(50, y, "Datum")
-    c.drawString(150, y, "Uhrzeit")
-    c.drawString(250, y, "Systolisch")
-    c.drawString(350, y, "Diastolisch")
-    c.drawString(450, y, "Puls")
-    c.drawString(550, y, "Kommentare")
-    
-    # Daten hinzufügen
-    for index, row in measurement_data.iterrows():
-        y -= 50
-        c.drawString(50, y, str(row['datum']))
-        c.drawString(150, y, str(row['uhrzeit']))
-        c.drawString(250, y, str(row['systolic']))
-        c.drawString(350, y, str(row['diastolic']))
-        c.drawString(450, y, str(row['pulse']))
-        c.drawString(550, y, str(row['comments']))
-
-    # PDF speichern
-    c.save()
-
-    # Zurücksetzen des Buffers auf den Anfang, damit er gelesen werden kann
-    pdf_buffer.seek(0)
-    return pdf_buffer
-
-def download_measurements():
-    measurement_data = load_measurement_data()  # Annahme, dass diese Funktion bereits existiert und die Daten als DataFrame zurückgibt
-    if not measurement_data.empty:
-        pdf_file = create_measurement_pdf(measurement_data)
-        st.download_button(label="Download Messdaten PDF",
-                           data=pdf_file,
-                           file_name="messdaten.pdf",
-                           mime='application/pdf')
-    else:
-        st.write("Keine Daten zum Herunterladen verfügbar.")
-
-# Funktion im Streamlit Interface aufrufen
-if st.button("PDF der Messdaten erstellen und herunterladen"):
-    download_measurements()
 
 def get_start_end_dates_from_week_number(year, week_number):
     first_day_of_year = datetime(year, 1, 1)
@@ -540,6 +490,58 @@ def show_trend_analysis():
 
     # Diagramm anzeigen
     st.plotly_chart(fig, use_container_width=True)
+
+def create_measurement_pdf(measurement_data):
+    # BytesIO Objekt für die PDF-Datei
+    pdf_buffer = BytesIO()
+    c = canvas.Canvas(pdf_buffer, pagesize=letter)
+    width, height = letter  # Breite und Höhe des PDF-Dokuments
+
+    # Titel des Dokuments
+    c.drawString(100, height - 100, "Messdaten Report")
+
+    # Etwas Abstand für den Header
+    y = height - 150
+
+    # Kopfzeile
+    c.drawString(50, y, "Datum")
+    c.drawString(150, y, "Uhrzeit")
+    c.drawString(250, y, "Systolisch")
+    c.drawString(350, y, "Diastolisch")
+    c.drawString(450, y, "Puls")
+    c.drawString(550, y, "Kommentare")
+    
+    # Daten hinzufügen
+    for index, row in measurement_data.iterrows():
+        y -= 50
+        c.drawString(50, y, str(row['datum']))
+        c.drawString(150, y, str(row['uhrzeit']))
+        c.drawString(250, y, str(row['systolic']))
+        c.drawString(350, y, str(row['diastolic']))
+        c.drawString(450, y, str(row['pulse']))
+        c.drawString(550, y, str(row['comments']))
+
+    # PDF speichern
+    c.save()
+
+    # Zurücksetzen des Buffers auf den Anfang, damit er gelesen werden kann
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
+def download_measurements():
+    measurement_data = load_measurement_data()  # Annahme, dass diese Funktion bereits existiert und die Daten als DataFrame zurückgibt
+    if not measurement_data.empty:
+        pdf_file = create_measurement_pdf(measurement_data)
+        st.download_button(label="Download Messdaten PDF",
+                           data=pdf_file,
+                           file_name="messdaten.pdf",
+                           mime='application/pdf')
+    else:
+        st.write("Keine Daten zum Herunterladen verfügbar.")
+
+# Funktion im Streamlit Interface aufrufen
+if st.button("PDF der Messdaten erstellen und herunterladen"):
+    download_measurements()
 
 
 #hier alles zu Messungen fertig
