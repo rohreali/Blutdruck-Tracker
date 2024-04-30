@@ -804,9 +804,6 @@ def show_fitness_history():
     
     # Anzeige des Fitnessplans, falls Daten vorhanden sind
     if not fitness_data.empty:
-        st.write("Hier ist Ihr Fitnessplan:")
-        #st.dataframe(fitness_data)
-    
         # Prüfen, ob Fitnessdaten vorhanden sind, um ein PDF zu generieren
         pdf_file = create_fitness_pdf(fitness_data)
         st.download_button(label="Download Fitnessplan PDF",
