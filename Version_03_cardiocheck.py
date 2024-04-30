@@ -251,9 +251,10 @@ def show_home_screen():
         st.button("ℹ️ Infos", key="info")
 
     # Platz für Logout-Button am unteren Rand der Seite
-    _, col_logout, _ = st.columns([0.8, 0.1, 0.1])  # Adjust column widths to push logout to the right
-    with col_logout:
-        if st.button("🚪 Logout"):
+    # Nutzung von Spacer-Spalten und einer schmalen Spalte für den Logout-Button
+    logout_col = st.columns([1, 0.1])
+    with logout_col[1]:
+        if st.button("🚪 Logout", key="logout"):
             logout()
 
     # Anwenden von zusätzlichem CSS für Stilverbesserungen
@@ -262,22 +263,27 @@ def show_home_screen():
         .stButton>button {
             width: 100%;
             border-radius: 10px;
-            border: 1px solid #009688;
+            border: 1px solid #FF6347;
             color: #ffffff;
             font-size: 20px;
             height: 3em;
             padding: 0.25em 0.5em;
-            background-color: #009688;
+            background-color: #FF6347;
             transition: all 0.3s;
             cursor: pointer;
             line-height: 1.5;
         }
         .stButton>button:hover {
-            border: 1px solid #00796b;
-            background-color: #00796b;
+            border: 1px solid #FF4500;
+            background-color: #FF4500;
+        }
+        /* Besonders für den Logout-Button */
+        .css-1hf8h2h {
+            width: 150px;  /* Breite des Logout-Buttons anpassen */
         }
         </style>
     """, unsafe_allow_html=True)
+
 
 
 
