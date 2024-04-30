@@ -428,24 +428,17 @@ def show_measurement_history_weekly():
     if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
         
+        # Erstelle eine Gruppierung nach Datum und Wochentag
         weekly_data['Wochentag'] = weekly_data['datum'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%a'))
-        days_of_week = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-        df_week = pd.DataFrame(days_of_week, columns=['Wochentag'])
-        df_week.set_index('Wochentag', inplace=True)
+        days_of_week = weekly_data['Wochentag'].unique().tolist()
+        
+        for day in days_of_week:
+            st.markdown(f"### {day}")
+            day_data = weekly_data[weekly_data['Wochentag'] == day]
+            for index, row in day_data.iterrows():
+                st.write(f"- {row['datum']} {row['uhrzeit']} - Systolisch: {row['systolic']} mmHg, Diastolisch: {row['diastolic']} mmHg, Puls: {row['pulse']} bpm, Kommentare: {row['comments']}")
 
-        for activity in weekly_data.itertuples():
-            activity_date = datetime.strptime(activity.datum, '%Y-%m-%d').date()
-            day_name = activity_date.strftime("%a")
-            df_week.loc[day_name, 'Datum'] = activity.datum
-            df_week.loc[day_name, 'Uhrzeit'] = activity.uhrzeit
-            df_week.loc[day_name, 'Systolisch'] = activity.systolic
-            df_week.loc[day_name, 'Diastolisch'] = activity.diastolic
-            df_week.loc[day_name, 'Puls'] = activity.pulse
-            df_week.loc[day_name, 'Kommentare'] = activity.comments
-
-        st.table(df_week.fillna(''))
-
-         # Code für den Download-Button
+        # Code für den Download-Button
         pdf_file = create_measurement_pdf(weekly_data)  # Erstelle PDF aus den gefilterten Daten
         st.download_button(
             label="Download Messdaten PDF",
@@ -455,6 +448,7 @@ def show_measurement_history_weekly():
         )
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
+
 
 def show_trend_analysis():
     display_logo()
