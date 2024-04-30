@@ -239,34 +239,21 @@ def show_home_screen():
     st.title('CardioCheck')
     st.markdown("## Home Bildschirm")
     col1, col2, col3 = st.columns(3)
-
-    # Icons für die Buttons vom GitHub-Repository laden
-    icon_profile = get_icon_from_github("profil_icon.png")
-    icon_fitness = get_icon_from_github("fitness_icon.png")
-    icon_measurements = get_icon_from_github("messungen_icon.png")
-    icon_emergency = get_icon_from_github("notfall_icon.png")
-    icon_medication = get_icon_from_github("mediplan_icon.png")
-    icon_info = get_icon_from_github("info_icon.png")
-  
-    # Inhalt der ersten Spalte
     with col1:
-        if st.button(f"{icon_profile} Profil"):
+        if st.button("Profil"):
             st.session_state['page'] = 'profile'
-        if st.button(f"{icon_fitness} Fitness"):
+        if st.button("Fitness"):
             st.session_state['page'] = 'Fitness'
-
-    # Inhalt der zweiten Spalte
     with col2:
-        if st.button(f"{icon_measurements} Messungen"):
+        if st.button("Messungen"):
             st.session_state['page'] = 'measurements'
-        if st.button(f"{icon_emergency} Notfall Nr."):
+        if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
-
-    # Inhalt der dritten Spalte
+            
     with col3:
-        if st.button(f"{icon_medication} Medikamenten Plan"):
+        if st.button("Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
-        if st.button(f"{icon_info} Infos"):
+        if st.button("Infos"):
             st.session_state['page'] = 'infos'
 
         st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
@@ -280,21 +267,6 @@ def show_home_screen():
 
         if st.button("Logout"):
             logout()
-
-def get_icon_from_github(icon_filename, size=(50, 50)):
-    # GitHub-Repository-URL, in dem die Icons gespeichert sind
-    base_url = "https://raw.githubusercontent.com/rohreali/Blutdruck-Tracker/main/"
-    icons_folder = "Icons/"
-
-    # URL zum Abrufen des Icons
-    icon_url = base_url + icons_folder + icon_filename
-
-    # Icon-Bild von der URL abrufen und in Streamlit-Image umwandeln
-    icon_image = Image.open(BytesIO(requests.get(icon_url).content))
-    icon_image.thumbnail(size)  # Ändere die Größe des Icons
-    icon_streamlit = st.image(icon_image, caption='', use_column_width=True)
-
-    return icon_streamlit
 
 
 #hier Registrierung beendet
