@@ -257,6 +257,7 @@ def show_home_screen():
 #hier kommt der Code für Profil (fertig)
 
 def show_profile():
+    display_logo()
     if st.button("Zurück zum Homebildschirm"):  # Dies fügt den Zurück-Button hinzu
         back_to_home()
         
