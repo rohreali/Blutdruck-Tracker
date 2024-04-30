@@ -654,27 +654,30 @@ def show_medication_list():
         
         st.markdown("""
             <style>
-            table.dataframe {
+            .med-table {
                 font-family: Arial, sans-serif;
                 border-collapse: collapse;
                 width: 100%;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+                border-radius: 10px;
+                overflow: hidden;
             }
-            table.dataframe td, table.dataframe th {
+            .med-table td, .med-table th {
                 border: 1px solid #dddddd;
-                padding: 8px;
+                padding: 12px;
                 text-align: left;
             }
-            table.dataframe tr:nth-child(even) {
+            .med-table tr:nth-child(even) {
                 background-color: #f2f2f2;
             }
-            table.dataframe th {
+            .med-table th {
                 background-color: #4CAF50;
                 color: white;
             }
             </style>
             """, unsafe_allow_html=True)
         
-        st.table(medication_data)
+        st.table(medication_data.style.set_table_attributes('class="med-table"'))
         
         # Check if there's medication data to generate a PDF
         pdf_file = create_medication_pdf(medication_data)
