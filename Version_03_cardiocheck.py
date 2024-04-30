@@ -901,15 +901,17 @@ def save_emergency_numbers_to_github(entries):
         st.success('Emergency numbers CSV created on GitHub successfully!')
 
 def load_emergency_numbers():
-    repo = init_github()  # Stellen Sie sicher, dass das GitHub-Repository initialisiert ist
-    try:
-        contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
-        csv_content = contents.decoded_content.decode("utf-8")
-        data = pd.read_csv(StringIO(csv_content))
-        return data.to_dict('records')  # Konvertiere den DataFrame in eine Liste von Dictionaries
-    except Exception as e:
-        st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
-        return []  # Gibt leere Liste zurück, wenn ein Fehler auftritt
+    if 'emergency_numbers' not in st.session_state:
+        repo = init_github()
+        try:
+            contents = repo.get_contents(EMERGENCY_NUMBERS_FILE)
+            csv_content = contents.decoded_content.decode("utf-8")
+            data = pd.read_csv(StringIO(csv_content))
+            st.session_state['emergency_numbers'] = data.to_dict('records')
+        except Exception as e:
+            st.error(f"Fehler beim Laden der Notfallnummern: {str(e)}")
+            st.session_state['emergency_numbers'] = []
+
 def show_emergency_numbers():
     display_logo()
     if st.button("Zurück zum Homebildschirm"):
@@ -920,6 +922,8 @@ def show_emergency_numbers():
     if not current_user:
         st.error("Sie müssen angemeldet sein, um Ihre Notfallnummern anzuzeigen.")
         return
+
+    load_emergency_numbers()  # Stellen Sie sicher, dass dies am Anfang steht
 
     # Anzeigen allgemeiner Notfallnummern
     st.write("Allgemeine Notfallnummern:")
