@@ -273,7 +273,7 @@ def show_home_screen():
             border-radius: 10px;
             border: 1px solid #FF807A;
             color: #ffffff;
-            font-size: 24px;  /* Erhöhte Schriftgröße für bessere Lesbarkeit */
+            font-size: 26px;  /* Erhöhte Schriftgröße für bessere Lesbarkeit */
             height: 4em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
             padding: 0.25em 0.5em;
             background-color: #FF807A;
