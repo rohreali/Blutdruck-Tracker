@@ -357,6 +357,7 @@ def show_measurement_options():
     elif option == "Trendanalyse":
         show_trend_analysis()
 def show_add_measurement_form():
+    display_logo()
     if st.button('Zurück zum Homebildschirm'):
         back_to_home()
     st.title('Messungen')
@@ -390,6 +391,7 @@ def load_measurement_data():
     pass
 
 def show_measurement_history_weekly():
+    display_logo()
     username = st.session_state.get('current_user')
     if st.button('Zurück zum Homebildschirm'):
         back_to_home()
@@ -424,6 +426,7 @@ def show_measurement_history_weekly():
         st.table(df_week.fillna(''))
 
 def show_trend_analysis():
+    display_logo()
     # Sicherstellen, dass der Nutzer angemeldet ist
     current_user = st.session_state.get('current_user')
     if not current_user:
