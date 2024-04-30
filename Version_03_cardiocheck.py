@@ -184,8 +184,9 @@ if __name__== "_main_":
     user_interface()
 
 def show_registration_form():
-    display_logo()
+    
     with st.form("registration_form"):
+        display_logo()
         st.write("Registrieren")
         username = st.text_input("Benutzername")
         password = st.text_input("Passwort", type="password")
@@ -204,8 +205,9 @@ def show_registration_form():
             else:
                 st.error("Registrierung fehlgeschlagen. Bitte überprüfen Sie die Eingaben.")       
 def show_login_form():
-    display_login()
+    
     with st.form("login_form"):
+        display_login()
         st.write("Einloggen")
         username = st.text_input("Benutzername")
         password = st.text_input("Passwort", type="password")
