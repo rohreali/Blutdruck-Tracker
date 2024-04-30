@@ -220,6 +220,7 @@ def show_home():
     st.subheader('Ihr Blutdruck Tagebuch')
     action = st.selectbox("Aktion wählen", ["Einloggen", "Registrieren"])
     if action == "Registrieren":
+        display_logo()
         show_registration_form()
     elif action == "Einloggen":
         show_login_form()
