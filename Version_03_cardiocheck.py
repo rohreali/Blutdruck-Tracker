@@ -281,7 +281,7 @@ def show_home_screen():
         if st.button("Logout"):
             logout()
 
-def get_icon_from_github(icon_filename):
+def get_icon_from_github(icon_filename, size=(50, 50)):
     # GitHub-Repository-URL, in dem die Icons gespeichert sind
     base_url = "https://raw.githubusercontent.com/rohreali/Blutdruck-Tracker/main/"
     icons_folder = "Icons/"
@@ -291,9 +291,11 @@ def get_icon_from_github(icon_filename):
 
     # Icon-Bild von der URL abrufen und in Streamlit-Image umwandeln
     icon_image = Image.open(BytesIO(requests.get(icon_url).content))
+    icon_image.thumbnail(size)  # Ändere die Größe des Icons
     icon_streamlit = st.image(icon_image, caption='', use_column_width=True)
 
     return icon_streamlit
+
 
 #hier Registrierung beendet
 
