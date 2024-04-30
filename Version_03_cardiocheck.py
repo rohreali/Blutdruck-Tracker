@@ -33,7 +33,7 @@ def display_logo(in_sidebar=False):
     logo_path = "Logo.png"
     if in_sidebar:
         # Anzeigen des Logos in der Sidebar
-        st.sidebar.image(logo_path, width=120)  # Anpassung der Breite nach Bedarf
+        st.sidebar.image(logo_path, width=100)  # Anpassung der Breite nach Bedarf
     else:
         # Anzeigen des Logos im Hauptbereich
         col1, col2, col3 = st.columns([1,2,1])
@@ -363,6 +363,7 @@ def show_measurement_options():
         show_trend_analysis()
 def show_add_measurement_form():
     display_logo()
+    display_logo(in_sidebar=True)
     if st.button('Zurück zum Homebildschirm'):
         back_to_home()
     st.title('Messungen')
@@ -525,6 +526,7 @@ def save_medications_to_github():
 
 def show_medication_plan():
     display_logo()
+    display_logo(in_sidebar=True)
     st.sidebar.title("Optionen")
     option = st.sidebar.radio("", ["Neues Medikament hinzufügen", "Medikamentenplan anzeigen"])
     if option == "Neues Medikament hinzufügen":
@@ -795,6 +797,7 @@ def setup_sidebar():
 
 def show_info_pages():
     display_logo()
+    display_logo(in_sidebar=True)
     info_options = setup_sidebar()
 
     if st.button("Zurück zum Homebildschirm"):
