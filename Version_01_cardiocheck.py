@@ -241,20 +241,20 @@ def show_home_screen():
     # Definiert das Layout für die Buttons
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("👤 Profil"):
-            st.session_state['page'] = 'profile'
+        if st.button ("👤 Profil"):
+            st.session_state['page']='profile'
         if st.button("💪 Fitness"):
-            st.session_state['page'] = 'Fitness'
+            st.session_state['page']= 'Fitness'
     with col2:
         if st.button("📊 Messungen"):
-            st.session_state['page'] = 'measurements'
+            st.session_state['page']='measurements'
         if st.button("🆘 Notfall Nr."):
-            st.session_state['page'] = 'emergency_numbers'
+            st.session_state['page']='emergency_numbers'
     with col3:
         if st.button("💊 Medikamenten Plan"):
-            st.session_state['page'] = 'medication-plan'
-        if st.button("ℹ️ Infos"):
-            st.session_state['page'] = 'infos'
+            st.session_state['page']= 'medication-plan'
+        if st.button("ℹ️ Infos"):  
+            st.session_state['page']='infos'
 
     # Spacer zur besseren Positionierung des Logout-Buttons
     st.write("")
@@ -266,7 +266,7 @@ def show_home_screen():
     st.write("")
 
     # Logout-Button am unteren Ende der Seite
-    if st.button("🚪 Logout", width="auto"):
+    if st.button("🚪 Logout"):
         logout()
 
     # Anwenden von zusätzlichem CSS für Stilverbesserungen
@@ -295,7 +295,6 @@ def show_home_screen():
         }
         </style>
     """, unsafe_allow_html=True)
-
 
 
 #hier Registrierung beendet
