@@ -922,15 +922,15 @@ def show_emergency_numbers():
     if st.button("Zurück zum Homebildschirm"):
         go_to_home()
 
-    load_emergency_numbers()  # Laden der Notfallnummern, sobald die Seite aufgerufen wird
-
     st.title('Meine Notfallnummern')
     current_user = st.session_state.get('current_user')
     if not current_user:
         st.error("Sie müssen angemeldet sein, um Ihre Notfallnummern anzuzeigen.")
         return
 
-    # Anzeigen allgemeiner und benutzerspezifischer Notfallnummern
+    load_emergency_numbers()  # Stellen Sie sicher, dass dies am Anfang steht
+
+    # Anzeigen allgemeiner Notfallnummern
     st.write("Allgemeine Notfallnummern:")
     st.write("- Polizei: 117")
     st.write("- Feuerwehr: 118")
@@ -938,15 +938,18 @@ def show_emergency_numbers():
     st.write("- Rega: 1414")
     st.write("- Toxzentrum: 143")
 
+    # Laden und Anzeigen benutzerspezifischer Notfallnummern
     emergency_data = st.session_state.get('emergency_numbers', [])
     current_numbers = {entry['type']: entry['number'] for entry in emergency_data if entry.get('username') == current_user}
-    
+
+    # Anzeigen der aktuellen Notfallnummern
     if current_numbers:
         for number_type, number in current_numbers.items():
             st.write(f"- {number_type}: {number}")
     else:
         st.write("Keine Notfallnummern gespeichert.")
 
+    # Eingabe neuer Notfallnummern
     with st.form("emergency_numbers_form"):
         number_types = ['Hausarzt', 'Notfallkontakt']
         inputs = {}
@@ -956,10 +959,10 @@ def show_emergency_numbers():
 
         if submit_button:
             for number_type, number in inputs.items():
-                if number:
+                if number and (number != current_numbers.get(number_type)):
                     add_emergency_number(current_user, number_type, number)
-            st.success("Notfallnummer(n) erfolgreich gespeichert!")
-            st.experimental_rerun()
+            st.experimental_rerun()  # Neu laden der Seite zur Aktualisierung der angezeigten Daten
+
 
 
 
