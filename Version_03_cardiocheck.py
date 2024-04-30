@@ -27,13 +27,7 @@ EMERGENCY_NUMBERS_FILE = "emergency_numbers.csv"
 EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "number"]
 
 #alles zu Login, Registrierung und Home Bildschirm
-def display_logo():
-    # Pfad zum Logo, stellen Sie sicher, dass der Pfad korrekt ist
-    logo_path = "Logo.png"
-    # Erstellen einer Spalte zur zentrierten Darstellung des Logos
-    col1, col2, col3 = st.columns([1,2,1])
-    with col3:  # Logo zentral in der mittleren Spalte anzeigen
-        st.image(logo_path, width=150)  # Passen Sie die Breite nach Bedarf an
+
 
 def display_logo(in_sidebar=False):
     logo_path = "Logo.png"
