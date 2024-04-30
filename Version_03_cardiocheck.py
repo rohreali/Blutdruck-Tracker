@@ -604,10 +604,10 @@ def show_medication_plan():
         st.title('Medikamentenplan')
         with st.form("medication_form"):
             med_name = st.text_input("Medikament")
-            morgens = st.text_input("Morgens")
-            mittags = st.text_input("Mittags")
-            abends = st.text_input("Abends")
-            nachts = st.text_input("Nachts")
+            morgens = st.number_input("Morgens", step=1, min_value=0)
+            mittags = st.number_input("Mittags", step=1, min_value=0)
+            abends = st.number_input("Abends", step=1, min_value=0)
+            nachts = st.number_input("Nachts", step=1, min_value=0)
             submit_button = st.form_submit_button("Medikament hinzufügen")
         
         if submit_button:
@@ -622,6 +622,7 @@ def show_medication_plan():
         if st.button('Zurück zum Homebildschirm'):
             back_to_home()
         show_medication_list()
+
 
 def load_medication_data():
     current_user = st.session_state.get('current_user')
