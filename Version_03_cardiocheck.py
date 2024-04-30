@@ -539,16 +539,21 @@ def create_measurement_pdf(measurement_data):
     elements = []
     styles = getSampleStyleSheet()
     
-    # Titel hinzufügen
     title = Paragraph("Messdaten Report", styles['Title'])
     elements.append(title)
 
-    # Daten für die Tabelle vorbereiten
+    # Überprüfen Sie die Spaltennamen
     data = [["Datum", "Uhrzeit", "Systolisch", "Diastolisch", "Puls", "Kommentare"]]
     for index, row in measurement_data.iterrows():
-        data.append([row['datum'], row['uhrzeit'], row['systolic'], row['diastolic'], row['pulse'], row['comments'] or ""])
+        data.append([
+            row['Datum'], 
+            row['Uhrzeit'], 
+            row['Systolisch'], 
+            row['Diastolisch'], 
+            row['Puls'], 
+            row['Kommentare'] or ""
+        ])
 
-    # Tabelle erstellen
     t = Table(data)
     t.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
@@ -562,10 +567,10 @@ def create_measurement_pdf(measurement_data):
     ]))
     elements.append(t)
     
-    # PDF erstellen
     doc.build(elements)
     pdf_buffer.seek(0)
     return pdf_buffer
+
 
 #hier alles zu Messungen fertig
 
