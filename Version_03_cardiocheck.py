@@ -250,12 +250,20 @@ def show_home_screen():
         st.button("💊 Medikamenten Plan", key="med_plan")
         st.button("ℹ️ Infos", key="info")
 
-    # Platz für Logout-Button am unteren Rand der Seite
-    # Nutzung von Spacer-Spalten und einer schmalen Spalte für den Logout-Button
-    logout_col = st.columns([1, 0.1])
-    with logout_col[1]:
-        if st.button("🚪 Logout", key="logout"):
-            logout()
+    # Spacer zur besseren Positionierung des Logout-Buttons
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
+
+    # Logout-Button am unteren Ende der Seite
+    st.markdown("""
+        <div style='text-align: right;'>
+            <button onclick="window.location.href='/';" style='color: #ffffff; background-color: #FFA07A; 
+            border-radius: 10px; border: none; cursor: pointer; padding: 10px 24px; font-size: 20px;'>
+            🚪 Logout</button>
+        </div>
+        """, unsafe_allow_html=True)
 
     # Anwenden von zusätzlichem CSS für Stilverbesserungen
     st.markdown("""
@@ -263,26 +271,23 @@ def show_home_screen():
         .stButton>button {
             width: 100%;
             border-radius: 10px;
-            border: 1px solid #FF6347;
+            border: 1px solid #FFA07A;
             color: #ffffff;
             font-size: 20px;
             height: 3em;
             padding: 0.25em 0.5em;
-            background-color: #FF6347;
+            background-color: #FFA07A;
             transition: all 0.3s;
             cursor: pointer;
             line-height: 1.5;
         }
         .stButton>button:hover {
-            border: 1px solid #FF4500;
-            background-color: #FF4500;
-        }
-        /* Besonders für den Logout-Button */
-        .css-1hf8h2h {
-            width: 150px;  /* Breite des Logout-Buttons anpassen */
+            border: 1px solid #FF7F50;
+            background-color: #FF7F50;
         }
         </style>
     """, unsafe_allow_html=True)
+
 
 
 
