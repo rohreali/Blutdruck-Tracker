@@ -283,10 +283,11 @@ def show_home_screen():
 
 def get_icon_from_github(icon_filename):
     # GitHub-Repository-URL, in dem die Icons gespeichert sind
-    repo_url = "https://github.com/rohreali/Blutdruck-Tracker/tree/main/Icons"
+    base_url = "https://raw.githubusercontent.com/rohreali/Blutdruck-Tracker/main/"
+    icons_folder = "Icons/"
 
     # URL zum Abrufen des Icons
-    icon_url = repo_url + icon_filename
+    icon_url = base_url + icons_folder + icon_filename
 
     # Icon-Bild von der URL abrufen und in Streamlit-Image umwandeln
     icon_image = Image.open(BytesIO(requests.get(icon_url).content))
