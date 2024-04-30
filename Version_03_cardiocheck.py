@@ -559,7 +559,6 @@ def load_medication_data():
         return pd.DataFrame()
 
 def show_medication_list():
-    display_logo()
     st.title('Medikamentenplan')
     
     medication_data = load_medication_data()
