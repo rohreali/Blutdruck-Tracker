@@ -256,7 +256,6 @@ def show_home_screen():
         if st.button("ℹ️ Infos"):  
             st.session_state['page']='infos'
 
-
     # Spacer zur besseren Positionierung des Logout-Buttons
     st.write("")
     st.write("")
@@ -266,8 +265,6 @@ def show_home_screen():
     st.write("")
     st.write("")
 
-    if st.button("Logout"):
-            logout() 
     # Logout-Button am unteren Ende der Seite
     st.markdown("""
         <div style='text-align: right;'>
@@ -303,6 +300,7 @@ def show_home_screen():
         }
         </style>
     """, unsafe_allow_html=True)
+
 
 #hier Registrierung beendet
 
