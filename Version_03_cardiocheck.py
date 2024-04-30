@@ -441,8 +441,8 @@ def show_measurement_history_weekly():
         #download_measurements()
         measurement_data = load_measurement_data()  # Annahme, dass diese Funktion bereits existiert und die Daten als DataFrame zurückgibt
         if not measurement_data.empty:
-        pdf_file = create_measurement_pdf(measurement_data)
-        st.download_button(label="Download Messdaten PDF",
+            pdf_file = create_measurement_pdf(measurement_data)
+            st.download_button(label="Download Messdaten PDF",
                            data=pdf_file,
                            file_name="messdaten.pdf",
                            mime='application/pdf')
