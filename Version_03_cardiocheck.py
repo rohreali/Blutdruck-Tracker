@@ -236,30 +236,48 @@ def logout():
 def show_home_screen():
     display_logo()
     st.title('CardioCheck')
-    st.markdown("## Home Bildschirm")
+    st.markdown("## Willkommen beim CardioCheck Dashboard")
 
+    # Definiert das Layout für die Buttons
     col1, col2, col3 = st.columns(3)
-
     with col1:
-        if st.button("👤 Profil"):
-            st.session_state['page'] = 'profile'
-        if st.button("💪 Fitness"):
-            st.session_state['page'] = 'fitness'
-            
+        st.button("👤 Profil", key="profile")
+        st.button("💪 Fitness", key="fitness")
     with col2:
-        if st.button("📊 Messungen"):
-            st.session_state['page'] = 'measurements'
-        if st.button("🆘 Notfall Nr."):
-            st.session_state['page'] = 'emergency_numbers'
-            
+        st.button("📊 Messungen", key="measurements")
+        st.button("🆘 Notfall Nr.", key="emergency")
     with col3:
-        if st.button("💊 Medikamenten Plan"):
-            st.session_state['page'] = 'medication-plan'
-        if st.button("ℹ️ Infos"):
-            st.session_state['page'] = 'infos'
+        st.button("💊 Medikamenten Plan", key="med_plan")
+        st.button("ℹ️ Infos", key="info")
 
-    if st.button("🚪 Logout"):
-        logout()
+    # Platz für Logout-Button am unteren Rand der Seite
+    _, col_logout, _ = st.columns([0.8, 0.1, 0.1])  # Adjust column widths to push logout to the right
+    with col_logout:
+        if st.button("🚪 Logout"):
+            logout()
+
+    # Anwenden von zusätzlichem CSS für Stilverbesserungen
+    st.markdown("""
+        <style>
+        .stButton>button {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #009688;
+            color: #ffffff;
+            font-size: 20px;
+            height: 3em;
+            padding: 0.25em 0.5em;
+            background-color: #009688;
+            transition: all 0.3s;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+        .stButton>button:hover {
+            border: 1px solid #00796b;
+            background-color: #00796b;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
 
 
