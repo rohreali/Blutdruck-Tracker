@@ -394,19 +394,25 @@ def show_add_measurement_form():
 
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    current_user = st.session_state.get('current_user')
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
-        return data
+        # Filtern der Daten, um nur die des aktuellen Benutzers anzuzeigen
+        return data[data['username'] == current_user]
     except Exception as e:
         st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
         return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
-    pass
+
 
 def show_measurement_history_weekly():
     display_logo()
     username = st.session_state.get('current_user')
+    if not username:
+        st.error("Bitte melden Sie sich an, um Ihre Messungen zu sehen.")
+        return
+
     if st.button('Zurück zum Homebildschirm'):
         back_to_home()
     st.title('Messhistorie - Diese Woche')
@@ -419,7 +425,7 @@ def show_measurement_history_weekly():
 
     measurement_data = load_measurement_data()
 
-    if measurement_data is not None and not measurement_data.empty:
+    if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
         
         weekly_data['Wochentag'] = weekly_data['datum'].apply(lambda x: datetime.strptime(x, '%Y-%m-%d').strftime('%a'))
@@ -438,16 +444,8 @@ def show_measurement_history_weekly():
             df_week.loc[day_name, 'Kommentare'] = activity.comments
 
         st.table(df_week.fillna(''))
-    # Funktion im Streamlit Interface aufrufen
-    measurement_data = load_measurement_data()
-    if not measurement_data.empty:
-        pdf_file = create_measurement_pdf(measurement_data)
-        st.download_button(label="Download Messdaten PDF",
-                           data=pdf_file,
-                           file_name="messdaten.pdf",
-                           mime='application/pdf')
     else:
-            st.write("Keine Daten zum Herunterladen verfügbar.")
+        st.write("Keine Daten zum Herunterladen verfügbar.")
 
 def show_trend_analysis():
     display_logo()
