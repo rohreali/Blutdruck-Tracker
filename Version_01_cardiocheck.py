@@ -273,8 +273,7 @@ def show_home_screen():
             🚪 Logout</button>
         </div>
         """, unsafe_allow_html=True)
-    if st.button("🚪 Logout"):
-        st.session_state['page'] = 'login'
+ 
 
     # Anwenden von zusätzlichem CSS für Stilverbesserungen
     st.markdown("""
