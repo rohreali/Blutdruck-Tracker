@@ -20,6 +20,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from io import BytesIO
 import numpy as np
+import requests
+from PIL import Image
 
 
 # Konstanten
@@ -237,21 +239,34 @@ def show_home_screen():
     st.title('CardioCheck')
     st.markdown("## Home Bildschirm")
     col1, col2, col3 = st.columns(3)
+
+    # Icons für die Buttons vom GitHub-Repository laden
+    icon_profile = get_icon_from_github("profil_icon.png")
+    icon_fitness = get_icon_from_github("fitness_icon.png")
+    icon_measurements = get_icon_from_github("messungen_icon.png")
+    icon_emergency = get_icon_from_github("notfall_icon.png")
+    icon_medication = get_icon_from_github("mediplan_icon.png")
+    icon_info = get_icon_from_github("info_icon.png")
+  
+    # Inhalt der ersten Spalte
     with col1:
-        if st.button("Profil"):
+        if st.button(f"{icon_profile} Profil"):
             st.session_state['page'] = 'profile'
-        if st.button("Fitness"):
+        if st.button(f"{icon_fitness} Fitness"):
             st.session_state['page'] = 'Fitness'
+
+    # Inhalt der zweiten Spalte
     with col2:
-        if st.button("Messungen"):
+        if st.button(f"{icon_measurements} Messungen"):
             st.session_state['page'] = 'measurements'
-        if st.button("Notfall Nr."):
+        if st.button(f"{icon_emergency} Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
-            
+
+    # Inhalt der dritten Spalte
     with col3:
-        if st.button("Medikamenten Plan"):
+        if st.button(f"{icon_medication} Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
-        if st.button("Infos"):
+        if st.button(f"{icon_info} Infos"):
             st.session_state['page'] = 'infos'
 
         st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
@@ -265,6 +280,19 @@ def show_home_screen():
 
         if st.button("Logout"):
             logout()
+
+def get_icon_from_github(icon_filename):
+    # GitHub-Repository-URL, in dem die Icons gespeichert sind
+    repo_url = "https://github.com/rohreali/Blutdruck-Tracker/tree/main/Icons"
+
+    # URL zum Abrufen des Icons
+    icon_url = repo_url + icon_filename
+
+    # Icon-Bild von der URL abrufen und in Streamlit-Image umwandeln
+    icon_image = Image.open(BytesIO(requests.get(icon_url).content))
+    icon_streamlit = st.image(icon_image, caption='', use_column_width=True)
+
+    return icon_streamlit
 
 #hier Registrierung beendet
 
