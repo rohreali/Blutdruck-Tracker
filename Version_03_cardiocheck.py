@@ -32,7 +32,7 @@ def display_logo():
     logo_path = "https://github.com/rohreali/Blutdruck-Tracker/blob/main/Logo.png"
     # Erstellen einer Spalte zur zentrierten Darstellung des Logos
     col1, col2, col3 = st.columns([1,2,1])
-    with col2:  # Logo zentral in der mittleren Spalte anzeigen
+    with col3:  # Logo zentral in der mittleren Spalte anzeigen
         st.image(logo_path, width=200)  # Passen Sie die Breite nach Bedarf an
 
 def init_github():
