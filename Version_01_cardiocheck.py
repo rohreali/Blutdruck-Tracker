@@ -266,14 +266,8 @@ def show_home_screen():
     st.write("")
 
     # Logout-Button am unteren Ende der Seite
-    st.markdown("""
-        <div style='text-align: right;'>
-            <button onclick="window.location.href='/';" style='color: #ffffff; background-color: #FF807A; 
-            border-radius: 10px; border: none; cursor: pointer; padding: 10px 24px; font-size: 28px;'>
-            🚪 Logout</button>
-        </div>
-        """, unsafe_allow_html=True)
- 
+    if st.button("🚪 Logout"):
+        logout()
 
     # Anwenden von zusätzlichem CSS für Stilverbesserungen
     st.markdown("""
