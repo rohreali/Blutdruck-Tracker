@@ -236,48 +236,35 @@ def show_home_screen():
     back_to_home()
     st.title('CardioCheck')
     st.markdown("## Home Bildschirm")
-    
-    # Erstelle eine Rasterlayout mit 3 Spalten
     col1, col2, col3 = st.columns(3)
-    
-    # Inhalt der ersten Spalte
     with col1:
-        st.image("profil_icon.png", width=100)
-        if st.button("Profil", key="profile_button"):
+        if st.button("Profil"):
             st.session_state['page'] = 'profile'
-        if st.button("Fitness", key="fitness_button"):
+        if st.button("Fitness"):
             st.session_state['page'] = 'Fitness'
-    
-    # Inhalt der zweiten Spalte
     with col2:
-        st.image("messungen_icon.png", width=100)
-        if st.button("Messungen", key="measurements_button"):
+        if st.button("Messungen"):
             st.session_state['page'] = 'measurements'
-        if st.button("Notfall Nr.", key="emergency_button"):
+        if st.button("Notfall Nr."):
             st.session_state['page'] = 'emergency_numbers'
-    
-    # Inhalt der dritten Spalte
+            
     with col3:
-        st.image("medikamentenplan_icon.png", width=100)
-        if st.button("Medikamenten Plan", key="medication_button"):
+        if st.button("Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
-        if st.button("Infos", key="info_button"):
+        if st.button("Infos"):
             st.session_state['page'] = 'infos'
-    
-    # Füge visuellen Abstand hinzu
-    st.write("")  
-    st.write("")  
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-    
-    # Logout-Button
-    if st.button("Logout", key="logout_button"):
-        logout()
 
+        st.write("")  # Füge einen leeren Platzhalter ein für visuellen Abstand
+        st.write("")  # Du kannst mehrere Zeilen hinzufügen, je nach benötigtem Abstand
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+        st.write("")
+
+        if st.button("Logout"):
+            logout()
 
 #hier Registrierung beendet
 
