@@ -621,7 +621,9 @@ def back_to_home():
 def add_medication(username, med_name, morgens, mittags, abends, nachts):
     if 'medications' not in st.session_state:
         st.session_state['medications'] = []
-    medication_data = {
+
+    # Erstelle ein neues Medikament
+    new_medication = {
         "username": username,
         "med_name": med_name,
         "morgens": morgens,
@@ -629,8 +631,13 @@ def add_medication(username, med_name, morgens, mittags, abends, nachts):
         "abends": abends,
         "nachts": nachts
     }
-    st.session_state['medications'].append(medication_data)
-    save_medications_to_github()
+
+    # Überprüfen, ob dieses Medikament bereits existiert
+    if new_medication not in st.session_state['medications']:
+        st.session_state['medications'].append(new_medication)
+        save_medications_to_github()
+    else:
+        st.warning("Dieses Medikament wurde bereits hinzugefügt.")
 
 def save_medications_to_github():
     medication_list = st.session_state['medications']
@@ -691,10 +698,14 @@ def load_medication_data():
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
         user_medication_data = data[data['username'] == current_user]
+        
+        # Entfernen von Duplikaten
+        user_medication_data = user_medication_data.drop_duplicates(subset=["med_name", "morgens", "mittags", "abends", "nachts"])
+        
         return user_medication_data
     except Exception as e:
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
-        return pd.DataFrame()
+        return pd.DataFrame(
 
 def show_medication_list():
     st.title('Medikamentenplan')
