@@ -187,6 +187,8 @@ def user_interface():
                 st.session_state['page'] = 'home_screen'
     
 if __name__== "_main_":
+    if st.session_state.get('current_user'):
+        load_measurement_data()
     user_interface()
 
 def show_registration_form():
