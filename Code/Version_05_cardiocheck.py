@@ -40,7 +40,8 @@ EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "number"]
 
 
 def display_logo(in_sidebar=False):
-    logo_path = "Logo.png"
+    base_path = os.path.dirname(__file__)  # Basispfad für relative Pfade
+    logo_path = os.path.join(base_path, "Logo.png")  # Pfad zur Logo-Datei
     if in_sidebar:
         # Anzeigen des Logos in der Sidebar
         st.sidebar.image(logo_path, width=100)  # Anpassung der Breite nach Bedarf
