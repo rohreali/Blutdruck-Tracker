@@ -361,8 +361,10 @@ def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     current_user = st.session_state.get('current_user')
     if 'measurements' not in st.session_state:
         st.session_state['measurements'] = []
-    measurement_data = {
-        "username": current_user,  # Diese Zeile fehlte
+
+    # Erstelle eine neue Messung
+    new_measurement = {
+        "username": current_user,  
         "datum": datum.strftime('%Y-%m-%d'),
         "uhrzeit": uhrzeit.strftime('%H:%M'),
         "systolic": systolic,
@@ -370,9 +372,13 @@ def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
         "pulse": pulse,
         "comments": comments
     }
-    st.session_state['measurements'].append(measurement_data)
-    save_measurements_to_github()
 
+    # Überprüfen, ob diese Messung bereits existiert
+    if new_measurement not in st.session_state['measurements']:
+        st.session_state['measurements'].append(new_measurement)
+        save_measurements_to_github()
+    else:
+        st.warning("Diese Messung wurde bereits hinzugefügt.")
 
 def save_measurements_to_github():
     measurement_list = st.session_state.get('measurements', [])
@@ -428,17 +434,23 @@ def show_add_measurement_form():
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
 
 def load_measurement_data():
-    repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    repo = init_github()
     current_user = st.session_state.get('current_user')
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
+        
         # Filtern der Daten, um nur die des aktuellen Benutzers anzuzeigen
-        return data[data['username'] == current_user]
+        user_data = data[data['username'] == current_user]
+        
+        # Entfernen von Duplikaten
+        user_data = user_data.drop_duplicates(subset=["datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"])
+        
+        return user_data
     except Exception as e:
         st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
-        return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
+        return pd.DataFrame()
 
 def show_measurement_history_weekly():
     display_logo()
