@@ -1097,7 +1097,7 @@ def show_info_pages():
         encodings = ['utf-8', 'ISO-8859-1']  # Verschiedene Zeichenformate ausprobieren
         for encoding in encodings:
             try:
-                with open(filename, "r", encoding=encoding) as file:
+                with open(filepath, "r", encoding=encoding) as file:
                     return file.read()
             except UnicodeDecodeError:
                 continue
