@@ -991,7 +991,7 @@ def create_fitness_pdf(fitness_data):
     doc.build(elements)
     pdf_buffer.seek(0)
     return pdf_buffer
-
+    
 # Notfallnummern
 def go_to_home():
     st.session_state['page'] = 'home_screen'
