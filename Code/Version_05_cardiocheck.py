@@ -908,42 +908,48 @@ def show_fitness_history():
     start_date, end_date = get_start_end_dates_from_week_number(year_to_view, week_number)
     st.write(f"Anzeigen der Fitnessaktivitäten für die Woche vom {start_date} bis {end_date}")
 
-    fitness_activities = st.session_state.get('fitness_activities', [])
-
-    week_days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    df_week = pd.DataFrame(week_days, columns=['Datum'])
-    df_week['Art'] = ""
-    df_week['Dauer'] = ""
-    df_week['Intensitaet'] = ""
-
-    for activity in fitness_activities:
-        activity_date = datetime.strptime(activity['Datum'], '%Y-%m-%d').date()
-        if start_date <= activity_date <= end_date:
-            day_name = activity_date.strftime("%a")
-            idx =week_days.index(day_name)
-            df_week.at[idx, 'Dauer'] = activity['Dauer']
-            df_week.at[idx, 'Intensitaet'] = activity['Intensitaet']
-            df_week.at[idx, 'Art'] = activity['Art']
-
-    df_week.set_index('Datum', inplace=True)
-
-    if not df_week.empty:
-        st.table(df_week)
-    else:
-        st.write(f"Keine Fitnessaktivitäten für die Woche {week_number} im Jahr {year_to_view} vorhanden.")
-
     fitness_data = load_fitness_data()
-    
-    # Anzeige des Fitnessplans, falls Daten vorhanden sind
+
     if not fitness_data.empty:
-        # Prüfen, ob Fitnessdaten vorhanden sind, um ein PDF zu generieren
-        pdf_file = create_fitness_pdf(fitness_data)
-        st.download_button(label="Download Fitnessplan PDF",
-                           data=pdf_file,
-                           file_name="fitness_plan.pdf",
-                           mime='application/pdf')
+        weekly_data = fitness_data[(fitness_data['datum'] >= str(start_date)) & (fitness_data['datum'] <= str(end_date))]
+
+        # Dictionary zum Sammeln der Aktivitäten für jeden Wochentag initialisieren
+        daily_activities = {day: [] for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}
+
+        # Aktivitäten nach Wochentagen gruppieren
+        for activity in weekly_data.itertuples():
+            activity_date = datetime.strptime(activity.datum, '%Y-%m-%d').date()
+            day_name = activity_date.strftime("%a")
+            daily_activities[day_name].append(activity)
+
+        # DataFrame für die Anzeige vorbereiten
+        df_week = pd.DataFrame()
+
+        # Aktivitäten für jeden Wochentag in den DataFrame einfügen
+        for day, activities in daily_activities.items():
+            day_data = pd.DataFrame([{
+                'Datum': activity.datum,
+                'Uhrzeit': activity.uhrzeit,
+                'Dauer': activity.dauer,
+                'Intensitaet': activity.intensitaet,
+                'Art': activity.art,
+                'Kommentare': activity.kommentare
+            } for activity in activities])
+            df_week = pd.concat([df_week, day_data], ignore_index=True)
+
+        # DataFrame anzeigen
+        st.table(df_week)
+
+        # Code für den Download-Button
+        pdf_file = create_fitness_pdf(df_week)
+        st.download_button(
+            label="Download Fitnessdaten PDF",
+            data=pdf_file,
+            file_name="fitnessdaten.pdf",
+            mime='application/pdf'
+        )
     else:
-        st.write("Es sind keine Fitnesspläne vorhanden.")
+        st.write("Keine Daten zum Herunterladen verfügbar.")
 
 def create_fitness_pdf(fitness_data):
     pdf_buffer = BytesIO()
@@ -959,12 +965,12 @@ def create_fitness_pdf(fitness_data):
     data = [["Datum", "Uhrzeit", "Dauer", "Intensität", "Art", "Kommentare"]]
     for index, row in fitness_data.iterrows():
         data.append([
-            row['Datum'],  # Make sure the column names are correctly referenced
-            row['Uhrzeit'], 
-            row['Dauer'], 
-            row.get('Intensitaet', ''),  # Use .get for optional fields
-            row.get('Art', ''), 
-            row.get('Kommentare', '')  # Provide a default empty string if key might not exist
+            row['datum'],  # Make sure the column names are correctly referenced
+            row['uhrzeit'], 
+            row['dauer'], 
+            row.get('intensitaet', ''),  # Use .get for optional fields
+            row.get('art', ''), 
+            row.get('kommentare', '')  # Provide a default empty string if key might not exist
         ])
 
     # Create the table with the data
