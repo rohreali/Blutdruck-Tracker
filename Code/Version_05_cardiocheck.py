@@ -77,7 +77,7 @@ def initialize_session_state():
     if 'users' not in st.session_state:
         st.session_state['users'] = load_user_profiles()
     if 'measurements' not in st.session_state:
-        st.session_state['measurements'] = []
+        st.session_state['measurements'] = pd.DataFrame(columns=MEASUREMENTS_DATA_COLUMNS)
     if 'current_user' not in st.session_state:
         st.session_state['current_user'] = None
     if 'medications' not in st.session_state:
@@ -359,9 +359,6 @@ def get_start_end_dates_from_week_number(year, week_number):
 
 def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     current_user = st.session_state.get('current_user')
-    if 'measurements' not in st.session_state:
-        st.session_state['measurements'] = []
-    
     measurement_data = {
         "username": current_user,
         "datum": datum.strftime('%Y-%m-%d'),
@@ -372,25 +369,32 @@ def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
         "comments": comments
     }
 
-    # Überprüfen Sie, ob diese Messung bereits existiert
-    if not any(m for m in st.session_state['measurements'] if m == measurement_data):
-        st.session_state['measurements'].append(measurement_data)
+    existing_measurement = st.session_state['measurements'][
+        (st.session_state['measurements']['username'] == current_user) &
+        (st.session_state['measurements']['datum'] == measurement_data['datum']) &
+        (st.session_state['measurements']['uhrzeit'] == measurement_data['uhrzeit']) &
+        (st.session_state['measurements']['systolic'] == measurement_data['systolic']) &
+        (st.session_state['measurements']['diastolic'] == measurement_data['diastolic']) &
+        (st.session_state['measurements']['pulse'] == measurement_data['pulse']) &
+        (st.session_state['measurements']['comments'] == measurement_data['comments'])
+    ]
+
+    if existing_measurement.empty:
+        st.session_state['measurements'] = st.session_state['measurements'].append(measurement_data, ignore_index=True)
         save_measurements_to_github()
         st.success("Messungen erfolgreich gespeichert!")
     else:
         st.warning("Diese Messung wurde bereits hinzugefügt.")
 
 def save_measurements_to_github():
-    measurement_list = st.session_state.get('measurements', [])
-    measurement_df = pd.DataFrame(measurement_list)
+    measurement_df = st.session_state['measurements']
     
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
 
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
-        updated_csv = measurement_df.to_csv(index=False)
-        repo.update_file(contents.path, "Update measurement data", updated_csv, contents.sha)
+        repo.update_file(contents.path, "Update measurement data", measurement_df.to_csv(index=False), contents.sha)
     except Exception as e:
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", measurement_df.to_csv(index=False))
 
@@ -437,11 +441,12 @@ def load_measurement_data():
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
-        return data[data['username'] == current_user]
+        user_data = data[data['username'] == current_user]  # Filtern nach aktuellem Benutzer
+        st.session_state['measurements'] = user_data
+        return user_data
     except Exception as e:
         st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
-        return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
-
+        return pd.DataFrame(columns=MEASUREMENTS_DATA_COLUMNS)  # Leerer DataFrame im Fehlerfall
 
 def show_measurement_history_weekly():
     display_logo()
@@ -460,12 +465,11 @@ def show_measurement_history_weekly():
     start_date, end_date = get_start_end_dates_from_week_number(year_to_view, week_number)
     st.write(f"Anzeigen der Messungen für die Woche vom {start_date} bis {end_date}")
 
-    measurement_data = load_measurement_data()
+    measurement_data = st.session_state['measurements']
 
     if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
         
-        # Überprüfen Sie die Spaltennamen
         if 'datum' in weekly_data.columns and 'uhrzeit' in weekly_data.columns:
             weekly_data = weekly_data.rename(columns={
                 'datum': 'Datum',
