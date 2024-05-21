@@ -1,4 +1,7 @@
 # Blutdruck-Tracker
+
+Cardiocheck soll eine App sein die den Patienten/ Usern hilft ihre gemessenen Blutdruckwerte zu tracken und zu analysieren. Zusatzfunktionen der App, wie das Tracken der Bewegung, einen Medikamentenplan oder Notfallnummern sollen zusätzlich die App etwas attraktiver machen.
+
 Patientenprofil
 
 •	Vorname, Name
