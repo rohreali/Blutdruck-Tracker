@@ -965,12 +965,12 @@ def create_fitness_pdf(fitness_data):
     data = [["Datum", "Uhrzeit", "Dauer", "Intensität", "Art", "Kommentare"]]
     for index, row in fitness_data.iterrows():
         data.append([
-            row.get('datum', 'N/A'),  # Use .get with a default value
-            row.get('uhrzeit', 'N/A'), 
-            row.get('dauer', 'N/A'), 
-            row.get('intensitaet', 'N/A'),  # Use .get for optional fields
-            row.get('art', 'N/A'), 
-            row.get('kommentare', 'N/A')  # Provide a default value
+            row['Datum'], 
+            row['Uhrzeit'], 
+            row['Dauer'], 
+            row['Intensitaet'], 
+            row['Art'], 
+            row['Kommentare'] or ""
         ])
 
     # Create the table with the data
