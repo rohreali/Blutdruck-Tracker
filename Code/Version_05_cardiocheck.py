@@ -801,17 +801,23 @@ def back_to_home():
 def add_fitness_activity(username, datum, uhrzeit, dauer, intensitaet, art, kommentare):
     if 'fitness_activities' not in st.session_state:
         st.session_state['fitness_activities'] = []
+    
     new_activity = {
         'username': username,
-        'Datum': datum.strftime('%Y-%m-%d'),
-        'Uhrzeit': uhrzeit.strftime('%H:%M:%S'),
-        'Dauer': dauer,
-        'Intensitaet': intensitaet,
-        'Art': art,
-        'Kommentare': kommentare
+        'datum': datum.strftime('%Y-%m-%d'),
+        'uhrzeit': uhrzeit.strftime('%H:%M:%S'),
+        'dauer': dauer,
+        'intensitaet': intensitaet,
+        'art': art,
+        'kommentare': kommentare
     }
-    st.session_state['fitness_activities'].append(new_activity)
-    save_fitness_data_to_github()
+
+    # Überprüfen, ob diese Aktivität bereits existiert
+    if new_activity not in st.session_state['fitness_activities']:
+        st.session_state['fitness_activities'].append(new_activity)
+        save_fitness_data_to_github()
+    else:
+        st.warning("Diese Aktivität wurde bereits hinzugefügt.")
 
 def save_fitness_data_to_github():
     fitness_list = st.session_state['fitness_activities']
@@ -822,12 +828,31 @@ def save_fitness_data_to_github():
 
     try:
         contents = repo.get_contents(FITNESS_DATA_FILE)
-        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + fitness_df.to_csv(index=False)
+        updated_csv = fitness_df.to_csv(index=False)
         repo.update_file(contents.path, "Update fitness data", updated_csv, contents.sha)
-        st.success('Fitness data updated on GitHub successfully!')
+        st.success('Fitnessdaten erfolgreich auf GitHub aktualisiert!')
     except Exception as e:
         repo.create_file(FITNESS_DATA_FILE, "Create fitness data file", fitness_df.to_csv(index=False))
-        st.success('Fitness CSV created on GitHub successfully!')
+        st.success('Fitness CSV erfolgreich auf GitHub erstellt!')
+
+def load_fitness_data():
+    repo = init_github()
+    current_user = st.session_state.get('current_user')
+    try:
+        contents = repo.get_contents(FITNESS_DATA_FILE)
+        csv_content = contents.decoded_content.decode("utf-8")
+        data = pd.read_csv(StringIO(csv_content))
+        
+        # Filtern der Daten, um nur die des aktuellen Benutzers anzuzeigen
+        user_data = data[data['username'] == current_user]
+        
+        # Entfernen von Duplikaten
+        user_data = user_data.drop_duplicates(subset=["datum", "uhrzeit", "dauer", "intensitaet", "art", "kommentare"])
+        
+        return user_data
+    except Exception as e:
+        st.error(f"Fehler beim Laden der Fitnessdaten: {str(e)}")
+        return pd.DataFrame()
 
 def show_fitness():
     display_logo()
@@ -864,17 +889,6 @@ def show_fitness():
 
     elif choice == "History":
         show_fitness_history()
-
-def load_fitness_data():
-    repo = init_github()
-    try:
-        contents = repo.get_contents(FITNESS_DATA_FILE)
-        csv_content = contents.decoded_content.decode("utf-8")
-        data = pd.read_csv(StringIO(csv_content))
-        return data
-    except Exception as e:
-        st.error(f"Fehler beim Laden der Fitnessdaten: {str(e)}")
-        return pd.DataFrame()
 
 def get_start_end_dates_from_week_number(year, week_number):
     """Returns the start and end dates of the given week number for the given year."""
