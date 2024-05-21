@@ -846,6 +846,9 @@ def load_fitness_data():
         # Filtern der Daten, um nur die des aktuellen Benutzers anzuzeigen
         user_data = data[data['username'] == current_user]
         
+        # Überprüfen Sie die Spaltennamen
+        st.write("Spaltennamen des geladenen DataFrames:", user_data.columns.tolist())
+        
         # Entfernen von Duplikaten
         user_data = user_data.drop_duplicates(subset=["datum", "uhrzeit", "dauer", "intensitaet", "art", "kommentare"])
         
@@ -952,6 +955,9 @@ def show_fitness_history():
         st.write("Keine Daten zum Herunterladen verfügbar.")
 
 def create_fitness_pdf(fitness_data):
+    # Überprüfen Sie die Spaltennamen des DataFrames
+    st.write("Spaltennamen des DataFrames:", fitness_data.columns.tolist())
+    
     pdf_buffer = BytesIO()
     doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
     elements = []
@@ -965,12 +971,12 @@ def create_fitness_pdf(fitness_data):
     data = [["Datum", "Uhrzeit", "Dauer", "Intensität", "Art", "Kommentare"]]
     for index, row in fitness_data.iterrows():
         data.append([
-            row['datum'],  # Make sure the column names are correctly referenced
-            row['uhrzeit'], 
-            row['dauer'], 
-            row.get('intensitaet', ''),  # Use .get for optional fields
-            row.get('art', ''), 
-            row.get('kommentare', '')  # Provide a default empty string if key might not exist
+            row.get('datum', 'N/A'),  # Use .get with a default value
+            row.get('uhrzeit', 'N/A'), 
+            row.get('dauer', 'N/A'), 
+            row.get('intensitaet', 'N/A'),  # Use .get for optional fields
+            row.get('art', 'N/A'), 
+            row.get('kommentare', 'N/A')  # Provide a default value
         ])
 
     # Create the table with the data
