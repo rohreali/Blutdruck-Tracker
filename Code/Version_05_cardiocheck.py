@@ -1093,19 +1093,22 @@ def show_info_pages():
     # Funktion zum Lesen des Textes aus der Datei
     def read_text_from_file(filename):
         base_path = os.path.dirname(__file__)  # Basispfad für relative Pfade
-        filepath = os.path.join(base_path, "Code", filename)  # Pfad zur Datei
+        filepath = os.path.join(base_path, filename)  # Pfad zur Datei
         encodings = ['utf-8', 'ISO-8859-1']  # Verschiedene Zeichenformate ausprobieren
         for encoding in encodings:
             try:
                 with open(filepath, "r", encoding=encoding) as file:
                     return file.read()
+            except FileNotFoundError as e:
+                st.error(f"Datei nicht gefunden: {filepath}")
+                raise e
             except UnicodeDecodeError:
                 continue
         st.error("Fehler beim Lesen der Datei. Bitte überprüfen Sie das Zeichenformat.")
         return ""
 
-    blutdruck_info = read_text_from_file("blutdruck_info.txt")
-    bewegung_blutdruck_info = read_text_from_file("bewegung_blutdruck_info.txt")
+    blutdruck_info = read_text_from_file("Code/blutdruck_info.txt")
+    bewegung_blutdruck_info = read_text_from_file("Code/bewegung_blutdruck_info.txt")
 
     if info_options == "Blutdruck":
         st.markdown("### Informationen zum Blutdruck")
@@ -1116,6 +1119,7 @@ def show_info_pages():
 
     elif st.session_state['page'] == 'infos':
         show_info_pages()
+
 # Infotexte fertig
 
 # Display pages based on session state
