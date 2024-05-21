@@ -1,4 +1,3 @@
-# Import necessary libraries
 import streamlit as st
 import datetime
 from datetime import datetime, timedelta
@@ -37,7 +36,6 @@ EMERGENCY_NUMBERS_FILE = "emergency_numbers.csv"
 EMERGENCY_NUMBERS_COLUMNS = ["username", "type", "number"]
 
 #alles zu Login, Registrierung und Home Bildschirm
-
 
 def display_logo(in_sidebar=False):
     base_path = os.path.dirname(__file__)  # Basispfad für relative Pfade
@@ -301,10 +299,7 @@ def show_home_screen():
         </style>
     """, unsafe_allow_html=True)
 
-
-#hier Registrierung beendet
-
-#hier kommt der Code für Profil (fertig)
+#hier kommt der Code für Profil 
 
 def show_profile():
     display_logo()
@@ -432,9 +427,6 @@ def show_add_measurement_form():
             else:
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
 
-
-
-
 def load_measurement_data():
     repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
     current_user = st.session_state.get('current_user')
@@ -447,7 +439,6 @@ def load_measurement_data():
     except Exception as e:
         st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
         return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
-
 
 def show_measurement_history_weekly():
     display_logo()
@@ -508,9 +499,6 @@ def show_measurement_history_weekly():
         )
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
-
-
-
 
 def show_trend_analysis():
     display_logo()
@@ -679,7 +667,6 @@ def show_medication_plan():
             back_to_home()
         show_medication_list()
 
-
 def load_medication_data():
     current_user = st.session_state.get('current_user')
     if current_user is None:
@@ -696,7 +683,6 @@ def load_medication_data():
     except Exception as e:
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
         return pd.DataFrame()
-
 
 def show_medication_list():
     st.title('Medikamentenplan')
@@ -856,7 +842,6 @@ def show_fitness():
     elif choice == "History":
         show_fitness_history()
 
-
 def load_fitness_data():
     repo = init_github()
     try:
@@ -964,9 +949,6 @@ def create_fitness_pdf(fitness_data):
     pdf_buffer.seek(0)
     return pdf_buffer
 
-
-
-
 # Notfallnummern
 def go_to_home():
     st.session_state['page'] = 'home_screen'
@@ -1072,9 +1054,6 @@ def show_emergency_numbers():
                 if number and (number != current_numbers.get(number_type)):
                     add_emergency_number(current_user, number_type, number)
             st.experimental_rerun()  # Neu laden der Seite zur Aktualisierung der angezeigten Daten
-
-
-
 
 #Info- Page
 def go_to_home():
