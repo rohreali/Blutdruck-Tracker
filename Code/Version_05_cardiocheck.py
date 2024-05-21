@@ -459,15 +459,31 @@ def show_measurement_history_weekly():
 
     if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
-        st.table(weekly_data)
+        st.write("Gefilterte Messdaten für diese Woche:")
+        st.write(weekly_data)  # Debugging-Ausgabe, um die Daten anzuzeigen
 
-        pdf_file = create_measurement_pdf(weekly_data)
-        st.download_button(
-            label="Download Messdaten PDF",
-            data=pdf_file,
-            file_name="messdaten.pdf",
-            mime='application/pdf'
-        )
+        # Überprüfen Sie die Spaltennamen
+        if 'datum' in weekly_data.columns and 'uhrzeit' in weekly_data.columns:
+            weekly_data = weekly_data.rename(columns={
+                'datum': 'Datum',
+                'uhrzeit': 'Uhrzeit',
+                'systolic': 'Systolisch',
+                'diastolic': 'Diastolisch',
+                'pulse': 'Puls',
+                'comments': 'Kommentare'
+            })
+
+            st.table(weekly_data)
+
+            pdf_file = create_measurement_pdf(weekly_data)
+            st.download_button(
+                label="Download Messdaten PDF",
+                data=pdf_file,
+                file_name="messdaten.pdf",
+                mime='application/pdf'
+            )
+        else:
+            st.error("Die erwarteten Spalten 'datum' und 'uhrzeit' sind nicht in den Daten vorhanden.")
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
 
@@ -541,6 +557,9 @@ def create_measurement_pdf(measurement_data):
     elements.append(title)
 
     # Überprüfen Sie die Spaltennamen
+    st.write("Erstellen von PDF mit folgenden Daten:")
+    st.write(measurement_data)  # Debugging-Ausgabe, um die Daten anzuzeigen
+
     data = [["Datum", "Uhrzeit", "Systolisch", "Diastolisch", "Puls", "Kommentare"]]
     for index, row in measurement_data.iterrows():
         data.append([
