@@ -371,9 +371,14 @@ def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
         "pulse": pulse,
         "comments": comments
     }
-    st.session_state['measurements'].append(measurement_data)
-    save_measurements_to_github()
-    st.success("Messungen erfolgreich gespeichert!")
+
+    # Überprüfen Sie, ob diese Messung bereits existiert
+    if not any(m for m in st.session_state['measurements'] if m == measurement_data):
+        st.session_state['measurements'].append(measurement_data)
+        save_measurements_to_github()
+        st.success("Messungen erfolgreich gespeichert!")
+    else:
+        st.warning("Diese Messung wurde bereits hinzugefügt.")
 
 def save_measurements_to_github():
     measurement_list = st.session_state.get('measurements', [])
@@ -459,9 +464,7 @@ def show_measurement_history_weekly():
 
     if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
-        st.write("Gefilterte Messdaten für diese Woche:")
-        st.write(weekly_data)  # Debugging-Ausgabe, um die Daten anzuzeigen
-
+        
         # Überprüfen Sie die Spaltennamen
         if 'datum' in weekly_data.columns and 'uhrzeit' in weekly_data.columns:
             weekly_data = weekly_data.rename(columns={
@@ -473,7 +476,7 @@ def show_measurement_history_weekly():
                 'comments': 'Kommentare'
             })
 
-            st.table(weekly_data)
+            st.table(weekly_data)  # Zeigen Sie nur die umbenannte Tabelle an
 
             pdf_file = create_measurement_pdf(weekly_data)
             st.download_button(
@@ -556,10 +559,6 @@ def create_measurement_pdf(measurement_data):
     title = Paragraph("Messdaten Report", styles['Title'])
     elements.append(title)
 
-    # Überprüfen Sie die Spaltennamen
-    st.write("Erstellen von PDF mit folgenden Daten:")
-    st.write(measurement_data)  # Debugging-Ausgabe, um die Daten anzuzeigen
-
     data = [["Datum", "Uhrzeit", "Systolisch", "Diastolisch", "Puls", "Kommentare"]]
     for index, row in measurement_data.iterrows():
         data.append([
@@ -587,7 +586,6 @@ def create_measurement_pdf(measurement_data):
     doc.build(elements)
     pdf_buffer.seek(0)
     return pdf_buffer
-
 
 #hier alles zu Messungen fertig
 
