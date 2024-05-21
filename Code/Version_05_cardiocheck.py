@@ -846,9 +846,6 @@ def load_fitness_data():
         # Filtern der Daten, um nur die des aktuellen Benutzers anzuzeigen
         user_data = data[data['username'] == current_user]
         
-        # Überprüfen Sie die Spaltennamen
-        st.write("Spaltennamen des geladenen DataFrames:", user_data.columns.tolist())
-        
         # Entfernen von Duplikaten
         user_data = user_data.drop_duplicates(subset=["datum", "uhrzeit", "dauer", "intensitaet", "art", "kommentare"])
         
@@ -955,9 +952,6 @@ def show_fitness_history():
         st.write("Keine Daten zum Herunterladen verfügbar.")
 
 def create_fitness_pdf(fitness_data):
-    # Überprüfen Sie die Spaltennamen des DataFrames
-    st.write("Spaltennamen des DataFrames:", fitness_data.columns.tolist())
-    
     pdf_buffer = BytesIO()
     doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
     elements = []
