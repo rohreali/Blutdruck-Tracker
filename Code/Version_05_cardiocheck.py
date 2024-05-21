@@ -1092,6 +1092,8 @@ def show_info_pages():
 
     # Funktion zum Lesen des Textes aus der Datei
     def read_text_from_file(filename):
+         base_path = os.path.dirname(__file__)  # Basispfad für relative Pfade
+        filepath = os.path.join(base_path, "Code", filename)  # Pfad zur Datei
         encodings = ['utf-8', 'ISO-8859-1']  # Verschiedene Zeichenformate ausprobieren
         for encoding in encodings:
             try:
