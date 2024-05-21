@@ -1107,8 +1107,8 @@ def show_info_pages():
         st.error("Fehler beim Lesen der Datei. Bitte überprüfen Sie das Zeichenformat.")
         return ""
 
-    blutdruck_info = read_text_from_file("Code/blutdruck_info.txt")
-    bewegung_blutdruck_info = read_text_from_file("Code/bewegung_blutdruck_info.txt")
+    blutdruck_info = read_text_from_file("blutdruck_info.txt")
+    bewegung_blutdruck_info = read_text_from_file("bewegung_blutdruck_info.txt")
 
     if info_options == "Blutdruck":
         st.markdown("### Informationen zum Blutdruck")
