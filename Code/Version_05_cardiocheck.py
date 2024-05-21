@@ -136,9 +136,12 @@ def register_user(username, password, name, vorname, geschlecht, geburtstag, gew
 
     # Hinzufügen der neuen Benutzerdaten zum DataFrame
     user_profiles.loc[username] = user_details
-    save_user_profiles_and_upload(user_profiles)
-    st.success("Benutzer erfolgreich registriert!")
-    return True
+    if save_user_profiles_and_upload(user_profiles):
+        st.session_state['users'] = user_profiles  # Benutzerdaten in den Session State laden
+        st.success("Benutzer erfolgreich registriert!")
+        return True
+    else:
+        return False
 
 def verify_login(username, password):
     user_profiles = load_user_profiles()
@@ -158,6 +161,7 @@ def verify_login(username, password):
             return True
     st.error("Incorrect username or password.")
     return False
+    
 def user_interface():
     display_logo()
     st.title('User Registration and Login')
