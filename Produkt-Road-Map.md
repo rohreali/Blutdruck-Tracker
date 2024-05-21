@@ -22,3 +22,5 @@ Version 4.0 – Notfallnummern, Informationstexte
 
 Version 5.0 – Bewegung tracken
 1.	Bewegung tracken (wahrscheinlich eher weglassen)
+
+Es konnte alles gemacht werden. Die App wurde beim Namen Version01 belassen, da wir sonst ein Problem mit der Verknüpfung vom privaten Repo haben.
