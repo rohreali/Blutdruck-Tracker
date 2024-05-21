@@ -70,7 +70,7 @@ def load_user_profiles():
     if os.path.exists(USER_DATA_FILE):
         return pd.read_csv(USER_DATA_FILE, index_col="username")
     return pd.DataFrame(columns=USER_DATA_COLUMNS).set_index("username")
-
+    
 def initialize_session_state():
     if 'page' not in st.session_state:
         st.session_state['page'] = 'home'
