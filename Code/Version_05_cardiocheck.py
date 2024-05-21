@@ -361,8 +361,9 @@ def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     current_user = st.session_state.get('current_user')
     if 'measurements' not in st.session_state:
         st.session_state['measurements'] = []
+    
     measurement_data = {
-        "username": current_user,  # Diese Zeile fehlte
+        "username": current_user,
         "datum": datum.strftime('%Y-%m-%d'),
         "uhrzeit": uhrzeit.strftime('%H:%M'),
         "systolic": systolic,
@@ -372,24 +373,21 @@ def add_measurement(datum, uhrzeit, systolic, diastolic, pulse, comments):
     }
     st.session_state['measurements'].append(measurement_data)
     save_measurements_to_github()
-
+    st.success("Messungen erfolgreich gespeichert!")
 
 def save_measurements_to_github():
     measurement_list = st.session_state.get('measurements', [])
     measurement_df = pd.DataFrame(measurement_list)
-    measurement_df.to_csv(MEASUREMENTS_DATA_FILE, index=False)
-
+    
     g = Github(st.secrets["github"]["token"])
     repo = g.get_repo(f"{st.secrets['github']['owner']}/{st.secrets['github']['repo']}")
 
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
-        updated_csv = contents.decoded_content.decode("utf-8") + "\n" + measurement_df.to_csv(index=False)
+        updated_csv = measurement_df.to_csv(index=False)
         repo.update_file(contents.path, "Update measurement data", updated_csv, contents.sha)
-        st.success('Measurement data updated on GitHub successfully!')
     except Exception as e:
         repo.create_file(MEASUREMENTS_DATA_FILE, "Create measurement data file", measurement_df.to_csv(index=False))
-        st.success('Measurement CSV created on GitHub successfully!')
 
 def show_measurement_options():
     display_logo(in_sidebar=True)
@@ -428,17 +426,17 @@ def show_add_measurement_form():
                 st.error("Sie sind nicht angemeldet. Bitte melden Sie sich an, um Messungen zu speichern.")
 
 def load_measurement_data():
-    repo = init_github()  # Stellen Sie sicher, dass diese Funktion korrekt initialisiert ist
+    repo = init_github()
     current_user = st.session_state.get('current_user')
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
         data = pd.read_csv(StringIO(csv_content))
-        # Filtern der Daten, um nur die des aktuellen Benutzers anzuzeigen
         return data[data['username'] == current_user]
     except Exception as e:
         st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
         return pd.DataFrame()  # Gibt leeren DataFrame zurück, wenn Fehler auftritt
+
 
 def show_measurement_history_weekly():
     display_logo()
@@ -461,36 +459,9 @@ def show_measurement_history_weekly():
 
     if not measurement_data.empty:
         weekly_data = measurement_data[(measurement_data['datum'] >= str(start_date)) & (measurement_data['datum'] <= str(end_date))]
+        st.table(weekly_data)
 
-        # Dictionary zum Sammeln der Messungen für jeden Wochentag initialisieren
-        daily_measurements = {day: [] for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']}
-
-        # Messungen nach Wochentagen gruppieren
-        for activity in weekly_data.itertuples():
-            activity_date = datetime.strptime(activity.datum, '%Y-%m-%d').date()
-            day_name = activity_date.strftime("%a")
-            daily_measurements[day_name].append(activity)
-
-        # DataFrame für die Anzeige vorbereiten
-        df_week = pd.DataFrame()
-
-        # Messungen für jeden Wochentag in den DataFrame einfügen
-        for day, measurements in daily_measurements.items():
-            day_data = pd.DataFrame([{
-                'Datum': measurement.datum,
-                'Uhrzeit': measurement.uhrzeit,
-                'Systolisch': measurement.systolic,
-                'Diastolisch': measurement.diastolic,
-                'Puls': measurement.pulse,
-                'Kommentare': measurement.comments
-            } for measurement in measurements])
-            df_week = pd.concat([df_week, day_data], ignore_index=True)
-
-        # DataFrame anzeigen
-        st.table(df_week)
-
-        # Code für den Download-Button
-        pdf_file = create_measurement_pdf(df_week)
+        pdf_file = create_measurement_pdf(weekly_data)
         st.download_button(
             label="Download Messdaten PDF",
             data=pdf_file,
