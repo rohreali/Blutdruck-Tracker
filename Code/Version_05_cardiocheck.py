@@ -705,7 +705,7 @@ def load_medication_data():
         return user_medication_data
     except Exception as e:
         st.error(f"Fehler beim Laden der Medikamentendaten: {str(e)}")
-        return pd.DataFrame(
+        return pd.DataFrame()
 
 def show_medication_list():
     st.title('Medikamentenplan')
