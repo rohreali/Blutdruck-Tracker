@@ -825,15 +825,18 @@ def save_fitness_data_to_github():
     fitness_df.to_csv(FITNESS_DATA_FILE, index=False)
 
     repo = init_github()
-
+    
     try:
         contents = repo.get_contents(FITNESS_DATA_FILE)
-        updated_csv = fitness_df.to_csv(index=False)
+        existing_data = pd.read_csv(StringIO(contents.decoded_content.decode("utf-8")))
+        updated_data = pd.concat([existing_data, fitness_df]).drop_duplicates()
+        updated_csv = updated_data.to_csv(index=False)
         repo.update_file(contents.path, "Update fitness data", updated_csv, contents.sha)
         st.success('Fitnessdaten erfolgreich auf GitHub aktualisiert!')
     except Exception as e:
         repo.create_file(FITNESS_DATA_FILE, "Create fitness data file", fitness_df.to_csv(index=False))
         st.success('Fitness CSV erfolgreich auf GitHub erstellt!')
+
 
 def load_fitness_data():
     repo = init_github()
