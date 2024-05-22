@@ -12,6 +12,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
+import plotly.graph_objs as go
 from io import BytesIO
 
 # Konstanten
@@ -521,47 +522,47 @@ def show_trend_analysis():
         back_to_home()
     st.title('Trendanalyse der Messwerte')
 
-    # Laden der Messdaten für den angemeldeten Nutzer
-    measurement_data = load_measurement_data()
-    user_measurements = measurement_data[measurement_data['username'] == current_user]
+    # Zeitraumauswahl
+    period = st.selectbox("Zeitraum auswählen:", ["Wöchentlich", "Monatlich", "Jährlich"])
+    year = st.number_input("Jahr auswählen:", min_value=2020, max_value=datetime.now().year, value=datetime.now().year)
 
-    if user_measurements.empty:
-        st.write("Es liegen keine Messdaten zur Analyse vor.")
+    # Zeitraum spezifische Eingaben
+    if period == "Wöchentlich":
+        week = st.number_input("Kalenderwoche:", min_value=1, max_value=53, value=datetime.now().isocalendar()[1])
+        start_date, end_date = get_start_end_dates_from_week_number(year, week)
+    elif period == "Monatlich":
+        month = st.number_input("Monat:", min_value=1, max_value=12, value=datetime.now().month)
+        start_date = datetime(year, month, 1)
+        end_date = start_date + timedelta(days=(calendar.monthrange(year, month)[1] - 1))
+    else:
+        start_date = datetime(year, 1, 1)
+        end_date = datetime(year, 12, 31)
+
+    # Messdaten laden
+    measurement_data = load_measurement_data()
+    if measurement_data.empty:
+        st.write("Keine Messdaten verfügbar.")
         return
 
-    # Umwandeln der Datums- und Zeitangaben in Python datetime Objekte für die Analyse
-    user_measurements['datetime'] = pd.to_datetime(user_measurements['datum'] + ' ' + user_measurements['uhrzeit'])
+    # Filtern der Daten
+    measurement_data['datetime'] = pd.to_datetime(measurement_data['datum'] + ' ' + measurement_data['uhrzeit'])
+    filtered_data = measurement_data[(measurement_data['datetime'] >= start_date) & (measurement_data['datetime'] <= end_date)]
 
-    # Datentypen der Messwerte sicherstellen
-    user_measurements['systolic'] = pd.to_numeric(user_measurements['systolic'], errors='coerce')
-    user_measurements['diastolic'] = pd.to_numeric(user_measurements['diastolic'], errors='coerce')
-
-    # Sortieren der Messungen nach Datum und Zeit
-    user_measurements.sort_values(by='datetime', ascending=True, inplace=True)
-
-    # Erstellen der Diagramme für Systolischen Druck, Diastolischen Druck und Puls
+    # Plot erstellen
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['systolic'], mode='lines+markers', name='Systolisch'))
-    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['diastolic'], mode='lines+markers', name='Diastolisch'))
-    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['pulse'], mode='lines+markers', name='Puls'))
+    fig.add_trace(go.Scatter(x=filtered_data['datetime'], y=filtered_data['systolic'], mode='lines+markers', name='Systolisch'))
+    fig.add_trace(go.Scatter(x=filtered_data['datetime'], y=filtered_data['diastolic'], mode='lines+markers', name='Diastolisch'))
+    fig.add_trace(go.Scatter(x=filtered_data['datetime'], y=filtered_data['pulse'], mode='lines+markers', name='Puls'))
 
-    # Hinzufügen von roten Markierungen für alarmierende Werte
-    high_risk = user_measurements[(user_measurements['systolic'] >= 180) | (user_measurements['diastolic'] >= 110)]
-    low_risk = user_measurements[(user_measurements['systolic'] <= 90) | (user_measurements['diastolic'] <= 60)]
+    # Markierungen für kritische Werte
+    critical_high = filtered_data[(filtered_data['systolic'] >= 180) | (filtered_data['diastolic'] >= 110)]
+    critical_low = filtered_data[(filtered_data['systolic'] <= 90) | (filtered_data['diastolic'] <= 60)]
 
-    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['systolic'], mode='markers', name='Hoher Systolischer Wert', marker=dict(color='red', size=10)))
-    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['diastolic'], mode='markers', name='Hoher Diastolischer Wert', marker=dict(color='red', size=10)))
-    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['systolic'], mode='markers', name='Niedriger Systolischer Wert', marker=dict(color='blue', size=10)))
-    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['diastolic'], mode='markers', name='Niedriger Diastolischer Wert', marker=dict(color='blue', size=10)))
+    fig.add_trace(go.Scatter(x=critical_high['datetime'], y=critical_high['systolic'], mode='markers', marker=dict(color='red', size=10), name='Kritisch Hoch'))
+    fig.add_trace(go.Scatter(x=critical_low['datetime'], y=critical_low['systolic'], mode='markers', marker=dict(color='blue', size=10), name='Kritisch Niedrig'))
 
-    # Diagramm Layout anpassen
-    fig.update_layout(title='Trendanalyse der Messwerte über die Zeit',
-                      xaxis_title='Datum und Uhrzeit',
-                      yaxis_title='Messwerte',
-                      legend_title='Messwerte',
-                      margin=dict(l=0, r=0, t=30, b=0))
-
-    # Diagramm anzeigen
+    # Layout-Anpassungen
+    fig.update_layout(title='Trendanalyse der Blutdruckwerte', xaxis_title='Datum', yaxis_title='Werte', legend_title='Parameter')
     st.plotly_chart(fig, use_container_width=True)
 
     st.markdown("""
