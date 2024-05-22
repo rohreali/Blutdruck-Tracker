@@ -12,6 +12,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
+from reportlab.platypus import Image
 from io import BytesIO
 
 # Konstanten
@@ -509,6 +510,29 @@ def show_measurement_history_weekly():
         )
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
+
+def create_trend_analysis_pdf(fig, file_path='trend_analysis.pdf'):
+    pdf_buffer = BytesIO()
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    title = Paragraph("Trendanalyse der Messwerte", styles['Title'])
+    elements.append(title)
+
+    # Umwandlung des Plotly-Diagramms in ein statisches Bild
+    fig_path = 'temp-plot.png'
+    fig.write_image(fig_path)
+    
+    # Bild zum PDF hinzufügen
+    img = Image(fig_path)
+    elements.append(img)
+
+    doc.build(elements)
+    os.remove(fig_path)  # Temporäre Datei löschen
+
+    pdf_buffer.seek(0)
+    return pdf_buffer.getvalue(), file_path
 
 def show_trend_analysis():
     display_logo()
