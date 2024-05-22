@@ -14,6 +14,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 import plotly.io as pio
 from reportlab.platypus import Image
+import kaleido
 from io import BytesIO
 
 # Konstanten
@@ -514,8 +515,8 @@ def show_measurement_history_weekly():
 
 def create_trend_analysis_pdf(fig):
     # Erstelle ein BytesIO Objekt aus dem Plotly-Fig
-    image_stream = BytesIO()
-    fig.write_image(image_stream, format='PNG')
+    image_bytes = fig.to_image(format="png")
+    image_stream = BytesIO(image_bytes)
     image_stream.seek(0)
     
     # PDF erstellen und Bild einbetten
