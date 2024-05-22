@@ -272,6 +272,7 @@ def show_home_screen():
     if st.button("Logout"):
         logout()
 
+# Stilverbesserungen mit CSS
 st.markdown("""
     <style>
     html, body, [class*="css-"] {
@@ -284,14 +285,14 @@ st.markdown("""
         font-size: 20px;
         height: 50px;
         padding: 0.25em 0.5em;
-        background-color: #FF6B6B;  /* Helles Korallenrot */
+        background-color: #FF9A8D;  /* Sanftes Terrakotta */
         border-radius: 5px;
         box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
         cursor: pointer;
     }
     .stButton>button:hover {
-        background-color: #CC5151;  /* Dunkleres Rot */
+        background-color: #E68682;  /* Etwas dunklerer sanfter Rotton */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -303,7 +304,7 @@ def custom_css():
         .reportview-container {
             background: url('https://your-image-url.jpg');
             background-size: cover;
-            background-color: #FFF5F5; /* Sehr helles Rot für den Hintergrund */
+            background-color: #FFF0F0; /* Sehr helles Rosa als Hintergrund */
         }
         .sidebar .sidebar-content {
             background: rgba(255,255,255,0.9);  /* leicht transparenter Weiß für die Sidebar */
