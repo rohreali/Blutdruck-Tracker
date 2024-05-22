@@ -269,7 +269,7 @@ def show_home_screen():
             border: 1px solid #FF807A;
             color: #ffffff;
             font-size: 28px;  /* Erhöhte Schriftgröße für optimale Lesbarkeit */
-            height: 4.3 em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
+            height: 4.5 em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
             padding: 0.25em 0.5em;
             background-color: #FF807A;
             transition: all 0.3s;
