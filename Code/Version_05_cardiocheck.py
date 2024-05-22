@@ -238,10 +238,10 @@ def show_home_screen():
     if current_user in user_profiles.index:
         first_name = user_profiles.at[current_user, 'vorname']
     
-    st.Markdown("#CardioCheck Dashboard")
-    st.title(f"Willkommen, {firt_name}!)
-    st.markdown("### Wähle mit das du heute starten möchtest:")
-
+    st.title(f'Willkommen, {first_name}!')
+    st.markdown("## CardioCheck Dashboard")
+    st.markdown("###Wähle mit was du heute starten möchtest:")
+    
     # Spacer zur besseren Positionierung der Buttons
     st.write("")
 
