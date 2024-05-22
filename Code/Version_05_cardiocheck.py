@@ -233,7 +233,7 @@ home_screen_css = """
     html, body, [class*="css-"] {
         font-family: 'Roboto', sans-serif;  /* Moderne Schriftart */
     }
-    .stButton>button.home-button {
+    .home-button {
         width: 100%;
         border: none;
         color: #ffffff;
@@ -245,10 +245,10 @@ home_screen_css = """
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
     }
-    .stButton>button.home-button:hover {
+    .home-button:hover {
         background-color: #C06A5A;  /* Etwas dunkler beim Hover für visuelles Feedback */
     }
-    .stButton>button.logout-button {
+    .logout-button {
         width: 100%;
         border: none;
         color: #ffffff;
@@ -260,7 +260,7 @@ home_screen_css = """
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
     }
-    .stButton>button.logout-button:hover {
+    .logout-button:hover {
         background-color: #C06A5A;  /* Etwas dunkler beim Hover für visuelles Feedback */
     }
     </style>
@@ -277,11 +277,31 @@ def custom_css():
         .sidebar .sidebar-content {
             background: rgba(255,255,255,0.9);  /* leicht transparenter Weiß für die Sidebar */
         }
+        .home-button-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .logout-button-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
         </style>
     """, unsafe_allow_html=True)
 
 # Rufe diese Funktion am Anfang deiner Streamlit App auf
 custom_css()
+
+# Funktion zum Generieren eines benutzerdefinierten Buttons mit CSS-Klasse
+def custom_button(label, key, button_class):
+    button_code = f"""
+        <div class="{button_class}-wrapper">
+            <button class="{button_class}" onclick="document.getElementById('{key}').click()">{label}</button>
+            <input type="hidden" id="{key}" />
+        </div>
+    """
+    st.markdown(button_code, unsafe_allow_html=True)
+    return st.button("", key=key)
 
 # Display Home Screen
 def show_home_screen():
@@ -298,25 +318,25 @@ def show_home_screen():
     # Erste Zeile der Buttons: Profil, Messungen, Medikamentenplan
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("👤 Mein Profil", key="profile_button", use_container_width=True, help="Zu meinem Profil", css_class="home-button"):
+        if custom_button("👤 Mein Profil", "profile_button", "home-button"):
             st.session_state['page'] = 'profile'
     with col2:
-        if st.button("📊 Messungen", key="measurements_button", use_container_width=True, help="Meine Messungen anzeigen", css_class="home-button"):
+        if custom_button("📊 Messungen", "measurements_button", "home-button"):
             st.session_state['page'] = 'measurements'
     with col3:
-        if st.button("💊 Medikamenten Plan", key="medication_button", use_container_width=True, help="Medikamenten Plan", css_class="home-button"):
+        if custom_button("💊 Medikamenten Plan", "medication_button", "home-button"):
             st.session_state['page'] = 'medication-plan'
 
     # Zweite Zeile der Buttons: Fitness, Notfallnummern, Infotexte
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("💪 Fitness", key="fitness_button", use_container_width=True, help="Meine Fitnessaktivitäten", css_class="home-button"):
+        if custom_button("💪 Fitness", "fitness_button", "home-button"):
             st.session_state['page'] = 'Fitness'
     with col2:
-        if st.button("🆘 Notfall Nr.", key="emergency_button", use_container_width=True, help="Notfallnummern", css_class="home-button"):
+        if custom_button("🆘 Notfall Nr.", "emergency_button", "home-button"):
             st.session_state['page'] = 'emergency_numbers'
     with col3:
-        if st.button("ℹ️ Infos", key="info_button", use_container_width=True, help="Infos", css_class="home-button"):
+        if custom_button("ℹ️ Infos", "info_button", "home-button"):
             st.session_state['page'] = 'infos'
 
     # Abstand vor dem Logout-Button
@@ -326,7 +346,7 @@ def show_home_screen():
     st.write("")
 
     # Logout-Button separat darunter
-    if st.button("🚪 Logout", key="logout_button", use_container_width=True, help="Abmelden", css_class="logout-button"):
+    if custom_button("🚪 Logout", "logout_button", "logout-button"):
         logout()
 #hier kommt der Code für Profil 
 
