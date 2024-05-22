@@ -255,13 +255,13 @@ home_screen_css = """
         font-size: 20px;
         height: 70px;  /* Erhöhte Höhe für besseren Zugang */
         padding: 0.25em 0.5em;
-        background-color: #E27D73;  /* Hellerer und sanfterer Rotton */
+        background-color: #D16A60;  /* Hellerer und sanfterer Rotton */
         border-radius: 10px;  /* Abgerundete Ecken für weicheres Design */
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
     }
     .logout-button:hover {
-        background-color: #D16A60;  /* Etwas dunkler beim Hover für visuelles Feedback */
+        background-color: #E27D73;  /* Etwas dunkler beim Hover für visuelles Feedback */
     }
     </style>
 """
@@ -328,7 +328,6 @@ def show_home_screen():
     # Logout-Button separat darunter
     if st.button("🚪 Logout", key="logout_button", use_container_width=True):
         logout()
-
 #hier kommt der Code für Profil 
 
 def show_profile():
