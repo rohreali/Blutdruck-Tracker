@@ -229,26 +229,32 @@ def logout():
 
 def show_home_screen():
     display_logo()
-    st.title('CardioCheck')
+    user_name = st.session_state.get('current_user', 'Gast')
+    st.title(f'Willkommen, {user_name}!')
     st.markdown("## Willkommen beim CardioCheck Dashboard")
+
+    # Spacer zur besseren Positionierung der Buttons
+    st.write("")
+    st.write("")
+    st.write("")
 
     # Definiert das Layout für die Buttons
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button ("👤 Profil"):
-            st.session_state['page']='profile'
+        if st.button("👤 Profil"):
+            st.session_state['page'] = 'profile'
         if st.button("💪 Fitness"):
-            st.session_state['page']= 'Fitness'
+            st.session_state['page'] = 'Fitness'
     with col2:
         if st.button("📊 Messungen"):
-            st.session_state['page']='measurements'
+            st.session_state['page'] = 'measurements'
         if st.button("🆘 Notfall Nr."):
-            st.session_state['page']='emergency_numbers'
+            st.session_state['page'] = 'emergency_numbers'
     with col3:
         if st.button("💊 Medikamenten Plan"):
-            st.session_state['page']= 'medication-plan'
+            st.session_state['page'] = 'medication-plan'
         if st.button("ℹ️ Infos"):  
-            st.session_state['page']='infos'
+            st.session_state['page'] = 'infos'
 
     # Spacer zur besseren Positionierung des Logout-Buttons
     st.write("")
@@ -269,7 +275,7 @@ def show_home_screen():
             border: 1px solid #FF807A;
             color: #ffffff;
             font-size: 28px;  /* Erhöhte Schriftgröße für optimale Lesbarkeit */
-            height: 4.5 em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
+            height: 4.5em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
             padding: 0.25em 0.5em;
             background-color: #FF807A;
             transition: all 0.3s;
@@ -286,7 +292,6 @@ def show_home_screen():
         }
         </style>
     """, unsafe_allow_html=True)
-
 #hier kommt der Code für Profil 
 
 def show_profile():
