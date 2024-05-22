@@ -1,27 +1,18 @@
 import streamlit as st
-import datetime
 from datetime import datetime, timedelta
 import plotly.graph_objs as go
 import pandas as pd
-from github_contents import GithubContents
 import streamlit_authenticator as stauth
 import os
-import base64
 import requests
 import bcrypt
 from github import Github 
-import csv
 from io import StringIO
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
 from io import BytesIO
-import numpy as np
-import requests
-from PIL import Image
-
 
 # Konstanten
 USER_DATA_FILE = "user_data.csv"
