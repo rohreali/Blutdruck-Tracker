@@ -233,7 +233,7 @@ home_screen_css = """
     html, body, [class*="css-"] {
         font-family: 'Roboto', sans-serif;  /* Moderne Schriftart */
     }
-    .home-button {
+    .stButton>button.home-button {
         width: 100%;
         border: none;
         color: #ffffff;
@@ -245,23 +245,23 @@ home_screen_css = """
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
     }
-    .home-button:hover {
+    .stButton>button.home-button:hover {
         background-color: #D16A60;  /* Etwas dunkler beim Hover für visuelles Feedback */
     }
-    .logout-button {
+    .stButton>button.logout-button {
         width: 100%;
         border: none;
         color: #ffffff;
         font-size: 20px;
         height: 70px;  /* Erhöhte Höhe für besseren Zugang */
         padding: 0.25em 0.5em;
-        background-color: #D16A60;  /* Hellerer und sanfterer Rotton */
+        background-color: #E27D73;  /* Hellerer und sanfterer Rotton */
         border-radius: 10px;  /* Abgerundete Ecken für weicheres Design */
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
     }
-    .logout-button:hover {
-        background-color: #E27D73;  /* Etwas dunkler beim Hover für visuelles Feedback */
+    .stButton>button.logout-button:hover {
+        background-color: #D16A60;  /* Etwas dunkler beim Hover für visuelles Feedback */
     }
     </style>
 """
@@ -298,25 +298,25 @@ def show_home_screen():
     # Erste Zeile der Buttons: Profil, Messungen, Medikamentenplan
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("👤 Mein Profil", key="profile_button", use_container_width=True):
+        if st.button("👤 Mein Profil", key="profile_button", use_container_width=True, help="Zu meinem Profil"):
             st.session_state['page'] = 'profile'
     with col2:
-        if st.button("📊 Messungen", key="measurements_button", use_container_width=True):
+        if st.button("📊 Messungen", key="measurements_button", use_container_width=True, help="Meine Messungen anzeigen"):
             st.session_state['page'] = 'measurements'
     with col3:
-        if st.button("💊 Medikamenten Plan", key="medication_button", use_container_width=True):
+        if st.button("💊 Medikamenten Plan", key="medication_button", use_container_width=True, help="Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
 
     # Zweite Zeile der Buttons: Fitness, Notfallnummern, Infotexte
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("💪 Fitness", key="fitness_button", use_container_width=True):
+        if st.button("💪 Fitness", key="fitness_button", use_container_width=True, help="Meine Fitnessaktivitäten"):
             st.session_state['page'] = 'Fitness'
     with col2:
-        if st.button("🆘 Notfall Nr.", key="emergency_button", use_container_width=True):
+        if st.button("🆘 Notfall Nr.", key="emergency_button", use_container_width=True, help="Notfallnummern"):
             st.session_state['page'] = 'emergency_numbers'
     with col3:
-        if st.button("ℹ️ Infos", key="info_button", use_container_width=True):
+        if st.button("ℹ️ Infos", key="info_button", use_container_width=True, help="Infos"):
             st.session_state['page'] = 'infos'
 
     # Abstand vor dem Logout-Button
@@ -326,7 +326,7 @@ def show_home_screen():
     st.write("")
 
     # Logout-Button separat darunter
-    if st.button("🚪 Logout", key="logout_button", use_container_width=True):
+    if st.button("🚪 Logout", key="logout_button", use_container_width=True, help="Abmelden"):
         logout()
 #hier kommt der Code für Profil 
 
