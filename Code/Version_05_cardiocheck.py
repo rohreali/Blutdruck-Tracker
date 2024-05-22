@@ -294,7 +294,7 @@ def show_home_screen():
 
 def show_profile():
     display_logo()
-    if st.button("Zurück zum Homebildschirm"):  # Dies fügt den Zurück-Button hinzu
+    if st.button("Zurück zum Homebildschirm"):
         back_to_home()
         
     st.title('Profil')
@@ -317,13 +317,20 @@ def show_profile():
 
             # Allow user to update weight and height
             st.markdown("### Aktualisieren Sie Ihr Gewicht und Größe")
-            gewicht = st.number_input("Gewicht (kg)", value=float(user_details['gewicht']) if user_details['gewicht'] else 0, format='%f')
-            groesse = st.number_input("Größe (cm)", value=float(user_details['groesse']) if user_details['groesse'] else 0, format='%f')
-            if st.button("Update"):
-                user_profiles.at[current_user, 'gewicht'] = gewicht
-                user_profiles.at[current_user, 'groesse'] = groesse
-                save_user_profiles_and_upload(user_profiles)
-                st.success("Profil erfolgreich aktualisiert!")
+            new_gewicht = st.number_input("Gewicht (kg)", value=float(user_details['gewicht']) if user_details['gewicht'] else 0, format='%f')
+            new_groesse = st.number_input("Größe (cm)", value=float(user_details['groesse']) if user_details['groesse'] else 0, format='%f')
+            update_button = st.button("Update")
+            if update_button:
+                user_profiles.at[current_user, 'gewicht'] = new_gewicht
+                user_profiles.at[current_user, 'groesse'] = new_groesse
+                if save_user_profiles_and_upload(user_profiles):
+                    # Aktualisieren des Session-Zustands nach dem Hochladen
+                    st.session_state['users'] = user_profiles
+                    st.success("Profil erfolgreich aktualisiert!")
+                    # Rerun the current app to update the display
+                    st.experimental_rerun()
+                else:
+                    st.error("Aktualisierung fehlgeschlagen. Bitte versuchen Sie es erneut.")
         else:
             st.error("Benutzer nicht gefunden.")
     else:
