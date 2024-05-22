@@ -272,29 +272,46 @@ def show_home_screen():
     if st.button("Logout"):
         logout()
 
-    # Anwenden von zusätzlichem CSS für Stilverbesserungen
+st.markdown("""
+    <style>
+    html, body, [class*="css-"] {
+        font-family: 'Roboto', sans-serif;  /* Moderne Schriftart */
+    }
+    .stButton>button {
+        width: 100%;
+        border: none;
+        color: #ffffff;
+        font-size: 20px;
+        height: 50px;
+        padding: 0.25em 0.5em;
+        background-color: #2E86C1;  /* Helles Blau */
+        border-radius: 5px;
+        box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .stButton>button:hover {
+        background-color: #21618C;  /* Dunkleres Blau */
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# Hintergrund und Layout anpassen
+def custom_css():
     st.markdown("""
         <style>
-        .stButton>button {
-            width: 100%;
-            border-radius: 10px;
-            border: 1px solid #FF807A;
-            color: #ffffff;
-            font-size: 20px;  /* Anpassung der Schriftgröße für bessere Lesbarkeit */
-            height: 4em;  /* Erhöhung der Button-Höhe */
-            padding: 0.25em 0.5em;
-            background-color: #FF807A;
-            transition: all 0.3s;
-            cursor: pointer;
-            line-height: 1.6;
+        .reportview-container {
+            background: url('https://your-image-url.jpg');
+            background-size: cover;
         }
-        .stButton>button:hover {
-            border: 1px solid #FF6859;
-            background-color: #FF6859;
+        .sidebar .sidebar-content {
+            background: rgba(255,255,255,0.7);  /* leicht transparenter Weiß für die Sidebar */
         }
         </style>
     """, unsafe_allow_html=True)
 
+# Rufe diese Funktion am Anfang deiner Streamlit App auf
+custom_css()
 
 #hier kommt der Code für Profil 
 
