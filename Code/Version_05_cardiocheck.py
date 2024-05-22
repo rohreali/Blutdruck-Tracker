@@ -230,37 +230,35 @@ def logout():
 def show_home_screen():
     display_logo()
     st.title('CardioCheck')
-    st.markdown("## Willkommen beim CardioCheck Dashboard")
-
-    # Definiert das Layout für die Buttons
+    
+    # Persönliche Begrüßung
+    current_user = st.session_state.get('current_user')
+    if current_user:
+        user_profiles = st.session_state['users']
+        user_details = user_profiles.loc[current_user]
+        st.markdown(f"## Willkommen zurück, {user_details['vorname']}!")
+    
+    # Statusübersicht
+    if current_user and 'measurements' in st.session_state and st.session_state['measurements']:
+        latest_measurement = st.session_state['measurements'][-1]
+        st.markdown(f"### Letzte Messung am {latest_measurement['datum']} um {latest_measurement['uhrzeit']}")
+        st.markdown(f"* Systolisch: {latest_measurement['systolic']} mmHg")
+        st.markdown(f"* Diastolisch: {latest_measurement['diastolic']} mmHg")
+        st.markdown(f"* Puls: {latest_measurement['pulse']} bpm")
+    
+    # Navigationsbuttons
     col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button ("👤 Profil"):
-            st.session_state['page']='profile'
-        if st.button("💪 Fitness"):
-            st.session_state['page']= 'Fitness'
+        if st.button("👤 Mein Profil"):
+            st.session_state['page'] = 'profile'
     with col2:
         if st.button("📊 Messungen"):
-            st.session_state['page']='measurements'
-        if st.button("🆘 Notfall Nr."):
-            st.session_state['page']='emergency_numbers'
+            st.session_state['page'] = 'measurements'
     with col3:
-        if st.button("💊 Medikamenten Plan"):
-            st.session_state['page']= 'medication-plan'
-        if st.button("ℹ️ Infos"):  
-            st.session_state['page']='infos'
+        if st.button("💊 Medikamentenplan"):
+            st.session_state['page'] = 'medication-plan'
 
-    # Spacer zur besseren Positionierung des Logout-Buttons
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-
-    # Logout-Button am unteren Ende der Seite
-    if st.button("🚪 Logout"):
+    if st.button("Logout"):
         logout()
 
     # Anwenden von zusätzlichem CSS für Stilverbesserungen
@@ -283,12 +281,9 @@ def show_home_screen():
             border: 1px solid #FF6859;
             background-color: #FF6859;
         }
-        /* Größere Icons */
-        .stButton>button::before {
-            font-size: 1.5em; /* Größere Icons */
-        }
         </style>
     """, unsafe_allow_html=True)
+
 
 #hier kommt der Code für Profil 
 
