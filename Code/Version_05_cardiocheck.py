@@ -13,6 +13,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
+import plotly.io as pio
+from reportlab.platypus import Image
 from io import BytesIO
 
 # Konstanten
@@ -511,6 +513,31 @@ def show_measurement_history_weekly():
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
 
+def create_trend_analysis_pdf(fig):
+    # Erstelle ein BytesIO Objekt aus dem Plotly-Fig
+    image_stream = BytesIO()
+    fig.write_image(image_stream, format='PNG')
+    image_stream.seek(0)
+    
+    # PDF erstellen und Bild einbetten
+    pdf_buffer = BytesIO()
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    title = Paragraph("Trendanalyse der Messwerte", styles['Title'])
+    elements.append(title)
+    
+    img = Image(image_stream)
+    img.drawHeight = 6*inch  # Beispiel für eine Bildgröße
+    img.drawWidth = 7.5*inch
+    elements.append(img)
+    
+    doc.build(elements)
+    
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
 def show_trend_analysis():
     display_logo()
     # Sicherstellen, dass der Nutzer angemeldet ist
@@ -570,6 +597,15 @@ def show_trend_analysis():
     <p style='color: red;'>Bei extrem hohen Werten über 180/110mmHg oder bei extrem tiefen Werten unter 90/60mmHg handelt es sich um Extremwerte und Sie sollten sofort Ihren Arzt kontaktieren.</p>
     </div>
     """, unsafe_allow_html=True)
+    
+    if st.button("Download Trend Analysis PDF"):
+        pdf_file = create_trend_analysis_pdf(fig)
+        st.download_button(
+            label="Download PDF",
+            data=pdf_file,
+            file_name="trend_analysis.pdf",
+            mime="application/pdf"
+        )
 
 def create_measurement_pdf(measurement_data):
     pdf_buffer = BytesIO()
