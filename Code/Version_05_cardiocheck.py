@@ -285,14 +285,14 @@ st.markdown("""
         font-size: 20px;
         height: 50px;
         padding: 0.25em 0.5em;
-        background-color: #E58A82;  /* Dunklerer Rotton, verbessert den Kontrast */
+        background-color: #D9534F;  /* Farbton vom Logo */
         border-radius: 5px;
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
         cursor: pointer;
     }
     .stButton>button:hover {
-        background-color: #CC7465;  /* Noch dunkler beim Hover, für eine feine Interaktion */
+        background-color: #C9302C;  /* Etwas dunkler für den Hover-Effekt */
     }
     </style>
 """, unsafe_allow_html=True)
