@@ -12,6 +12,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib import colors
+import plotly.io as pio
+from reportlab.platypus import Image
 from io import BytesIO
 
 # Konstanten
@@ -510,18 +512,39 @@ def show_measurement_history_weekly():
     else:
         st.write("Keine Daten zum Herunterladen verfügbar.")
 
+def create_trend_analysis_pdf(fig, filename="trend_analysis.pdf"):
+    # Diagramm als Bild speichern
+    img_path = "temp-plot.png"
+    pio.write_image(fig, img_path)
+    
+    # PDF erstellen und Bild einbetten
+    pdf_buffer = BytesIO()
+    doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    title = Paragraph("Trendanalyse der Messwerte", styles['Title'])
+    elements.append(title)
+    
+    img = Image(img_path)
+    img._restrictSize(500, 300)  # Größenbeschränkung für das Bild
+    elements.append(img)
+    
+    doc.build(elements)
+    os.remove(img_path)  # Temporäres Bild löschen
+    
+    pdf_buffer.seek(0)
+    return pdf_buffer
+
 def show_trend_analysis():
     display_logo()
-    # Sicherstellen, dass der Nutzer angemeldet ist
     current_user = st.session_state.get('current_user')
     if not current_user:
         st.error("Bitte melden Sie sich an, um die Trendanalyse zu sehen.")
         return
-    if st.button('Zurück zum Homebildschirm'):
-        back_to_home()
+    
     st.title('Trendanalyse der Messwerte')
 
-    # Laden der Messdaten für den angemeldeten Nutzer
     measurement_data = load_measurement_data()
     user_measurements = measurement_data[measurement_data['username'] == current_user]
 
@@ -529,46 +552,20 @@ def show_trend_analysis():
         st.write("Es liegen keine Messdaten zur Analyse vor.")
         return
 
-    # Umwandeln der Datums- und Zeitangaben in Python datetime Objekte für die Analyse
-    user_measurements['datetime'] = pd.to_datetime(user_measurements['datum'] + ' ' + user_measurements['uhrzeit'])
-
-    # Datentypen der Messwerte sicherstellen
-    user_measurements['systolic'] = pd.to_numeric(user_measurements['systolic'], errors='coerce')
-    user_measurements['diastolic'] = pd.to_numeric(user_measurements['diastolic'], errors='coerce')
-
-    # Sortieren der Messungen nach Datum und Zeit
-    user_measurements.sort_values(by='datetime', ascending=True, inplace=True)
-
-    # Erstellen der Diagramme für Systolischen Druck, Diastolischen Druck und Puls
+    # Hier die Erstellung des Plotly-Diagramms integrieren
     fig = go.Figure()
+    # Beispielhafte Datenanzeige
     fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['systolic'], mode='lines+markers', name='Systolisch'))
-    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['diastolic'], mode='lines+markers', name='Diastolisch'))
-    fig.add_trace(go.Scatter(x=user_measurements['datetime'], y=user_measurements['pulse'], mode='lines+markers', name='Puls'))
-
-    # Hinzufügen von roten Markierungen für alarmierende Werte
-    high_risk = user_measurements[(user_measurements['systolic'] >= 180) | (user_measurements['diastolic'] >= 110)]
-    low_risk = user_measurements[(user_measurements['systolic'] <= 90) | (user_measurements['diastolic'] <= 60)]
-
-    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['systolic'], mode='markers', name='Hoher Systolischer Wert', marker=dict(color='red', size=10)))
-    fig.add_trace(go.Scatter(x=high_risk['datetime'], y=high_risk['diastolic'], mode='markers', name='Hoher Diastolischer Wert', marker=dict(color='red', size=10)))
-    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['systolic'], mode='markers', name='Niedriger Systolischer Wert', marker=dict(color='blue', size=10)))
-    fig.add_trace(go.Scatter(x=low_risk['datetime'], y=low_risk['diastolic'], mode='markers', name='Niedriger Diastolischer Wert', marker=dict(color='blue', size=10)))
-
-    # Diagramm Layout anpassen
-    fig.update_layout(title='Trendanalyse der Messwerte über die Zeit',
-                      xaxis_title='Datum und Uhrzeit',
-                      yaxis_title='Messwerte',
-                      legend_title='Messwerte',
-                      margin=dict(l=0, r=0, t=30, b=0))
-
-    # Diagramm anzeigen
     st.plotly_chart(fig, use_container_width=True)
 
-    st.markdown("""
-    <div style='background-color: #ffcccc; padding: 10px; border-radius: 5px;'>
-    <p style='color: red;'>Bei extrem hohen Werten über 180/110mmHg oder bei extrem tiefen Werten unter 90/60mmHg handelt es sich um Extremwerte und Sie sollten sofort Ihren Arzt kontaktieren.</p>
-    </div>
-    """, unsafe_allow_html=True)
+    if st.button("Download Trend Analysis PDF"):
+        pdf_file = create_trend_analysis_pdf(fig)
+        st.download_button(
+            label="Download PDF",
+            data=pdf_file.getvalue(),
+            file_name="trend_analysis.pdf",
+            mime="application/pdf"
+        )
 
 def create_measurement_pdf(measurement_data):
     pdf_buffer = BytesIO()
