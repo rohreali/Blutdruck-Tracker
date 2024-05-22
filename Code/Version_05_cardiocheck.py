@@ -240,6 +240,7 @@ def show_home_screen():
     
     st.title(f'Willkommen, {first_name}!')
     st.markdown("## CardioCheck Dashboard")
+    st.markdown("### Wähle mit was du starten möchtest:")
 
     # Spacer zur besseren Positionierung der Buttons
     st.write("")
