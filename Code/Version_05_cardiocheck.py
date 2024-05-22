@@ -438,18 +438,21 @@ def load_measurement_data():
     try:
         contents = repo.get_contents(MEASUREMENTS_DATA_FILE)
         csv_content = contents.decoded_content.decode("utf-8")
-        data = pd.read_csv(StringIO(csv_content))
-        
+        data = pd.read_csv(StringIO(csv_content), parse_dates=[['datum', 'uhrzeit']])
+
         # Filtern der Daten, um nur die des aktuellen Benutzers anzuzeigen
         user_data = data[data['username'] == current_user]
-        
+        user_data['datetime'] = pd.to_datetime(user_data['datum_uhrzeit'])
+        user_data.drop(['datum_uhrzeit'], axis=1, inplace=True)
+
         # Entfernen von Duplikaten
-        user_data = user_data.drop_duplicates(subset=["datum", "uhrzeit", "systolic", "diastolic", "pulse", "comments"])
-        
+        user_data = user_data.drop_duplicates(subset=["datetime", "systolic", "diastolic", "pulse", "comments"])
+
         return user_data
     except Exception as e:
         st.error(f"Fehler beim Laden der Messdaten: {str(e)}")
         return pd.DataFrame()
+
 
 def show_measurement_history_weekly():
     display_logo()
