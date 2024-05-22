@@ -229,9 +229,17 @@ def logout():
 
 def show_home_screen():
     display_logo()
-    user_name = st.session_state.get('current_user', 'Gast')
-    st.title(f'Willkommen, {user_name}!')
-    st.markdown("## Willkommen beim CardioCheck Dashboard")
+    
+    # Holen Sie sich den Vornamen des aktuellen Benutzers
+    user_profiles = st.session_state['users']
+    current_user = st.session_state.get('current_user', 'Gast')
+    first_name = 'Gast'
+    
+    if current_user in user_profiles.index:
+        first_name = user_profiles.at[current_user, 'vorname']
+    
+    st.title(f'Willkommen, {first_name}!')
+    st.markdown("## CardioCheck Dashboard")
 
     # Spacer zur besseren Positionierung der Buttons
     st.write("")
@@ -274,8 +282,8 @@ def show_home_screen():
             border-radius: 10px;
             border: 1px solid #FF807A;
             color: #ffffff;
-            font-size: 28px;  /* Erhöhte Schriftgröße für optimale Lesbarkeit */
-            height: 4.5em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
+            font-size: 24px;  /* Kleinere Schriftgröße für die Buttons */
+            height: 4em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
             padding: 0.25em 0.5em;
             background-color: #FF807A;
             transition: all 0.3s;
@@ -286,7 +294,6 @@ def show_home_screen():
             border: 1px solid #FF6859;
             background-color: #FF6859;
         }
-        /* Größere Icons */
         .stButton>button::before {
             font-size: 1.5em; /* Größere Icons */
         }
