@@ -237,16 +237,8 @@ def show_home_screen():
         user_profiles = st.session_state['users']
         user_details = user_profiles.loc[current_user]
         st.markdown(f"## Willkommen zurück, {user_details['vorname']}!")
-    
-    # Statusübersicht
-    if current_user and 'measurements' in st.session_state and st.session_state['measurements']:
-        latest_measurement = st.session_state['measurements'][-1]
-        st.markdown(f"### Letzte Messung am {latest_measurement['datum']} um {latest_measurement['uhrzeit']}")
-        st.markdown(f"* Systolisch: {latest_measurement['systolic']} mmHg")
-        st.markdown(f"* Diastolisch: {latest_measurement['diastolic']} mmHg")
-        st.markdown(f"* Puls: {latest_measurement['pulse']} bpm")
-    
-    # Navigationsbuttons
+
+    # Erste Zeile der Buttons: Profil, Messungen, Medikamentenplan
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("👤 Mein Profil"):
@@ -255,9 +247,22 @@ def show_home_screen():
         if st.button("📊 Messungen"):
             st.session_state['page'] = 'measurements'
     with col3:
-        if st.button("💊 Medikamentenplan"):
+        if st.button("💊 Medikamenten Plan"):
             st.session_state['page'] = 'medication-plan'
 
+    # Zweite Zeile der Buttons: Fitness, Notfallnummern, Infotexte
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("💪 Fitness"):
+            st.session_state['page'] = 'Fitness'
+    with col2:
+        if st.button("🆘 Notfall Nr."):
+            st.session_state['page'] = 'emergency_numbers'
+    with col3:
+        if st.button("ℹ️ Infos"):
+            st.session_state['page'] = 'infos'
+
+    # Logout-Button separat darunter
     if st.button("Logout"):
         logout()
 
@@ -269,8 +274,8 @@ def show_home_screen():
             border-radius: 10px;
             border: 1px solid #FF807A;
             color: #ffffff;
-            font-size: 28px;  /* Erhöhte Schriftgröße für optimale Lesbarkeit */
-            height: 4.5em;  /* Erhöht die Höhe des Buttons, um den größeren Text aufzunehmen */
+            font-size: 20px;  /* Anpassung der Schriftgröße für bessere Lesbarkeit */
+            height: 3em;  /* Anpassung der Höhe des Buttons */
             padding: 0.25em 0.5em;
             background-color: #FF807A;
             transition: all 0.3s;
@@ -283,7 +288,6 @@ def show_home_screen():
         }
         </style>
     """, unsafe_allow_html=True)
-
 
 #hier kommt der Code für Profil 
 
