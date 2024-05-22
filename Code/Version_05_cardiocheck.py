@@ -284,14 +284,14 @@ st.markdown("""
         font-size: 20px;
         height: 50px;
         padding: 0.25em 0.5em;
-        background-color: #2E86C1;  /* Helles Blau */
+        background-color: #FF6B6B;  /* Helles Korallenrot */
         border-radius: 5px;
         box-shadow: 0 4px 14px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
         cursor: pointer;
     }
     .stButton>button:hover {
-        background-color: #21618C;  /* Dunkleres Blau */
+        background-color: #CC5151;  /* Dunkleres Rot */
     }
     </style>
 """, unsafe_allow_html=True)
@@ -303,9 +303,10 @@ def custom_css():
         .reportview-container {
             background: url('https://your-image-url.jpg');
             background-size: cover;
+            background-color: #FFF5F5; /* Sehr helles Rot für den Hintergrund */
         }
         .sidebar .sidebar-content {
-            background: rgba(255,255,255,0.7);  /* leicht transparenter Weiß für die Sidebar */
+            background: rgba(255,255,255,0.9);  /* leicht transparenter Weiß für die Sidebar */
         }
         </style>
     """, unsafe_allow_html=True)
