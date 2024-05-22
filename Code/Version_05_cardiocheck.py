@@ -239,8 +239,9 @@ def show_home_screen():
         first_name = user_profiles.at[current_user, 'vorname']
     
     st.title(f"CardioCheck Dashboard")
-    st.markdown(f'Willkommen, {first_name}!')
-    st.markdown("### Wähle mit was du starten möchtest:")
+    st.markdown(f"<h1 style='text-align: center;'>Willkommen, {first_name}!</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;'>Wähle, mit was du starten möchtest</h2>", unsafe_allow_html=True)
+
 
     # Spacer zur besseren Positionierung der Buttons
     st.write("")
