@@ -227,74 +227,45 @@ def logout():
     st.session_state['page'] = 'home'
     st.info("Sie wurden erfolgreich ausgeloggt.")        
 
-def show_home_screen():
-    display_logo()
-    st.title('CardioCheck')
-    
-    # Persönliche Begrüßung
-    current_user = st.session_state.get('current_user')
-    if current_user:
-        user_profiles = st.session_state['users']
-        user_details = user_profiles.loc[current_user]
-        st.markdown(f"## Willkommen zurück, {user_details['vorname']}!")
-
-    # Erste Zeile der Buttons: Profil, Messungen, Medikamentenplan
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("👤 Mein Profil"):
-            st.session_state['page'] = 'profile'
-    with col2:
-        if st.button("📊 Messungen"):
-            st.session_state['page'] = 'measurements'
-    with col3:
-        if st.button("💊 Medikamenten Plan"):
-            st.session_state['page'] = 'medication-plan'
-
-    # Zweite Zeile der Buttons: Fitness, Notfallnummern, Infotexte
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("💪 Fitness"):
-            st.session_state['page'] = 'Fitness'
-    with col2:
-        if st.button("🆘 Notfall Nr."):
-            st.session_state['page'] = 'emergency_numbers'
-    with col3:
-        if st.button("ℹ️ Infos"):
-            st.session_state['page'] = 'infos'
-
-    # Abstand vor dem Logout-Button
-    st.write("")
-    st.write("")
-    st.write("")
-    st.write("")
-
-    # Logout-Button separat darunter
-    if st.button("Logout"):
-        logout()
-
-# Stilverbesserungen mit CSS
-st.markdown("""
+# Stilverbesserungen mit CSS nur für Home-Bildschirm
+home_screen_css = """
     <style>
     html, body, [class*="css-"] {
         font-family: 'Roboto', sans-serif;  /* Moderne Schriftart */
     }
-    .stButton>button {
+    .home-button {
         width: 100%;
         border: none;
         color: #ffffff;
         font-size: 20px;
-        height: 60px;  /* Erhöhte Höhe für besseren Zugang */
+        height: 70px;  /* Erhöhte Höhe für besseren Zugang */
         padding: 0.25em 0.5em;
         background-color: #E27D73;  /* Hellerer und sanfterer Rotton */
         border-radius: 10px;  /* Abgerundete Ecken für weicheres Design */
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
     }
-    .stButton>button:hover {
+    .home-button:hover {
+        background-color: #D16A60;  /* Etwas dunkler beim Hover für visuelles Feedback */
+    }
+    .logout-button {
+        width: 100%;
+        border: none;
+        color: #ffffff;
+        font-size: 20px;
+        height: 70px;  /* Erhöhte Höhe für besseren Zugang */
+        padding: 0.25em 0.5em;
+        background-color: #E27D73;  /* Hellerer und sanfterer Rotton */
+        border-radius: 10px;  /* Abgerundete Ecken für weicheres Design */
+        box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+        transition: all 0.3s;
+    }
+    .logout-button:hover {
         background-color: #D16A60;  /* Etwas dunkler beim Hover für visuelles Feedback */
     }
     </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(home_screen_css, unsafe_allow_html=True)
 
 # Hintergrund und Layout anpassen
 def custom_css():
@@ -311,6 +282,52 @@ def custom_css():
 
 # Rufe diese Funktion am Anfang deiner Streamlit App auf
 custom_css()
+
+# Display Home Screen
+def show_home_screen():
+    display_logo()
+    st.title('CardioCheck')
+
+    # Persönliche Begrüßung
+    current_user = st.session_state.get('current_user')
+    if current_user:
+        user_profiles = st.session_state['users']
+        user_details = user_profiles.loc[current_user]
+        st.markdown(f"## Willkommen zurück, {user_details['vorname']}!")
+
+    # Erste Zeile der Buttons: Profil, Messungen, Medikamentenplan
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("👤 Mein Profil", key="profile_button", use_container_width=True):
+            st.session_state['page'] = 'profile'
+    with col2:
+        if st.button("📊 Messungen", key="measurements_button", use_container_width=True):
+            st.session_state['page'] = 'measurements'
+    with col3:
+        if st.button("💊 Medikamenten Plan", key="medication_button", use_container_width=True):
+            st.session_state['page'] = 'medication-plan'
+
+    # Zweite Zeile der Buttons: Fitness, Notfallnummern, Infotexte
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if st.button("💪 Fitness", key="fitness_button", use_container_width=True):
+            st.session_state['page'] = 'Fitness'
+    with col2:
+        if st.button("🆘 Notfall Nr.", key="emergency_button", use_container_width=True):
+            st.session_state['page'] = 'emergency_numbers'
+    with col3:
+        if st.button("ℹ️ Infos", key="info_button", use_container_width=True):
+            st.session_state['page'] = 'infos'
+
+    # Abstand vor dem Logout-Button
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
+
+    # Logout-Button separat darunter
+    if st.button("🚪 Logout", key="logout_button", use_container_width=True):
+        logout()
 
 #hier kommt der Code für Profil 
 
