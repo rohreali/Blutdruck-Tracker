@@ -283,16 +283,15 @@ st.markdown("""
         border: none;
         color: #ffffff;
         font-size: 20px;
-        height: 50px;
+        height: 60px;  /* Erhöhte Höhe für besseren Zugang */
         padding: 0.25em 0.5em;
-        background-color: #D9534F;  /* Farbton vom Logo */
-        border-radius: 5px;
+        background-color: #E27D73;  /* Hellerer und sanfterer Rotton */
+        border-radius: 10px;  /* Abgerundete Ecken für weicheres Design */
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
-        cursor: pointer;
     }
     .stButton>button:hover {
-        background-color: #C9302C;  /* Etwas dunkler für den Hover-Effekt */
+        background-color: #D16A60;  /* Etwas dunkler beim Hover für visuelles Feedback */
     }
     </style>
 """, unsafe_allow_html=True)
