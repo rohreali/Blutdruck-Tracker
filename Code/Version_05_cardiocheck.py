@@ -262,6 +262,12 @@ def show_home_screen():
         if st.button("ℹ️ Infos"):
             st.session_state['page'] = 'infos'
 
+    # Abstand vor dem Logout-Button
+    st.write("")
+    st.write("")
+    st.write("")
+    st.write("")
+
     # Logout-Button separat darunter
     if st.button("Logout"):
         logout()
@@ -275,7 +281,7 @@ def show_home_screen():
             border: 1px solid #FF807A;
             color: #ffffff;
             font-size: 20px;  /* Anpassung der Schriftgröße für bessere Lesbarkeit */
-            height: 3em;  /* Anpassung der Höhe des Buttons */
+            height: 4em;  /* Erhöhung der Button-Höhe */
             padding: 0.25em 0.5em;
             background-color: #FF807A;
             transition: all 0.3s;
@@ -288,6 +294,7 @@ def show_home_screen():
         }
         </style>
     """, unsafe_allow_html=True)
+
 
 #hier kommt der Code für Profil 
 
