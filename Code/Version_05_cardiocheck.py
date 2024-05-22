@@ -272,6 +272,7 @@ def show_home_screen():
     if st.button("Logout"):
         logout()
 
+# Stilverbesserungen mit CSS
 st.markdown("""
     <style>
     html, body, [class*="css-"] {
@@ -284,14 +285,14 @@ st.markdown("""
         font-size: 20px;
         height: 50px;
         padding: 0.25em 0.5em;
-        background-color: #FFB3A7;  /* Sanfter Rotton */
+        background-color: #E58A82;  /* Dunklerer Rotton, verbessert den Kontrast */
         border-radius: 5px;
         box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
         transition: all 0.3s;
         cursor: pointer;
     }
     .stButton>button:hover {
-        background-color: #FF9A8D;  /* Etwas dunklerer Rotton, immer noch sanft */
+        background-color: #CC7465;  /* Noch dunkler beim Hover, für eine feine Interaktion */
     }
     </style>
 """, unsafe_allow_html=True)
